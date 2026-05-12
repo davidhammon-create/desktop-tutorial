@@ -1,6 +1,6 @@
 //
 //  AppShell.swift
-//  Haupt-Navigation. NavigationSplitView auf iPad/Mac, TabView auf iPhone.
+//  Haupt-Navigation für macOS: NavigationSplitView mit Sidebar.
 //
 
 import SwiftUI
@@ -47,39 +47,13 @@ struct AppShell: View {
     @State private var selection: AppRoute? = .home
 
     var body: some View {
-        #if os(iOS)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            phoneTabView
-        } else {
-            splitView
-        }
-        #else
-        splitView
-        #endif
-    }
-
-    private var splitView: some View {
         NavigationSplitView {
             SidebarView(selection: $selection)
+                .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
         } detail: {
             detail(for: selection ?? .home)
         }
-    }
-
-    @ViewBuilder
-    private var phoneTabView: some View {
-        TabView {
-            NavigationStack { HomeView() }
-                .tabItem { Label("Übersicht", systemImage: "house") }
-            NavigationStack { LexaraDashboardView() }
-                .tabItem { Label("LEXARA", systemImage: "rectangle.3.group") }
-            NavigationStack { StrategosView() }
-                .tabItem { Label("Strategos", systemImage: "shield.lefthalf.filled") }
-            NavigationStack { AufgabenView() }
-                .tabItem { Label("Aufgaben", systemImage: "checklist") }
-            NavigationStack { ModulesView() }
-                .tabItem { Label("Module", systemImage: "square.grid.2x2") }
-        }
+        .navigationSplitViewStyle(.balanced)
     }
 
     @ViewBuilder

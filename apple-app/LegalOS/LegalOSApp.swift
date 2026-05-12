@@ -1,6 +1,6 @@
 //
 //  LegalOSApp.swift
-//  LegalOS – Legal-Tech-App für iOS & macOS (Multiplatform)
+//  LegalOS – Legal-Tech-App für macOS
 //
 //  Einstiegspunkt der App. Stellt globale Services per @StateObject
 //  (AuthService, CloudKitService, ClaudeAPIService) zur Verfügung und
@@ -26,15 +26,23 @@ struct LegalOSApp: App {
                 .environmentObject(cloudKit)
                 .environmentObject(claude)
                 .environmentObject(kiProvider)
+                .frame(minWidth: 1100, minHeight: 720)
                 .task {
                     // Beim Start: Login-Status aus Keychain wiederherstellen
                     await auth.restoreSession()
                 }
         }
-        #if os(macOS)
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
-        #endif
+        .commands {
+            CommandGroup(replacing: .newItem) { }
+        }
+
+        Settings {
+            SettingsView()
+                .environmentObject(auth)
+                .environmentObject(claude)
+        }
     }
 }
 
