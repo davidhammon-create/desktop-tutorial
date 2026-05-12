@@ -1,0 +1,118 @@
+{
+  "name": "Argument",
+  "type": "object",
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "title": "Fall ID"
+    },
+    "title": {
+      "type": "string",
+      "title": "Titel"
+    },
+    "description": {
+      "type": "string",
+      "title": "Beschreibung"
+    },
+    "side": {
+      "type": "string",
+      "title": "Seite",
+      "enum": [
+        "eigen",
+        "gegner"
+      ]
+    },
+    "strength": {
+      "type": "number",
+      "title": "St\u00e4rke manuell (0-10)"
+    },
+    "ki_strength": {
+      "type": "number",
+      "title": "St\u00e4rke KI (0-10)"
+    },
+    "ki_reasoning": {
+      "type": "string",
+      "title": "KI Begr\u00fcndung"
+    },
+    "type": {
+      "type": "string",
+      "title": "Typ"
+    },
+    "paragraphs": {
+      "type": "array",
+      "title": "Paragraphen",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "title": "Verkn\u00fcpfte Beweise (IDs)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "connections": {
+      "type": "array",
+      "title": "Verbindungen",
+      "items": {
+        "type": "object"
+      }
+    },
+    "is_contradiction": {
+      "type": "boolean",
+      "title": "Widerspruch"
+    },
+    "zeitpunkt": {
+      "type": "string",
+      "title": "Zeitpunkt der Argumentation (Datum)"
+    },
+    "anmerkungen": {
+      "type": "string",
+      "title": "Anmerkungen (Risiken / Vorteile)"
+    }
+  },
+  "required": [
+    "case_id",
+    "title"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

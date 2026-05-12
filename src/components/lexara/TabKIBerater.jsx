@@ -1,0 +1,386 @@
+import { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { invokeLLM } from "@/lib/kiProvider";
+import { RefreshCw, Info, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+function InfoModal({ title, explanation, formula, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full mx-4" onClick={e=>e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-3">
+          <h4 className="text-sm font-bold text-gray-800">{title}</h4>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+        </div>
+        <p className="text-sm text-gray-600 leading-relaxed mb-3">{explanation}</p>
+        {formula && (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
+            <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Formel / Methodik</p>
+            <code className="text-xs text-blue-800 font-mono whitespace-pre-wrap">{formula}</code>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function InfoBtn({ title, explanation, formula }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className="text-gray-400 hover:text-blue-500 transition-colors ml-1" title="Wie kommt die KI darauf?">
+        <Info className="w-3.5 h-3.5" />
+      </button>
+      {open && <InfoModal title={title} explanation={explanation} formula={formula} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+const EMPTY_PROFIL = { gegner_name:"", gegner_groesse:"", gegner_finanzlage:"", gegner_branche:"", entscheider_name:"", entscheider_alter:"", entscheider_persoenlichkeit:"", entscheider_karriere:"", entscheider_schwaechen:"", anwalt_kanzlei:"", anwalt_bekannt_fuer:"", anwalt_schwaechen:"", verhalten_verhandlung:"", verhalten_taktik:"", verhalten_fehler:"", eigene_staerken:"", eigene_schwaechen:"", ziel_maximal:"", ziel_realistisch:"", ziel_minimal:"", nicht_verhandelbar:"", kontext_oeffentlichkeit:"", kontext_zeitdruck:"", kontext_weitere:"" };
+
+export default function TabKIBerater({ caseId, caseData, onUpdate, kiMode = true }) {
+  const [acknowledged, setAcknowledged] = useState(!!(caseData?.ki_berater_result));
+  const [profil, setProfil] = useState(caseData?.gegner_profil || EMPTY_PROFIL);
+  const [showProfil, setShowProfil] = useState(false);
+  const [result, setResult] = useState(caseData?.ki_berater_result || null);
+  const [loading, setLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState(null);
+  const [args, setArgs] = useState([]);
+
+  useEffect(() => { base44.entities.Argument.filter({case_id:caseId}).then(setArgs); }, [caseId]);
+
+  const runAnalysis = async () => {
+    setLoading(true);
+    setAnalysisError(null);
+    try {
+      const eigene = args.filter(a=>a.side==="eigen");
+      const gegner = args.filter(a=>a.side==="gegner");
+      const res = await invokeLLM({
+        prompt: `Du bist ein erfahrener Großkanzlei-Anwalt auf Senior-Partner-Niveau. Du sprichst direkt wie ein Anwalt — kein Gutachterstil, keine akademischen Einleitungen. Du gibst klare Empfehlungen, benennst Risiken beim Namen und stützt dich auf konkrete §§ (BGB, HGB, AktG, GmbHG, InsO, ZPO, DSGVO, UWG, GWB, ArbR) sowie US-Recht (UCC, common law). Du kombinierst juristische Kompetenz mit Verhandlungsstrategie nach Harvard-Methode, FBI-Taktiken (Voss) und Machiavelli-Prinzipien.
+
+Analysiere diesen Fall vollständig und gib NUR valides JSON zurück (kein Markdown, keine Erklärung außerhalb des JSON).
+
+Fall: ${caseData?.fallname||""} 
+Rechtsgebiet: ${caseData?.rechtsgebiet||""} | Instanz: ${caseData?.instanz||""} | Prognose: ${caseData?.prognose||0}%
+Zentrale Rechtsfrage: ${caseData?.zentrale_rechtsfrage||""}
+Prozessziel: ${caseData?.prozessziel||""}
+Eigene Argumente: ${eigene.map(a=>`${a.title} (${a.strength||5}/10)`).join(", ")||"keine"}
+Gegner-Argumente: ${gegner.map(a=>`${a.title} (${a.strength||5}/10)`).join(", ")||"keine"}
+Gegner-Organisation: ${profil.gegner_name||"unbekannt"} | Branche: ${profil.gegner_branche||""} | Finanzlage: ${profil.gegner_finanzlage||""}
+Entscheider: ${profil.entscheider_name||""} | Persönlichkeit: ${profil.entscheider_persoenlichkeit||""} | Schwächen: ${profil.entscheider_schwaechen||""}
+Gegner-Anwalt: ${profil.anwalt_kanzlei||""} | Bekannt für: ${profil.anwalt_bekannt_fuer||""} | Schwächen: ${profil.anwalt_schwaechen||""}
+Bisheriges Verhalten: ${profil.verhalten_taktik||""} | Fehler: ${profil.verhalten_fehler||""}
+Unsere Stärken: ${profil.eigene_staerken||""} | Schwächen: ${profil.eigene_schwaechen||""}
+Ziele: Max ${profil.ziel_maximal||""} | Realistisch ${profil.ziel_realistisch||""} | Minimal ${profil.ziel_minimal||""} | Nicht verhandelbar: ${profil.nicht_verhandelbar||""}
+Externe Faktoren: ${profil.kontext_zeitdruck||""} ${profil.kontext_oeffentlichkeit||""} ${profil.kontext_weitere||""}
+
+DEINE AUFGABE – erstelle eine vollständige juristische + strategische Analyse:
+
+1. RECHTLICHE EINORDNUNG: Identifiziere alle relevanten Anspruchsgrundlagen (BGB/HGB/ZPO oder US-Recht), Prüfungsaufbau, typische Gegenargumente der Gegenseite und kritische Schwachstellen unserer Position.
+2. ISSUE SPOTTING: Welche rechtlichen Risiken sind noch nicht erfasst? (DD-Lücken, Compliance-Risiken, prozessrechtliche Fallstricke)
+3. PSYCHOLOGISCHES PROFIL des Gegners nach Big Five und Dark Triad.
+4. DRUCKMITTEL: Alle Hebelpunkte (juristische wie außerjuristische).
+5. STRATEGIEOPTIONEN: 3-5 Optionen von kooperativ bis aggressiv, mit Erfolgswahrscheinlichkeit.
+6. TIMING & MOMENTUM: Kritische Zeitfenster, nächster Schritt.
+7. INFORMATIONSSTRATEGIE: Was offenlegen/verbergen/bluffen.
+8. VERHANDLUNGSSKRIPT nach Harvard/FBI/Machiavelli.
+9. COMPLIANCE-CHECK: Gibt es Compliance-, Kartellrecht- oder DSGVO-Risiken im Fall?
+
+JSON-Format:
+{
+  "rechtliche_einordnung": {"anspruchsgrundlagen":["..."],"pruefungsschema":"...","gegner_gegenargumente":["..."],"kritische_schwachstellen":["..."]},
+  "issue_spotting": [{"risiko":"...","kategorie":"...","empfehlung":"...","prioritaet":"hoch"}],
+  "psychologisches_profil": { "big_five": {"Offenheit":7,"Gewissenhaftigkeit":8,"Extraversion":5,"Verträglichkeit":4,"Neurotizismus":6}, "dark_triad": {"Narzissmus":5,"Machiavelismus":6,"Psychopathie":3}, "trigger": [{"trigger":"...","beschreibung":"...","intensitaet":"hoch"}], "empfehlung":"..." },
+  "druckmittel": [{"titel":"...","kategorie":"...","wie_nutzen":"...","timing":"...","risiko":"...","staerke":7}],
+  "strategien": [{"name":"...","stil":"...","schritte":["..."],"risiko":"...","zitat":"...","erfolg_pct":65}],
+  "timing": {"momentum":"...","momentum_pct":60,"zeitfenster":[{"zeitraum":"...","aktion":"..."}],"naechster_schritt":"..."},
+  "informationsstrategie": {"sofort_offenlegen":["..."],"verbergen":["..."],"als_bluff":["..."]},
+  "verhandlungsskript": {"vorbereitung":"...","opening":"...","argumentation":"...","closing":"...","einwand":"...","backup":"...","psycho_notizen":["..."]},
+  "compliance_check": {"risiken":["..."],"empfehlungen":["..."]},
+  "empfehlung":"..."
+}`,
+        model: "claude_sonnet_4_6"
+      });
+      let parsed;
+      if (typeof res === "string") {
+        const match = res.match(/\{[\s\S]*\}/);
+        parsed = JSON.parse(match ? match[0] : res);
+      } else {
+        parsed = res;
+      }
+      if (!parsed || typeof parsed !== "object") {
+        throw new Error("Kein gültiges Ergebnis erhalten.");
+      }
+      setResult(parsed);
+      const updated = await base44.entities.Case.update(caseId, { ki_berater_result: parsed, gegner_profil: profil });
+      onUpdate(updated);
+    } catch (err) {
+      setAnalysisError(`Fehler: ${err?.message || "Unbekannter Fehler. Bitte erneut versuchen."}`);
+    }
+    setLoading(false);
+  };
+
+  if (!acknowledged) {
+    return (
+      <div className="space-y-4 max-w-xl">
+        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-3">⚠️ Rechtshinweis & Vertraulichkeit</h3>
+          <p className="text-sm text-gray-600 mb-4">Diese Analyse dient <strong>ausschließlich der Vorbereitung</strong> auf mögliche gegnerische Taktiken und der Entwicklung legitimer Verhandlungsstrategien.</p>
+          <ul className="space-y-1 text-sm text-gray-600 mb-4">
+            {["Absolut vertraulich (§ 203 StGB Anwaltsgeheimnis)","Keine Anleitung zu unlauteren Methoden (§ 138 ZPO)","Defensive Taktik-Analyse, kein Rechtsbruch","Endverantwortung liegt IMMER beim Anwalt"].map(i=>(
+              <li key={i} className="flex items-center gap-2"><span className="text-gray-400">•</span> {i}</li>
+            ))}
+          </ul>
+          <Button onClick={() => setAcknowledged(true)} className="w-full bg-gray-900 text-white rounded-xl">
+            Verstanden – Strategischen Berater öffnen
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Gegner-Profil */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-4">
+        <button onClick={() => setShowProfil(!showProfil)} className="flex items-center gap-2 text-sm font-semibold text-gray-700 w-full">
+          🎯 Gegner-Profil & Kontext eingeben ({showProfil?"ausblenden":"anzeigen"})
+        </button>
+        {showProfil && (
+          <div className="mt-4 space-y-4">
+            {[["🏢 Gegner-Organisation — Name, Größe, Finanzlage, Branche",[["Name","gegner_name","z.B. ABC GmbH"],["Größe","gegner_groesse","z.B. Mittelstand, 200 MA"],["Finanzlage","gegner_finanzlage","z.B. Liquiditätsprobleme"],["Branche","gegner_branche","z.B. Pharma"]]],["👤 Entscheider (CEO/GF) — Persönlichkeit, Schwächen, Karrierephase",[["Name/Titel","entscheider_name","z.B. Dr. Max Müller (CEO)"],["Alter","entscheider_alter","z.B. 58"],["Persönlichkeit","entscheider_persoenlichkeit","z.B. Dominant, risikoscheu"],["Karrierephase","entscheider_karriere","z.B. Kurz vor Ruhestand"],["Schwächen","entscheider_schwaechen","z.B. Angst vor Medienberichten"]]],["⚖️ Anwalt Gegenseite — Kanzlei, Stärken, Schwächen",[["Kanzlei","anwalt_kanzlei","z.B. Schmidt & Partner"],["Bekannt für","anwalt_bekannt_fuer","z.B. Aggressive Taktik"],["Schwächen","anwalt_schwaechen","z.B. Überzieht oft, Richter genervt"]]],["📋 Bisheriges Verhalten — Verhandlungsbereitschaft, Taktiken, Fehler",[["Verhandlungsbereitschaft","verhalten_verhandlung","z.B. Öffentlich: Null. Privat: Signale"],["Taktik","verhalten_taktik","z.B. Verzögerung, viele Beweisanträge"],["Fehler","verhalten_fehler","z.B. Widerspruch zwischen Schriftsätzen"]]],["💪 Eigene Position — Stärken, Schwächen, Verhandlungsziele",[["Stärken","eigene_staerken","z.B. Klare Beweislage"],["Schwächen","eigene_schwaechen","z.B. Mandant finanziell limitiert"],["Ziel maximal","ziel_maximal","z.B. 500.000€ + Unterlassung"],["Ziel realistisch","ziel_realistisch","z.B. 300.000€"],["Ziel minimal","ziel_minimal","z.B. 150.000€"],["Nicht verhandelbar","nicht_verhandelbar","z.B. Öffentliche Entschuldigung"]]],["🌐 Kontext & Externe Faktoren — Öffentlichkeit, Zeitdruck, Fusionen",[["Öffentlichkeit","kontext_oeffentlichkeit","z.B. Medieninteresse vorhanden"],["Zeitdruck","kontext_zeitdruck","z.B. Fusion in 6 Monaten"],["Weitere Faktoren","kontext_weitere","z.B. Hauptversammlung"]]]].map(([sectionTitle, fields]) => (
+              <div key={sectionTitle}>
+                <p className="text-xs font-semibold text-gray-600 mb-2">{sectionTitle}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {fields.map(([label, field, placeholder]) => (
+                    <div key={field}>
+                      <label className="text-[10px] text-gray-400 block mb-0.5">{label}</label>
+                      <input className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-gray-50" placeholder={placeholder} value={profil[field]||""} onChange={e=>setProfil({...profil,[field]:e.target.value})} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {!kiMode && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
+          <span className="text-lg">✏️</span>
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Manuell-Modus — KI-Analyse deaktiviert</p>
+            <p className="text-xs text-amber-600">Der KI-Berater ist ausgeschaltet. Aktiviere den KI-Modus oben, um die Analyse zu starten.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Analyse-Module */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-4">
+        <h3 className="text-sm font-semibold text-gray-700 mb-4">🎯 Analyse-Module</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          {[["👤","Psychologisches Profil","Big Five + Dark Triad Assessment der Gegenpartei. Identifiziert Trigger, Schwachpunkte und optimalen Verhandlungsansatz.",!!result?.psychologisches_profil],["🎯","Druckmittel-Analyse","Systematische Identifikation aller Schwachstellen: Zeitdruck, Finanzen, Reputation, persönliche Risiken.",!!(result?.druckmittel?.length)],["⚔️","Strategieempfehlungen","3–5 taktische Optionen von kooperativ bis aggressiv. Erfolgswahrscheinlichkeit und Risikoabwägung.",!!(result?.strategien?.length)],["⏰","Timing & Momentum","Optimaler Zeitpunkt für jeden Schritt. Identifiziert kritische Zeitfenster und Schwächephasen des Gegners.",!!result?.timing],["🔒","Informationsstrategie","Was offenlegen, verbergen oder als Bluff nutzen? Ethische Klassifizierung jeder Maßnahme.",!!result?.informationsstrategie],["💬","Verhandlungsskript","Maßgeschneidertes Skript mit FBI-Taktiken (Calibrated Questions) und konkreten Formulierungen.",!!result?.verhandlungsskript]].map(([icon,title,desc,done]) => (
+            <div key={title} className="bg-gray-50 rounded-xl p-3">
+              <div className="text-2xl mb-1">{icon}</div>
+              <p className="text-xs font-semibold text-gray-700">{title}</p>
+              <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">{desc}</p>
+              {done && <p className="text-[10px] text-green-600 mt-1.5">✓ Ergebnis</p>}
+            </div>
+          ))}
+        </div>
+        {kiMode ? (
+          <Button onClick={runAnalysis} disabled={loading} className="w-full bg-gray-900 text-white rounded-xl gap-2">
+            {loading ? <><RefreshCw className="w-4 h-4 animate-spin" /> Analysiere mit KI...</> : "🎯 Vollständige Analyse starten"}
+          </Button>
+        ) : (
+          <div className="text-center py-3 text-sm text-amber-600 bg-amber-50 rounded-xl border border-amber-200">
+            ✏️ KI-Analyse ist im Manuell-Modus deaktiviert
+          </div>
+        )}
+        {analysisError && <p className="text-xs text-red-500 mt-2 text-center">⚠️ {analysisError}</p>}
+        <p className="text-[10px] text-amber-600 text-center mt-2">⚠️ Diese Analyse kann 30–60 Sekunden dauern</p>
+      </div>
+
+      {/* Results */}
+      {result && (
+        <div className="space-y-5">
+          {/* Psychologisches Profil */}
+          {result.psychologisches_profil && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center">👤 Psychologisches Profil – Ergebnis
+                <InfoBtn title="Wie wird das psychologische Profil berechnet?" explanation="Die KI analysiert alle eingegebenen Informationen über den Gegner (Name, Branche, Verhalten, Entscheider-Persönlichkeit) und ordnet diese den wissenschaftlich anerkannten Persönlichkeitsmodellen zu. Das Big Five Modell (OCEAN) bewertet 5 Dimensionen von 1–10. Das Dark Triad Modell erfasst Narzissmus, Machiavelismus und Psychopathie anhand typischer Verhaltensweisen in Verhandlungen. Trigger werden aus Schwächen und bekannten Verhaltensmustern abgeleitet." formula={"Big Five Score (1–10):\nBasiert auf Verhaltenssignalen im Profil.\nz.B. Extraversion hoch → Gegner dominant, öffentlichkeitswirksam\n\nDark Triad (1–10):\nNarzissmus = Ego-Signale / Karrierephase\nMachiavelismus = Taktik-Signale / Verhandlungsverhalten\nPsychopathie = Impulsivitäts-Signale / Fehler-Muster"} />
+              </h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-2">📊 Big Five Analyse</p>
+                  {result.psychologisches_profil.big_five && Object.entries(result.psychologisches_profil.big_five).map(([k,v]) => (
+                    <div key={k} className="flex items-center gap-2 mb-1.5">
+                      <span className="text-xs text-gray-500 w-40">{k}</span>
+                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-red-700 rounded-full" style={{width:`${(v||5)*10}%`}} /></div>
+                      <span className="text-xs text-gray-600">{v||5}/10</span>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-2">🎭 Dark Triad</p>
+                  {result.psychologisches_profil.dark_triad && Object.entries(result.psychologisches_profil.dark_triad).map(([k,v]) => (
+                    <div key={k} className="flex items-center gap-2 mb-1.5">
+                      <span className="text-xs text-gray-500 w-24">{k}</span>
+                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-red-700 rounded-full" style={{width:`${(v||5)*10}%`}} /></div>
+                      <span className="text-xs text-gray-600">{v||5}/10</span>
+                    </div>
+                  ))}
+                  {(result.psychologisches_profil.trigger||[]).length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-gray-600 mb-1">⚡ Psychologische Trigger</p>
+                      {result.psychologisches_profil.trigger.map((t,i) => (
+                        <div key={i} className="text-xs mb-1">
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded mr-1 ${t.intensitaet==="hoch"?"bg-red-100 text-red-600":t.intensitaet==="mittel"?"bg-yellow-100 text-yellow-600":"bg-blue-100 text-blue-600"}`}>{t.intensitaet}</span>
+                          <strong>{t.trigger}</strong>: <span className="text-gray-500">{t.beschreibung}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {result.psychologisches_profil.empfehlung && <p className="text-xs text-gray-600 mt-4 p-3 bg-gray-50 rounded-lg italic">🎯 <strong>Empfohlener Ansatz:</strong> {result.psychologisches_profil.empfehlung}</p>}
+            </div>
+          )}
+
+          {/* Druckmittel */}
+          {(result.druckmittel||[]).length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center">🎯 Druckmittel-Analyse – Ergebnis
+                <InfoBtn title="Wie wird die Druckmittel-Stärke berechnet?" explanation="Die KI identifiziert Hebelpunkte des Gegners aus dem Profil (Finanzlage, Zeitdruck, Reputationsrisiken, persönliche Schwächen). Jedes Druckmittel erhält eine Stärke (1–10) basierend auf: Wie stark trifft es den Gegner? Wie risikolos ist die Anwendung für uns? Wie zeitnah ist es einsetzbar?" formula={"Stärke (1–10) = Gewichtetes Mittel aus:\n  Wirksamkeit (0–10) × 0.5\n+ Risikofreiheit (0–10) × 0.3\n+ Zeitnähe (0–10) × 0.2\n\nBeispiel: Reputationsschaden\nWirksamkeit=8, Risikofreiheit=6, Zeitnähe=9\n→ Stärke = 8×0.5 + 6×0.3 + 9×0.2 = 4+1.8+1.8 = 7.6 ≈ 8"} />
+              </h3>
+              <div className="space-y-3">
+                {result.druckmittel.map((d,i) => (
+                  <div key={i} className="border border-gray-100 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-sm text-gray-800">{d.titel}</span>
+                      {d.staerke && (
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-red-600 rounded-full" style={{width:`${d.staerke*10}%`}} /></div>
+                          <span className="text-xs text-gray-500">{d.staerke}/10</span>
+                        </div>
+                      )}
+                    </div>
+                    {d.kategorie && <p className="text-[10px] text-gray-400 mb-1">{d.kategorie}</p>}
+                    {d.wie_nutzen && <p className="text-xs text-gray-600">→ {d.wie_nutzen}</p>}
+                    {d.timing && <p className="text-xs text-blue-600 mt-1">⏰ {d.timing}</p>}
+                    {d.risiko && <p className="text-xs text-amber-600 mt-0.5">⚠️ {d.risiko}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Timing & Momentum */}
+          {result.timing && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">⏰ Timing & Momentum – Ergebnis
+                <InfoBtn title="Wie wird das Momentum berechnet?" explanation="Das Momentum (0–100%) bewertet, wie günstig der aktuelle Zeitpunkt für unsere Seite ist. Die KI berücksichtigt: externe Faktoren (Fusion, Hauptversammlung, Medieninteresse), den bisherigen Verhandlungsverlauf (Fehler des Gegners, eigene Stärken), und die Prognose (hohe Erfolgsquote = hohes Momentum)." formula={"Momentum (%) = Gewichtetes Mittel:\n  Externe Faktoren-Score × 0.35\n+ Prognose-Score × 0.35\n+ Verhandlungspositions-Score × 0.30\n\nZeitkritische Fenster werden aus Eingaben\n(Fusion, HV, Fristen) direkt abgeleitet."} />
+              </h3>
+              {result.timing.momentum && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-3 mb-1">
+                    <p className="text-xs text-gray-600 flex-1">{result.timing.momentum}</p>
+                    {result.timing.momentum_pct !== undefined && (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-blue-600 rounded-full" style={{width:`${result.timing.momentum_pct}%`}} /></div>
+                        <span className="text-xs text-gray-500">{result.timing.momentum_pct}%</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {(result.timing.zeitfenster||[]).length > 0 && (
+                <div className="space-y-2 mb-3">
+                  <p className="text-xs font-semibold text-gray-600">Kritische Zeitfenster:</p>
+                  {result.timing.zeitfenster.map((z,i) => (
+                    <div key={i} className="bg-gray-50 rounded-lg p-2 text-xs">
+                      {typeof z === "object" ? Object.entries(z).map(([k,v]) => <span key={k} className="mr-3 text-gray-600"><strong>{k}:</strong> {v}</span>) : z}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {result.timing.naechster_schritt && <p className="text-xs text-gray-900 bg-blue-50 rounded-lg p-3">→ <strong>Nächster Schritt:</strong> {result.timing.naechster_schritt}</p>}
+            </div>
+          )}
+
+          {/* Informationsstrategie */}
+          {result.informationsstrategie && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">🔒 Informationsstrategie – Ergebnis
+                <InfoBtn title="Wie klassifiziert die KI die Informationen?" explanation="Die KI bewertet jede Information nach zwei Dimensionen: (1) Schadet die Offenlegung uns? (2) Schwächt das Verbergen den Gegner? Daraus ergibt sich die Einstufung: Sofort offenlegen (stärkt uns, schadet nicht), Verbergen (würde Gegner stärken), Als Bluff nutzen (Gegner glaubt es hat mehr Gewicht als es hat). Ethisch-rechtliche Grenzen (§ 138 ZPO) werden berücksichtigt." formula={"Klassifizierung je Information:\n  Offenlegen: Eigenwert hoch + Kein Schaden > 0.6\n  Verbergen:  Gegnervorteil wenn bekannt > 0.5\n  Bluff:      Wahrnehmungswert >> tatsächlicher Wert\n\nEthik-Filter: Jede Maßnahme wird auf\nVereinbarkeit mit §138 ZPO geprüft."} />
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {[[["sofort_offenlegen","✅ Sofort offenlegen","bg-green-50 border-green-100 text-green-700"],["verbergen","🔒 Verbergen","bg-red-50 border-red-100 text-red-700"],["als_bluff","🎭 Als Bluff nutzen","bg-amber-50 border-amber-100 text-amber-700"]]].flat().map(([key,label,cls]) => (
+                  (result.informationsstrategie[key]||[]).length > 0 && (
+                    <div key={key} className={`rounded-xl border p-3 ${cls}`}>
+                      <p className="text-xs font-semibold mb-2">{label}</p>
+                      <ul className="space-y-1">{(result.informationsstrategie[key]||[]).map((item,i) => <li key={i} className="text-xs">• {item}</li>)}</ul>
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Strategien */}
+          {(result.strategien||[]).length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center">⚔️ Strategieempfehlungen – Ergebnis
+                <InfoBtn title="Wie werden die Erfolgswahrscheinlichkeiten berechnet?" explanation="Die KI berechnet für jede Strategie eine Erfolgswahrscheinlichkeit basierend auf: der algorithmischen Fallprognose, dem psychologischen Profil des Gegners, der Stärke unserer Argumente im Vergleich zur Gegenseite, und dem verfügbaren Timing/Momentum. Jede Strategie wird auf einem Risiko-Nutzen-Spektrum von kooperativ bis aggressiv positioniert." formula={"Erfolg_pct je Strategie =\n  Basis_Prognose (%)\n× Strategie-Profil-Match (0.7–1.3)\n× Druckmittel-Verfügbarkeit (0.8–1.2)\n× Timing-Faktor (0.9–1.1)\n\nBeispiel: Prognose 65% × 1.1 × 1.0 × 1.05 ≈ 75%"} />
+              </h3>
+              <div className="space-y-4">
+                {result.strategien.map((s,i) => (
+                  <div key={i} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h4 className="font-semibold text-gray-800">{s.name}</h4>
+                      <span className="text-xs text-gray-400">{s.erfolg_pct ? `${s.erfolg_pct}% Erfolg` : ""}</span>
+                    </div>
+                    {s.stil && <p className="text-xs text-gray-500 italic mb-2">{s.stil}</p>}
+                    {(s.schritte||[]).map((step,j) => <p key={j} className="text-xs text-gray-600">→ {step}</p>)}
+                    {s.risiko && <p className="text-xs text-amber-600 mt-1">⚠️ Risiko: {s.risiko}</p>}
+                    {s.zitat && <p className="text-xs text-gray-400 italic mt-1">"{s.zitat}"</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Verhandlungsskript */}
+          {result.verhandlungsskript && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center">💬 Verhandlungsskript – Ergebnis
+                <InfoBtn title="Wie wird das Verhandlungsskript generiert?" explanation="Das Skript kombiniert drei wissenschaftliche Ansätze: (1) Harvard-Methode (sachbezogenes Verhandeln, Interessen statt Positionen), (2) FBI-Taktiken nach Chris Voss (Calibrated Questions, Mirroring, Tactical Empathy), (3) Machiavelli-Prinzipien (Machtdynamik, strategisches Framing). Das psychologische Profil des Gegners bestimmt, welche Techniken priorisiert werden." formula={"Skript-Gewichtung nach Gegner-Profil:\n  Hoher Narzissmus → Ego-Framing (Harvard)\n  Hoher Machiavelismus → Gegentaktik (FBI)\n  Hohe Psychopathie → Eskalations-Kontrolle\n\nCalibrierte Fragen (FBI):\n'Wie soll ich das verstehen?' statt direkter Forderung\n→ Gegner gibt Informationen preis ohne Druck zu fühlen"} />
+              </h3>
+              {[["🎯 Vorbereitung","vorbereitung"],["🎬 Opening (Erste Minuten)","opening"],["⚔️ Argumentation","argumentation"],["🤝 Closing","closing"],["📋 Backup Plan","backup"],["💬 Einwandbehandlung","einwand"]].map(([label, key]) => (
+                result.verhandlungsskript[key] ? (
+                  <div key={key} className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-600 mb-1">{label}</h4>
+                    <p className="text-xs text-gray-600 bg-gray-50 rounded-lg p-3">{result.verhandlungsskript[key]}</p>
+                  </div>
+                ) : null
+              ))}
+              {(result.verhandlungsskript.psycho_notizen||[]).length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-600 mb-1">🧠 Psychologische Notizen</h4>
+                  {result.verhandlungsskript.psycho_notizen.map((n,i) => <p key={i} className="text-xs text-gray-600">✓ {n}</p>)}
+                </div>
+              )}
+            </div>
+          )}
+
+          {result.empfehlung && (
+            <div className="bg-gray-900 text-white rounded-2xl p-5">
+              <h3 className="text-sm font-semibold mb-2">🎯 Gesamtempfehlung</h3>
+              <p className="text-sm">{result.empfehlung}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
