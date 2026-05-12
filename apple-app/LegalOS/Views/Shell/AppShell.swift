@@ -77,5 +77,6 @@ struct AppShell: View {
             case .plattform:     PlattformAgentView()
             }
         }
+        // StrategosScenario navigation is handled inside StrategosView's own NavigationStack via .navigationDestination
     }
 }
