@@ -1,0 +1,693 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		34DFA5CAFD20A3B573D55987 /* LegalOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE7660C3A17B81C85132E085 /* LegalOSApp.swift */; };
+		3FDB307F223D1620F4BB608C /* AIPerformanceFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADEB60C6580008EBFBA3080 /* AIPerformanceFeedback.swift */; };
+		F79CF96CB581393D84E3F0F6 /* Argument.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB08CE79889CB7AF0B316BE /* Argument.swift */; };
+		2D05D42BD575FEEDDFD11AAC /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310D50551C3B94EC588463B /* Case.swift */; };
+		3A22338C52F6487582A5A1DD /* CaseFolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163D2A1F86F0DEB59ADBAC63 /* CaseFolder.swift */; };
+		3392DC01A6FE9A5F0A97C037 /* CaseHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB38930C4C347B8257DABFD /* CaseHistory.swift */; };
+		A3125D1EB0188A7948096879 /* CaseQuestionnaire.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A1CA4BBE818F0480F9318E /* CaseQuestionnaire.swift */; };
+		5E7DEACCD11B322E326043C8 /* CaseWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 719677AE6D3FEA61EF67ED24 /* CaseWarning.swift */; };
+		4916DFC859FD3610F12F311D /* Deadline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FB48F667154EB6DA0E27034 /* Deadline.swift */; };
+		C3B93EC9849DAB5C863802B2 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D98575205454F9B2D4BDD9 /* Document.swift */; };
+		8A29259AE26C5B97D3934DBE /* Evidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A973F6E1BA838C7E0F76B0 /* Evidence.swift */; };
+		D61B9AB899D67B16DD7156F2 /* GegnerVerhalten.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189BF436A860E9532E96F30 /* GegnerVerhalten.swift */; };
+		13AAE725D737477D240FD08F /* JudgeProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA12770650AA990C598264D /* JudgeProfile.swift */; };
+		30BA0FC106154D7E76C7EA33 /* JurisdictionInsight.swift in Sources */ = {isa = PBXBuildFile; fileRef = D13F34E5124CA63CF040DFFD /* JurisdictionInsight.swift */; };
+		930C2652193BDFABCCF4D540 /* KIUsageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCAEDF9DA0A96D5767F5888 /* KIUsageLog.swift */; };
+		51526347A8F4C7C8B6D19F6B /* LegalLoophole.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041B1050E6734C8280823E43 /* LegalLoophole.swift */; };
+		641A37D991E17FBE50A38802 /* Person.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA7215D5F9B1388603D0142 /* Person.swift */; };
+		CC04EE3D52493050CFC10653 /* StrategosScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F72AC98B87635B66ED16A1B /* StrategosScenario.swift */; };
+		4B26F94991A95494BE51F645 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C89A10F2ED9507C2693F6C /* Task.swift */; };
+		6C223919E26216017597FCBF /* TimelineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE123F526D40E0BFE9EFD4A4 /* TimelineEvent.swift */; };
+		04F2EAB1BA29D4246912197C /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FA70990002ADDF814B5042 /* User.swift */; };
+		BF4B7B6B476AD282BE1D4B04 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077BD74AA0BAD72537558463 /* AuthService.swift */; };
+		6E0D40E8B4C08ADD809A675F /* ClaudeAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C3FFEDBBC5B519DEA45BEF /* ClaudeAPIService.swift */; };
+		50B71D56F7FBFF5F1E838986 /* CloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026198AC74B3B26790B7475D /* CloudKitService.swift */; };
+		EA02B4DA6DD764BC491662EF /* JurisdictionConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B8EDD37215B4046BDE998B5 /* JurisdictionConfig.swift */; };
+		1285FB68839F2B0E4ACB1A83 /* KIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884B5742721AD1875F611D4 /* KIProvider.swift */; };
+		BBFAF1D8D203E9BAFAA1FF16 /* LegalAlgorithms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E4E640D5715981C94C32D5 /* LegalAlgorithms.swift */; };
+		5C97FA58EA6D2681D2B4ADD3 /* StrategosRechtsgebiete.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC28DF40A42C655FEF360263 /* StrategosRechtsgebiete.swift */; };
+		17602BB6CE631DEE5DBFF31C /* CaseComplianceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA238477E67211752B230271 /* CaseComplianceService.swift */; };
+		337959CBB947A3B02CB52C6D /* CaseHistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC78DD5A51F830BCCA3DBE55 /* CaseHistoryLogger.swift */; };
+		0B80DA7C4C9C5E2E323FDC6B /* CasePDFExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F006B75525282BF058A5F72 /* CasePDFExportService.swift */; };
+		61624FFC3BAE37E1EE2DCF3F /* DeadlineAlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CE34DA54CC9F110AF08007 /* DeadlineAlertService.swift */; };
+		CF41EFB342C463C643D09AFA /* DocumentAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A651E101C347AD1C2EA22D71 /* DocumentAnalysisService.swift */; };
+		BF504659F15E5F749CAFAE62 /* EvidenceLinkingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17BE53052E4E7745874BFA97 /* EvidenceLinkingService.swift */; };
+		77A4C2A42539D64500E3E156 /* GegnerVerhaltenPDFExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379DBC440CEE9B7E384989DC /* GegnerVerhaltenPDFExportService.swift */; };
+		EE0F5A0F6F2960AC295F4B67 /* IcalExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB205786E66695AA5F3A50 /* IcalExportService.swift */; };
+		D05158E1DD7BBA192DEEE30A /* MandantUpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B438AADCC4B4C8A9AA701255 /* MandantUpdateService.swift */; };
+		90C6EAD5DFD30F55B96FDC18 /* StripeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F848F6C94EB8681A8F7018BA /* StripeService.swift */; };
+		61EB347A18E2ECF6F257D145 /* AIExplanationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6AC7B618FDAF1CC81A487A /* AIExplanationView.swift */; };
+		66C4923F663C0B9C899939EF /* FeedbackWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734AE90DD513B08BC096737C /* FeedbackWidgetView.swift */; };
+		E4611206C4F489966EA173A6 /* FooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEC042EC7F541915BE2EA69 /* FooterView.swift */; };
+		B7029D40E9D0C21877812F0B /* JurisdictionToggleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A53ED94EAF9E679348FF16A /* JurisdictionToggleView.swift */; };
+		409F1B371FFAA2CEDCE77B62 /* KIPaymentGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B2215711B580E094FF7A6 /* KIPaymentGateView.swift */; };
+		BD28C4553C49F384A86C2350 /* LayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4690E181402200C8DAC5D552 /* LayoutView.swift */; };
+		4E93F96840CE5028644B2623 /* PaymentGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB2E0F5C24C478BB57FDA04 /* PaymentGateView.swift */; };
+		0366047E1EAD5CC5EA2D8838 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6C00F877111216236EB6BB /* SettingsView.swift */; };
+		BF49F3F4FC93E8E03EC44F27 /* UserNotRegisteredErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4A02794FB7A6C791030743 /* UserNotRegisteredErrorView.swift */; };
+		31BD86C17C911423A1407100 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFFDE8C71940E99700C64D7 /* LoginView.swift */; };
+		A619FA29FF58DE7FE83FA8C3 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAE040FAF737430B5FFA201 /* OnboardingView.swift */; };
+		C1D8B84CD2860B5276B1A3A0 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 235DC16F5E14CD2C9A267646 /* RegisterView.swift */; };
+		260B30CF271E17604814B48E /* DSGVOBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4393A15A2E23E025823730DD /* DSGVOBanner.swift */; };
+		F81EF95B05507C3F76CA1422 /* JurisdictionToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4802D9BE13D8828C47CE40A9 /* JurisdictionToggle.swift */; };
+		21F981DBBAEB1E5442E1B4E5 /* KICreditsBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DEBA296E84F28A7D8B0855 /* KICreditsBadge.swift */; };
+		582B9C8CC81763D0EF841840 /* AIPerformanceDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CFDD3151114F9B41084E07 /* AIPerformanceDashboardView.swift */; };
+		52D933C540806D54DBDF1C11 /* ArgumentGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABC220BF102F18D4A6A7B11 /* ArgumentGraphView.swift */; };
+		3E7AA4D357BE04C46E696BF2 /* ArgumentZeitstrahlChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F41662CBF61F30254DE0B /* ArgumentZeitstrahlChartView.swift */; };
+		F7319B67E5A9690914FDE741 /* ArgumentationskettenVisualisierungView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE36F83BB3995919EEBBDED5 /* ArgumentationskettenVisualisierungView.swift */; };
+		A34323C003A135647DFA0786 /* CaseInfluenceGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 930ED250E524A744E86DFEB7 /* CaseInfluenceGraphView.swift */; };
+		9D36698E5161623F9902F979 /* PraezedenzfallSucheView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 113F7851D37BE770A5B88661 /* PraezedenzfallSucheView.swift */; };
+		AE09CBB1044FE26EC92693E4 /* StrategieChecklisteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EDF88779FCDA1AE38C3072 /* StrategieChecklisteView.swift */; };
+		3A3F3EEB4552C244DE064152 /* TabArgumenteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6D2BE6B46F7E59DF9157E2 /* TabArgumenteView.swift */; };
+		636DDA622D18DB6C2D3A8694 /* TabDokumenteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B151C5A8DCBBDE720B6D7E /* TabDokumenteView.swift */; };
+		EFCC00E4B11B19FE847434E7 /* TabGesamtbewertungView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8190393CA318FB80BC9730AA /* TabGesamtbewertungView.swift */; };
+		708A3B6AA33678E5D037D157 /* TabPrognoseVergleichView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7BA8DFEA98F794BD13935E /* TabPrognoseVergleichView.swift */; };
+		6AACE52B7482AA7A19B95FE2 /* TabVerhandlungssimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93BEFD38C04156E68E746B31 /* TabVerhandlungssimulationView.swift */; };
+		E328D534C6175B72B850737E /* TabZeitstrahlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62137C53A531CADFB955706 /* TabZeitstrahlView.swift */; };
+		8C580DC28A528AE54719B7D6 /* WasWaereWennSimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBB151EA0AB306FF9BF6EA7 /* WasWaereWennSimulationView.swift */; };
+		DCCF8916707EA96ECB0DE5E7 /* AufgabenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ADDBA742882145785623779 /* AufgabenView.swift */; };
+		CDC3D19B010BE812B944A278 /* CaseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F522ABBCB015F3C39B8D28 /* CaseDetailView.swift */; };
+		EDA9B40E57186C4AB3D14A6D /* FallAssistentChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045A338CFA52E22520F6DC9F /* FallAssistentChatView.swift */; };
+		BE16B23F60D2482215CAAA10 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBCB7F93BC787C2232D8229B /* HomeView.swift */; };
+		598DC5BC0B94838DD60ED43D /* KIComplianceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24522DF39EECFA3FAB79B3F /* KIComplianceView.swift */; };
+		FCAE26E2CEBB6DD3C72BF4C3 /* KanzleiAnalytikView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE712678A760900899EE071A /* KanzleiAnalytikView.swift */; };
+		80F0C88B4419592146765E49 /* KanzleiCockpitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF530B1334B2C42F7C7DCBC /* KanzleiCockpitView.swift */; };
+		C51A5042880F333B94DDD617 /* LexaraDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D16ABC70655231957B038278 /* LexaraDashboardView.swift */; };
+		2375D86F15354B4247DFCA2C /* MandantenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9660DF713BBDEC16F70C9632 /* MandantenView.swift */; };
+		EC8064F6FE508ACE03D24648 /* ModulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED3872A774F10740CF6CA44 /* ModulesView.swift */; };
+		71BA09C0C36C285B90B23C73 /* PlattformAgentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437CECA50D28385B8A4CC31 /* PlattformAgentView.swift */; };
+		B61C5BD00ABFA79213CF93EB /* RichterProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11ED5C82FCC89EB4731C3F1E /* RichterProfileView.swift */; };
+		FF24DDC82EBA71841E5D8499 /* StrategosScenarioDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5977B6BC0461FD8DE48B2B /* StrategosScenarioDetailView.swift */; };
+		6A36E9E6475E5DEE1D6966F7 /* StrategosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211213C1098CBABF931E3C3C /* StrategosView.swift */; };
+		F6C3BE9CDAB3AB37DC370539 /* SunTzuMachiavelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEE50714F56980609B46F4A /* SunTzuMachiavelView.swift */; };
+		D1B3685E520E13D0D6B03765 /* ZeitleisteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EEDD9DDBF24C6ED6F9A5DDB /* ZeitleisteView.swift */; };
+		4AC467189853C0EB0C80214C /* AppShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EDBC2CDC8A83BA5B3C3347 /* AppShell.swift */; };
+		E17646607808E763F757D6F9 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9147D7795BC769DF21676F8B /* SidebarView.swift */; };
+		92E6359BDCF02486358DCF20 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91D3FE2155FA1432301822ED /* CloudKit.framework */; };
+		4335C45298C6A6158201212D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599067F4F1A57A10F7A28A31 /* UserNotifications.framework */; };
+		564F26597D825DB8238D58FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0235C8ACFBEBE06A9A8D5CF2 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		EE7660C3A17B81C85132E085 /* LegalOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalOSApp.swift; sourceTree = "<group>"; };
+		5ADEB60C6580008EBFBA3080 /* AIPerformanceFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPerformanceFeedback.swift; sourceTree = "<group>"; };
+		FAB08CE79889CB7AF0B316BE /* Argument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Argument.swift; sourceTree = "<group>"; };
+		C310D50551C3B94EC588463B /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
+		163D2A1F86F0DEB59ADBAC63 /* CaseFolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseFolder.swift; sourceTree = "<group>"; };
+		ECB38930C4C347B8257DABFD /* CaseHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseHistory.swift; sourceTree = "<group>"; };
+		B6A1CA4BBE818F0480F9318E /* CaseQuestionnaire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseQuestionnaire.swift; sourceTree = "<group>"; };
+		719677AE6D3FEA61EF67ED24 /* CaseWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseWarning.swift; sourceTree = "<group>"; };
+		3FB48F667154EB6DA0E27034 /* Deadline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deadline.swift; sourceTree = "<group>"; };
+		D3D98575205454F9B2D4BDD9 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		D8A973F6E1BA838C7E0F76B0 /* Evidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evidence.swift; sourceTree = "<group>"; };
+		B189BF436A860E9532E96F30 /* GegnerVerhalten.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GegnerVerhalten.swift; sourceTree = "<group>"; };
+		2CA12770650AA990C598264D /* JudgeProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JudgeProfile.swift; sourceTree = "<group>"; };
+		D13F34E5124CA63CF040DFFD /* JurisdictionInsight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JurisdictionInsight.swift; sourceTree = "<group>"; };
+		BFCAEDF9DA0A96D5767F5888 /* KIUsageLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KIUsageLog.swift; sourceTree = "<group>"; };
+		041B1050E6734C8280823E43 /* LegalLoophole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalLoophole.swift; sourceTree = "<group>"; };
+		AAA7215D5F9B1388603D0142 /* Person.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Person.swift; sourceTree = "<group>"; };
+		0F72AC98B87635B66ED16A1B /* StrategosScenario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrategosScenario.swift; sourceTree = "<group>"; };
+		B0C89A10F2ED9507C2693F6C /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		BE123F526D40E0BFE9EFD4A4 /* TimelineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineEvent.swift; sourceTree = "<group>"; };
+		F9FA70990002ADDF814B5042 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		077BD74AA0BAD72537558463 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		30C3FFEDBBC5B519DEA45BEF /* ClaudeAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAPIService.swift; sourceTree = "<group>"; };
+		026198AC74B3B26790B7475D /* CloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitService.swift; sourceTree = "<group>"; };
+		3B8EDD37215B4046BDE998B5 /* JurisdictionConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JurisdictionConfig.swift; sourceTree = "<group>"; };
+		7884B5742721AD1875F611D4 /* KIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KIProvider.swift; sourceTree = "<group>"; };
+		96E4E640D5715981C94C32D5 /* LegalAlgorithms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalAlgorithms.swift; sourceTree = "<group>"; };
+		DC28DF40A42C655FEF360263 /* StrategosRechtsgebiete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrategosRechtsgebiete.swift; sourceTree = "<group>"; };
+		DA238477E67211752B230271 /* CaseComplianceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseComplianceService.swift; sourceTree = "<group>"; };
+		BC78DD5A51F830BCCA3DBE55 /* CaseHistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseHistoryLogger.swift; sourceTree = "<group>"; };
+		9F006B75525282BF058A5F72 /* CasePDFExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasePDFExportService.swift; sourceTree = "<group>"; };
+		47CE34DA54CC9F110AF08007 /* DeadlineAlertService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeadlineAlertService.swift; sourceTree = "<group>"; };
+		A651E101C347AD1C2EA22D71 /* DocumentAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentAnalysisService.swift; sourceTree = "<group>"; };
+		17BE53052E4E7745874BFA97 /* EvidenceLinkingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceLinkingService.swift; sourceTree = "<group>"; };
+		379DBC440CEE9B7E384989DC /* GegnerVerhaltenPDFExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GegnerVerhaltenPDFExportService.swift; sourceTree = "<group>"; };
+		6DEB205786E66695AA5F3A50 /* IcalExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcalExportService.swift; sourceTree = "<group>"; };
+		B438AADCC4B4C8A9AA701255 /* MandantUpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandantUpdateService.swift; sourceTree = "<group>"; };
+		F848F6C94EB8681A8F7018BA /* StripeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripeService.swift; sourceTree = "<group>"; };
+		DB6AC7B618FDAF1CC81A487A /* AIExplanationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIExplanationView.swift; sourceTree = "<group>"; };
+		734AE90DD513B08BC096737C /* FeedbackWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackWidgetView.swift; sourceTree = "<group>"; };
+		9CEC042EC7F541915BE2EA69 /* FooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterView.swift; sourceTree = "<group>"; };
+		6A53ED94EAF9E679348FF16A /* JurisdictionToggleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JurisdictionToggleView.swift; sourceTree = "<group>"; };
+		6F7B2215711B580E094FF7A6 /* KIPaymentGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KIPaymentGateView.swift; sourceTree = "<group>"; };
+		4690E181402200C8DAC5D552 /* LayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutView.swift; sourceTree = "<group>"; };
+		BDB2E0F5C24C478BB57FDA04 /* PaymentGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentGateView.swift; sourceTree = "<group>"; };
+		9B6C00F877111216236EB6BB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		3C4A02794FB7A6C791030743 /* UserNotRegisteredErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotRegisteredErrorView.swift; sourceTree = "<group>"; };
+		4DFFDE8C71940E99700C64D7 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		2CAE040FAF737430B5FFA201 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		235DC16F5E14CD2C9A267646 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		4393A15A2E23E025823730DD /* DSGVOBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSGVOBanner.swift; sourceTree = "<group>"; };
+		4802D9BE13D8828C47CE40A9 /* JurisdictionToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JurisdictionToggle.swift; sourceTree = "<group>"; };
+		F1DEBA296E84F28A7D8B0855 /* KICreditsBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KICreditsBadge.swift; sourceTree = "<group>"; };
+		04CFDD3151114F9B41084E07 /* AIPerformanceDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPerformanceDashboardView.swift; sourceTree = "<group>"; };
+		AABC220BF102F18D4A6A7B11 /* ArgumentGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArgumentGraphView.swift; sourceTree = "<group>"; };
+		6E6F41662CBF61F30254DE0B /* ArgumentZeitstrahlChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArgumentZeitstrahlChartView.swift; sourceTree = "<group>"; };
+		DE36F83BB3995919EEBBDED5 /* ArgumentationskettenVisualisierungView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArgumentationskettenVisualisierungView.swift; sourceTree = "<group>"; };
+		930ED250E524A744E86DFEB7 /* CaseInfluenceGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseInfluenceGraphView.swift; sourceTree = "<group>"; };
+		113F7851D37BE770A5B88661 /* PraezedenzfallSucheView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PraezedenzfallSucheView.swift; sourceTree = "<group>"; };
+		74EDF88779FCDA1AE38C3072 /* StrategieChecklisteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrategieChecklisteView.swift; sourceTree = "<group>"; };
+		5D6D2BE6B46F7E59DF9157E2 /* TabArgumenteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabArgumenteView.swift; sourceTree = "<group>"; };
+		F0B151C5A8DCBBDE720B6D7E /* TabDokumenteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabDokumenteView.swift; sourceTree = "<group>"; };
+		8190393CA318FB80BC9730AA /* TabGesamtbewertungView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabGesamtbewertungView.swift; sourceTree = "<group>"; };
+		3D7BA8DFEA98F794BD13935E /* TabPrognoseVergleichView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabPrognoseVergleichView.swift; sourceTree = "<group>"; };
+		93BEFD38C04156E68E746B31 /* TabVerhandlungssimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabVerhandlungssimulationView.swift; sourceTree = "<group>"; };
+		D62137C53A531CADFB955706 /* TabZeitstrahlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabZeitstrahlView.swift; sourceTree = "<group>"; };
+		EEBB151EA0AB306FF9BF6EA7 /* WasWaereWennSimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WasWaereWennSimulationView.swift; sourceTree = "<group>"; };
+		2ADDBA742882145785623779 /* AufgabenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AufgabenView.swift; sourceTree = "<group>"; };
+		D9F522ABBCB015F3C39B8D28 /* CaseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDetailView.swift; sourceTree = "<group>"; };
+		045A338CFA52E22520F6DC9F /* FallAssistentChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallAssistentChatView.swift; sourceTree = "<group>"; };
+		CBCB7F93BC787C2232D8229B /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		D24522DF39EECFA3FAB79B3F /* KIComplianceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KIComplianceView.swift; sourceTree = "<group>"; };
+		BE712678A760900899EE071A /* KanzleiAnalytikView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanzleiAnalytikView.swift; sourceTree = "<group>"; };
+		CBF530B1334B2C42F7C7DCBC /* KanzleiCockpitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanzleiCockpitView.swift; sourceTree = "<group>"; };
+		D16ABC70655231957B038278 /* LexaraDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexaraDashboardView.swift; sourceTree = "<group>"; };
+		9660DF713BBDEC16F70C9632 /* MandantenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandantenView.swift; sourceTree = "<group>"; };
+		CED3872A774F10740CF6CA44 /* ModulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModulesView.swift; sourceTree = "<group>"; };
+		C437CECA50D28385B8A4CC31 /* PlattformAgentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlattformAgentView.swift; sourceTree = "<group>"; };
+		11ED5C82FCC89EB4731C3F1E /* RichterProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichterProfileView.swift; sourceTree = "<group>"; };
+		0F5977B6BC0461FD8DE48B2B /* StrategosScenarioDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrategosScenarioDetailView.swift; sourceTree = "<group>"; };
+		211213C1098CBABF931E3C3C /* StrategosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrategosView.swift; sourceTree = "<group>"; };
+		CCEE50714F56980609B46F4A /* SunTzuMachiavelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SunTzuMachiavelView.swift; sourceTree = "<group>"; };
+		7EEDD9DDBF24C6ED6F9A5DDB /* ZeitleisteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeitleisteView.swift; sourceTree = "<group>"; };
+		19EDBC2CDC8A83BA5B3C3347 /* AppShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShell.swift; sourceTree = "<group>"; };
+		9147D7795BC769DF21676F8B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		67921BA991E985B2A97454A8 /* LegalOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LegalOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		91D3FE2155FA1432301822ED /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		599067F4F1A57A10F7A28A31 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		185E4B3D00122287C06829AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C85FEB1C61E823139614A1CB /* LegalOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LegalOS.entitlements; sourceTree = "<group>"; };
+		0235C8ACFBEBE06A9A8D5CF2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		766EABB7A3DDDF0C5BE37856 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92E6359BDCF02486358DCF20 /* CloudKit.framework in Frameworks */,
+				4335C45298C6A6158201212D /* UserNotifications.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1C86A29E589D48EC70B6A32 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5ADEB60C6580008EBFBA3080 /* AIPerformanceFeedback.swift */,
+				FAB08CE79889CB7AF0B316BE /* Argument.swift */,
+				C310D50551C3B94EC588463B /* Case.swift */,
+				163D2A1F86F0DEB59ADBAC63 /* CaseFolder.swift */,
+				ECB38930C4C347B8257DABFD /* CaseHistory.swift */,
+				B6A1CA4BBE818F0480F9318E /* CaseQuestionnaire.swift */,
+				719677AE6D3FEA61EF67ED24 /* CaseWarning.swift */,
+				3FB48F667154EB6DA0E27034 /* Deadline.swift */,
+				D3D98575205454F9B2D4BDD9 /* Document.swift */,
+				D8A973F6E1BA838C7E0F76B0 /* Evidence.swift */,
+				B189BF436A860E9532E96F30 /* GegnerVerhalten.swift */,
+				2CA12770650AA990C598264D /* JudgeProfile.swift */,
+				D13F34E5124CA63CF040DFFD /* JurisdictionInsight.swift */,
+				BFCAEDF9DA0A96D5767F5888 /* KIUsageLog.swift */,
+				041B1050E6734C8280823E43 /* LegalLoophole.swift */,
+				AAA7215D5F9B1388603D0142 /* Person.swift */,
+				0F72AC98B87635B66ED16A1B /* StrategosScenario.swift */,
+				B0C89A10F2ED9507C2693F6C /* Task.swift */,
+				BE123F526D40E0BFE9EFD4A4 /* TimelineEvent.swift */,
+				F9FA70990002ADDF814B5042 /* User.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		80B67237ACCA015216002D58 /* BackendFunctions */ = {
+			isa = PBXGroup;
+			children = (
+				DA238477E67211752B230271 /* CaseComplianceService.swift */,
+				BC78DD5A51F830BCCA3DBE55 /* CaseHistoryLogger.swift */,
+				9F006B75525282BF058A5F72 /* CasePDFExportService.swift */,
+				47CE34DA54CC9F110AF08007 /* DeadlineAlertService.swift */,
+				A651E101C347AD1C2EA22D71 /* DocumentAnalysisService.swift */,
+				17BE53052E4E7745874BFA97 /* EvidenceLinkingService.swift */,
+				379DBC440CEE9B7E384989DC /* GegnerVerhaltenPDFExportService.swift */,
+				6DEB205786E66695AA5F3A50 /* IcalExportService.swift */,
+				B438AADCC4B4C8A9AA701255 /* MandantUpdateService.swift */,
+				F848F6C94EB8681A8F7018BA /* StripeService.swift */,
+			);
+			path = BackendFunctions;
+			sourceTree = "<group>";
+		};
+		609874F33224C0C09F1FEE42 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				80B67237ACCA015216002D58 /* BackendFunctions */,
+				077BD74AA0BAD72537558463 /* AuthService.swift */,
+				30C3FFEDBBC5B519DEA45BEF /* ClaudeAPIService.swift */,
+				026198AC74B3B26790B7475D /* CloudKitService.swift */,
+				3B8EDD37215B4046BDE998B5 /* JurisdictionConfig.swift */,
+				7884B5742721AD1875F611D4 /* KIProvider.swift */,
+				96E4E640D5715981C94C32D5 /* LegalAlgorithms.swift */,
+				DC28DF40A42C655FEF360263 /* StrategosRechtsgebiete.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		59FF05999F88E5CD1DA1CFD5 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				4DFFDE8C71940E99700C64D7 /* LoginView.swift */,
+				2CAE040FAF737430B5FFA201 /* OnboardingView.swift */,
+				235DC16F5E14CD2C9A267646 /* RegisterView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		950A2D373B2809B658DC7F2E /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				4393A15A2E23E025823730DD /* DSGVOBanner.swift */,
+				4802D9BE13D8828C47CE40A9 /* JurisdictionToggle.swift */,
+				F1DEBA296E84F28A7D8B0855 /* KICreditsBadge.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		426831FFBE7FF4DA8C2716CE /* Lexara */ = {
+			isa = PBXGroup;
+			children = (
+				04CFDD3151114F9B41084E07 /* AIPerformanceDashboardView.swift */,
+				AABC220BF102F18D4A6A7B11 /* ArgumentGraphView.swift */,
+				6E6F41662CBF61F30254DE0B /* ArgumentZeitstrahlChartView.swift */,
+				DE36F83BB3995919EEBBDED5 /* ArgumentationskettenVisualisierungView.swift */,
+				930ED250E524A744E86DFEB7 /* CaseInfluenceGraphView.swift */,
+				113F7851D37BE770A5B88661 /* PraezedenzfallSucheView.swift */,
+				74EDF88779FCDA1AE38C3072 /* StrategieChecklisteView.swift */,
+				5D6D2BE6B46F7E59DF9157E2 /* TabArgumenteView.swift */,
+				F0B151C5A8DCBBDE720B6D7E /* TabDokumenteView.swift */,
+				8190393CA318FB80BC9730AA /* TabGesamtbewertungView.swift */,
+				3D7BA8DFEA98F794BD13935E /* TabPrognoseVergleichView.swift */,
+				93BEFD38C04156E68E746B31 /* TabVerhandlungssimulationView.swift */,
+				D62137C53A531CADFB955706 /* TabZeitstrahlView.swift */,
+				EEBB151EA0AB306FF9BF6EA7 /* WasWaereWennSimulationView.swift */,
+			);
+			path = Lexara;
+			sourceTree = "<group>";
+		};
+		06B824FCB498DAE618BEFA66 /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				2ADDBA742882145785623779 /* AufgabenView.swift */,
+				D9F522ABBCB015F3C39B8D28 /* CaseDetailView.swift */,
+				045A338CFA52E22520F6DC9F /* FallAssistentChatView.swift */,
+				CBCB7F93BC787C2232D8229B /* HomeView.swift */,
+				D24522DF39EECFA3FAB79B3F /* KIComplianceView.swift */,
+				BE712678A760900899EE071A /* KanzleiAnalytikView.swift */,
+				CBF530B1334B2C42F7C7DCBC /* KanzleiCockpitView.swift */,
+				D16ABC70655231957B038278 /* LexaraDashboardView.swift */,
+				9660DF713BBDEC16F70C9632 /* MandantenView.swift */,
+				CED3872A774F10740CF6CA44 /* ModulesView.swift */,
+				C437CECA50D28385B8A4CC31 /* PlattformAgentView.swift */,
+				11ED5C82FCC89EB4731C3F1E /* RichterProfileView.swift */,
+				0F5977B6BC0461FD8DE48B2B /* StrategosScenarioDetailView.swift */,
+				211213C1098CBABF931E3C3C /* StrategosView.swift */,
+				CCEE50714F56980609B46F4A /* SunTzuMachiavelView.swift */,
+				7EEDD9DDBF24C6ED6F9A5DDB /* ZeitleisteView.swift */,
+			);
+			path = Pages;
+			sourceTree = "<group>";
+		};
+		D38DDA1BACC492131FE0E70A /* Shell */ = {
+			isa = PBXGroup;
+			children = (
+				19EDBC2CDC8A83BA5B3C3347 /* AppShell.swift */,
+				9147D7795BC769DF21676F8B /* SidebarView.swift */,
+			);
+			path = Shell;
+			sourceTree = "<group>";
+		};
+		38DF21AEF4612506D6BE5CBE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				59FF05999F88E5CD1DA1CFD5 /* Auth */,
+				950A2D373B2809B658DC7F2E /* Components */,
+				426831FFBE7FF4DA8C2716CE /* Lexara */,
+				06B824FCB498DAE618BEFA66 /* Pages */,
+				D38DDA1BACC492131FE0E70A /* Shell */,
+				DB6AC7B618FDAF1CC81A487A /* AIExplanationView.swift */,
+				734AE90DD513B08BC096737C /* FeedbackWidgetView.swift */,
+				9CEC042EC7F541915BE2EA69 /* FooterView.swift */,
+				6A53ED94EAF9E679348FF16A /* JurisdictionToggleView.swift */,
+				6F7B2215711B580E094FF7A6 /* KIPaymentGateView.swift */,
+				4690E181402200C8DAC5D552 /* LayoutView.swift */,
+				BDB2E0F5C24C478BB57FDA04 /* PaymentGateView.swift */,
+				9B6C00F877111216236EB6BB /* SettingsView.swift */,
+				3C4A02794FB7A6C791030743 /* UserNotRegisteredErrorView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		0A85897F1A32FE9B91C081CD = {
+			isa = PBXGroup;
+			children = (
+				A1C86A29E589D48EC70B6A32 /* Models */,
+				609874F33224C0C09F1FEE42 /* Services */,
+				38DF21AEF4612506D6BE5CBE /* Views */,
+				EE7660C3A17B81C85132E085 /* LegalOSApp.swift */,
+				B88D7E26791946AEFDCC8BB7 /* Products */,
+			);
+			path = LegalOS;
+			sourceTree = "<group>";
+		};
+		B88D7E26791946AEFDCC8BB7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				67921BA991E985B2A97454A8 /* LegalOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B687106895D06AA330DAFED5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				91D3FE2155FA1432301822ED /* CloudKit.framework */,
+				599067F4F1A57A10F7A28A31 /* UserNotifications.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A570499150B4E2E16175EE9A /* LegalOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 843DC471AAF26AC8174F311B /* Build configuration list for PBXNativeTarget "LegalOS" */;
+			buildPhases = (
+				0E1EEB3C39FA70BFD3E6FEB0 /* Sources */,
+				766EABB7A3DDDF0C5BE37856 /* Frameworks */,
+				781B1EA3DCD06C2932EFB49A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LegalOS;
+			productName = LegalOS;
+			productReference = 67921BA991E985B2A97454A8 /* LegalOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1781F676DEDF5767F3243DB0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A570499150B4E2E16175EE9A = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 6E39CCE14DCF712BA66C9965 /* Build configuration list for PBXProject "LegalOS" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = de;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				de,
+				en,
+				Base,
+			);
+			mainGroup = 0A85897F1A32FE9B91C081CD;
+			productRefGroup = B88D7E26791946AEFDCC8BB7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A570499150B4E2E16175EE9A /* LegalOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		781B1EA3DCD06C2932EFB49A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				564F26597D825DB8238D58FA /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0E1EEB3C39FA70BFD3E6FEB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				34DFA5CAFD20A3B573D55987 /* LegalOSApp.swift in Sources */,
+				3FDB307F223D1620F4BB608C /* AIPerformanceFeedback.swift in Sources */,
+				F79CF96CB581393D84E3F0F6 /* Argument.swift in Sources */,
+				2D05D42BD575FEEDDFD11AAC /* Case.swift in Sources */,
+				3A22338C52F6487582A5A1DD /* CaseFolder.swift in Sources */,
+				3392DC01A6FE9A5F0A97C037 /* CaseHistory.swift in Sources */,
+				A3125D1EB0188A7948096879 /* CaseQuestionnaire.swift in Sources */,
+				5E7DEACCD11B322E326043C8 /* CaseWarning.swift in Sources */,
+				4916DFC859FD3610F12F311D /* Deadline.swift in Sources */,
+				C3B93EC9849DAB5C863802B2 /* Document.swift in Sources */,
+				8A29259AE26C5B97D3934DBE /* Evidence.swift in Sources */,
+				D61B9AB899D67B16DD7156F2 /* GegnerVerhalten.swift in Sources */,
+				13AAE725D737477D240FD08F /* JudgeProfile.swift in Sources */,
+				30BA0FC106154D7E76C7EA33 /* JurisdictionInsight.swift in Sources */,
+				930C2652193BDFABCCF4D540 /* KIUsageLog.swift in Sources */,
+				51526347A8F4C7C8B6D19F6B /* LegalLoophole.swift in Sources */,
+				641A37D991E17FBE50A38802 /* Person.swift in Sources */,
+				CC04EE3D52493050CFC10653 /* StrategosScenario.swift in Sources */,
+				4B26F94991A95494BE51F645 /* Task.swift in Sources */,
+				6C223919E26216017597FCBF /* TimelineEvent.swift in Sources */,
+				04F2EAB1BA29D4246912197C /* User.swift in Sources */,
+				BF4B7B6B476AD282BE1D4B04 /* AuthService.swift in Sources */,
+				6E0D40E8B4C08ADD809A675F /* ClaudeAPIService.swift in Sources */,
+				50B71D56F7FBFF5F1E838986 /* CloudKitService.swift in Sources */,
+				EA02B4DA6DD764BC491662EF /* JurisdictionConfig.swift in Sources */,
+				1285FB68839F2B0E4ACB1A83 /* KIProvider.swift in Sources */,
+				BBFAF1D8D203E9BAFAA1FF16 /* LegalAlgorithms.swift in Sources */,
+				5C97FA58EA6D2681D2B4ADD3 /* StrategosRechtsgebiete.swift in Sources */,
+				17602BB6CE631DEE5DBFF31C /* CaseComplianceService.swift in Sources */,
+				337959CBB947A3B02CB52C6D /* CaseHistoryLogger.swift in Sources */,
+				0B80DA7C4C9C5E2E323FDC6B /* CasePDFExportService.swift in Sources */,
+				61624FFC3BAE37E1EE2DCF3F /* DeadlineAlertService.swift in Sources */,
+				CF41EFB342C463C643D09AFA /* DocumentAnalysisService.swift in Sources */,
+				BF504659F15E5F749CAFAE62 /* EvidenceLinkingService.swift in Sources */,
+				77A4C2A42539D64500E3E156 /* GegnerVerhaltenPDFExportService.swift in Sources */,
+				EE0F5A0F6F2960AC295F4B67 /* IcalExportService.swift in Sources */,
+				D05158E1DD7BBA192DEEE30A /* MandantUpdateService.swift in Sources */,
+				90C6EAD5DFD30F55B96FDC18 /* StripeService.swift in Sources */,
+				61EB347A18E2ECF6F257D145 /* AIExplanationView.swift in Sources */,
+				66C4923F663C0B9C899939EF /* FeedbackWidgetView.swift in Sources */,
+				E4611206C4F489966EA173A6 /* FooterView.swift in Sources */,
+				B7029D40E9D0C21877812F0B /* JurisdictionToggleView.swift in Sources */,
+				409F1B371FFAA2CEDCE77B62 /* KIPaymentGateView.swift in Sources */,
+				BD28C4553C49F384A86C2350 /* LayoutView.swift in Sources */,
+				4E93F96840CE5028644B2623 /* PaymentGateView.swift in Sources */,
+				0366047E1EAD5CC5EA2D8838 /* SettingsView.swift in Sources */,
+				BF49F3F4FC93E8E03EC44F27 /* UserNotRegisteredErrorView.swift in Sources */,
+				31BD86C17C911423A1407100 /* LoginView.swift in Sources */,
+				A619FA29FF58DE7FE83FA8C3 /* OnboardingView.swift in Sources */,
+				C1D8B84CD2860B5276B1A3A0 /* RegisterView.swift in Sources */,
+				260B30CF271E17604814B48E /* DSGVOBanner.swift in Sources */,
+				F81EF95B05507C3F76CA1422 /* JurisdictionToggle.swift in Sources */,
+				21F981DBBAEB1E5442E1B4E5 /* KICreditsBadge.swift in Sources */,
+				582B9C8CC81763D0EF841840 /* AIPerformanceDashboardView.swift in Sources */,
+				52D933C540806D54DBDF1C11 /* ArgumentGraphView.swift in Sources */,
+				3E7AA4D357BE04C46E696BF2 /* ArgumentZeitstrahlChartView.swift in Sources */,
+				F7319B67E5A9690914FDE741 /* ArgumentationskettenVisualisierungView.swift in Sources */,
+				A34323C003A135647DFA0786 /* CaseInfluenceGraphView.swift in Sources */,
+				9D36698E5161623F9902F979 /* PraezedenzfallSucheView.swift in Sources */,
+				AE09CBB1044FE26EC92693E4 /* StrategieChecklisteView.swift in Sources */,
+				3A3F3EEB4552C244DE064152 /* TabArgumenteView.swift in Sources */,
+				636DDA622D18DB6C2D3A8694 /* TabDokumenteView.swift in Sources */,
+				EFCC00E4B11B19FE847434E7 /* TabGesamtbewertungView.swift in Sources */,
+				708A3B6AA33678E5D037D157 /* TabPrognoseVergleichView.swift in Sources */,
+				6AACE52B7482AA7A19B95FE2 /* TabVerhandlungssimulationView.swift in Sources */,
+				E328D534C6175B72B850737E /* TabZeitstrahlView.swift in Sources */,
+				8C580DC28A528AE54719B7D6 /* WasWaereWennSimulationView.swift in Sources */,
+				DCCF8916707EA96ECB0DE5E7 /* AufgabenView.swift in Sources */,
+				CDC3D19B010BE812B944A278 /* CaseDetailView.swift in Sources */,
+				EDA9B40E57186C4AB3D14A6D /* FallAssistentChatView.swift in Sources */,
+				BE16B23F60D2482215CAAA10 /* HomeView.swift in Sources */,
+				598DC5BC0B94838DD60ED43D /* KIComplianceView.swift in Sources */,
+				FCAE26E2CEBB6DD3C72BF4C3 /* KanzleiAnalytikView.swift in Sources */,
+				80F0C88B4419592146765E49 /* KanzleiCockpitView.swift in Sources */,
+				C51A5042880F333B94DDD617 /* LexaraDashboardView.swift in Sources */,
+				2375D86F15354B4247DFCA2C /* MandantenView.swift in Sources */,
+				EC8064F6FE508ACE03D24648 /* ModulesView.swift in Sources */,
+				71BA09C0C36C285B90B23C73 /* PlattformAgentView.swift in Sources */,
+				B61C5BD00ABFA79213CF93EB /* RichterProfileView.swift in Sources */,
+				FF24DDC82EBA71841E5D8499 /* StrategosScenarioDetailView.swift in Sources */,
+				6A36E9E6475E5DEE1D6966F7 /* StrategosView.swift in Sources */,
+				F6C3BE9CDAB3AB37DC370539 /* SunTzuMachiavelView.swift in Sources */,
+				D1B3685E520E13D0D6B03765 /* ZeitleisteView.swift in Sources */,
+				4AC467189853C0EB0C80214C /* AppShell.swift in Sources */,
+				E17646607808E763F757D6F9 /* SidebarView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F3B69EEC4F562FC177F78D10 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSET_CATALOG_COMPILER_OPTIMIZATION = space;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		8B73B14021AD275B0215277A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		C620E42DFDAA3359437DD19C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSTETS_CATALOG_APP_ICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LegalOS/Resources/LegalOS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = LegalOS/Resources/Info.plist;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.legalos.app";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7FCF9D0EFBC43FF43E6BA577 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETS_CATALOG_APP_ICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LegalOS/Resources/LegalOS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = LegalOS/Resources/Info.plist;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.legalos.app";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6E39CCE14DCF712BA66C9965 /* Build configuration list for PBXProject "LegalOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F3B69EEC4F562FC177F78D10 /* Debug */,
+				8B73B14021AD275B0215277A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		843DC471AAF26AC8174F311B /* Build configuration list for PBXNativeTarget "LegalOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C620E42DFDAA3359437DD19C /* Debug */,
+				7FCF9D0EFBC43FF43E6BA577 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 1781F676DEDF5767F3243DB0 /* Project object */;
+}
