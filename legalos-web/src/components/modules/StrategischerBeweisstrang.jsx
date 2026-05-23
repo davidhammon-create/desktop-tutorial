@@ -60,8 +60,7 @@ export default function StrategischerBeweisstrang() {
     );
   }
 
-  if (cases.length
- === 0) {
+  if (cases.length  === 0) {
     return (
       <div className="rounded-xl flex items-center justify-center py-12 text-center" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
         <div>

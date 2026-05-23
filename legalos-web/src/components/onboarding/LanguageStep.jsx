@@ -7,11 +7,7 @@ const LANGUAGES = [
   { code: "FR", label: "Français", flag: "🇫🇷", sub: "French", notice: "🚧 La plateforme s'affiche actuellement principalement en allemand. La traduction complète est en cours." },
 ];
 
-const TITLES = {
-  DE: "Sprache wählen",
-  EN: "Select Language",
-  FR: "Choisir la langue",
-};
+const TITLES = { DE: "Sprache wählen", EN: "Select Language", FR: "Choisir la langue" };
 
 export default function LanguageStep({ language, onSelect, onBack }) {
   return (
@@ -27,4 +23,32 @@ export default function LanguageStep({ language, onSelect, onBack }) {
         {LANGUAGES.map(lang => (
           <button key={lang.code} onClick={() => onSelect(lang.code)}
             className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
-              language
+              language === lang.code
+                ? "border-violet-400 bg-violet-50"
+                : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+            }`}>
+            <span className="text-2xl">{lang.flag}</span>
+            <div className="flex-1">
+              <p className={`text-sm font-semibold ${language === lang.code ? "text-violet-700" : "text-slate-800"}`}>{lang.label}</p>
+              <p className="text-xs text-slate-400">{lang.sub}</p>
+              {lang.notice && language === lang.code && (
+                <p className="text-xs text-amber-500 mt-1">{lang.notice}</p>
+              )}
+            </div>
+            {language === lang.code && (
+              <div className="w-5 h-5 rounded-full bg-violet-600 flex items-center justify-center">
+                <span className="text-white text-xs">✓</span>
+              </div>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {onBack && (
+        <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600">
+          <ArrowLeft className="w-3.5 h-3.5" /> Zurück
+        </button>
+      )}
+    </div>
+  );
+}

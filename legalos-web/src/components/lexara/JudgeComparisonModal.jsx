@@ -69,4 +69,37 @@ export default function JudgeComparisonModal({ isOpen, onClose, currentJudgeName
                   key={j.id}
                   onClick={() => setSelectedJudge(j)}
                   className={`text-left p-3 border rounded-lg transition-all ${
-                    selectedJudge?.id
+                    selectedJudge?.id === j.id
+                      ? "border-blue-400 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}>
+                  <p className="text-sm font-semibold text-gray-800">{j.name}</p>
+                  {j.gericht && <p className="text-xs text-gray-400">{j.gericht}</p>}
+                  {j.klaeger_rate !== undefined && (
+                    <p className="text-xs text-blue-600 mt-0.5">Kläger-Rate: {j.klaeger_rate}%</p>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {selectedJudge && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <p className="text-xs font-bold text-blue-600 mb-2">PROGNOSE MIT {selectedJudge.name?.toUpperCase()}</p>
+              <div className="flex items-end gap-3">
+                <div className="text-3xl font-bold text-blue-700">{selectedJudge.klaeger_rate || "—"}%</div>
+                <div className="text-xs text-blue-500">Kläger-Erfolgsrate</div>
+              </div>
+              {basePrognose && selectedJudge.klaeger_rate !== undefined && (
+                <p className="text-xs text-blue-600 mt-2">
+                  Δ {((selectedJudge.klaeger_rate || 0) - (basePrognose.score || 0) > 0 ? "+" : "")}{(selectedJudge.klaeger_rate || 0) - (basePrognose.score || 0)}% vs. aktueller Richter
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+}

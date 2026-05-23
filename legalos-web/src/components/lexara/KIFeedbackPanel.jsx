@@ -223,4 +223,51 @@ export function useFeedbackAdjustedAccuracy(caseId, baseAccuracy) {
     base44.entities.KIUsageLog.filter({ case_id: caseId }).then(logs => {
       const kiLogs = logs.filter(l => l.context && l.rating &&
         ["ki_strategie", "ki_prognose", "ki_risiko", "ki_gegner", "ki_dokumente"].includes(l.context));
-      if (kiLogs.length
+      if (kiLogs.length > 0) {
+        const avgRating = kiLogs.reduce((sum, l) => sum + (l.rating || 3), 0) / kiLogs.length;
+        const adjustment = (avgRating - 3) * 5;
+        setAdjusted(Math.max(0, Math.min(100, baseAccuracy + adjustment)));
+      }
+    });
+  }, [caseId, baseAccuracy]);
+
+  return adjusted;
+}
+
+export default function KIFeedbackPanel({ caseId }) {
+  const [open, setOpen] = useState(false);
+  const [logs, setLogs] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const loadLogs = async () => {
+    setLoading(true);
+    const all = await base44.entities.KIUsageLog.filter({ case_id: caseId });
+    const map = {};
+    all.forEach(l => { if (l.context) map[l.context] = l; });
+    setLogs(map);
+    setLoading(false);
+  };
+
+  useEffect(() => { if (open) loadLogs(); }, [open, caseId]);
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-700"
+      >
+        <span>🤖 KI-Feedback & Protokoll</span>
+        <span className="text-gray-400 text-xs">{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-2 border-t border-gray-50">
+          {loading ? (
+            <div className="flex justify-center py-6"><div className="w-4 h-4 border-2 border-gray-200 border-t-violet-500 rounded-full animate-spin" /></div>
+          ) : (
+            <p className="text-xs text-gray-500 py-4 text-center">KI-Nutzungsprotokolle werden hier angezeigt.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

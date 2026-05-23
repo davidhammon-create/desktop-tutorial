@@ -82,4 +82,111 @@ export default function Step0DocIntelligenz({ scenario, onSave, onProceed }) {
 
       const r = await base44.integrations.Core.UploadFile({ file: f });
       const uploaded = { ...pending, url: r.file_url, status: "analyzing" };
-      setDocs(prev => prev.map(d => d.id
+      setDocs(prev => prev.map(d => d.id === tempId ? uploaded : d));
+
+      // Analyze document content
+      const analyzed = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analysiere dieses Dokument und extrahiere die wichtigsten rechtlichen und geschäftlichen Informationen für ein Strategos-Szenario. Dokument: ${f.name}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            zusammenfassung: { type: "string" },
+            unternehmen: { type: "string" },
+            rechtsgebiet: { type: "string" },
+            sachverhalt: { type: "string" },
+            key_facts: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+      const done = { ...uploaded, status: "done", summary: analyzed.zusammenfassung || "Analysiert", analysis: analyzed };
+      setDocs(prev => prev.map(d => d.id === tempId ? done : d));
+      newDocs.push(done);
+    }
+    setUploading(false);
+  };
+
+  const runKiBriefing = async () => {
+    if (!docs.length) return;
+    setAnalyzing(true);
+    const allSummaries = docs.map(d => `${d.name}: ${d.summary || "—"}`).join("\n");
+    const r = await base44.integrations.Core.InvokeLLM({
+      prompt: `Du bist ein erfahrener Senior-Anwalt. Erstelle ein vollständiges KI-Briefing für ein Strategos-Szenario basierend auf diesen Dokumenten:\n\n${allSummaries}`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          ki_briefing: { type: "string" },
+          unternehmen_name: { type: "string" },
+          rechtsgebiet_hauptthema: { type: "string" },
+          rechtsgebiete: { type: "array", items: { type: "string" } },
+          sachverhalt: { type: "string" },
+          dokument_typen: { type: "array", items: { type: "string" } }
+        }
+      }
+    });
+    setResult(r);
+    setDone(true);
+    const updates = {
+      ki_kontext: { docs, analyse: r, ki_briefing: r.ki_briefing },
+    };
+    if (r.unternehmen_name && !ctx.unternehmen_name) {
+      updates.unternehmenskontext = { ...(scenario.unternehmenskontext || {}), unternehmen_name: r.unternehmen_name };
+    }
+    await onSave(updates);
+    setAnalyzing(false);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18, ...SF }}>
+      <div style={{ textAlign: "center", paddingBottom: 4 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: "#5856D6", letterSpacing: "0.15em", textTransform: "uppercase" }}>Schritt 0 · Strategos</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1a", letterSpacing: "-0.4px", marginTop: 4 }}>Dokumente & KI-Briefing</h2>
+        <p style={{ fontSize: 12, color: "#888", marginTop: 3 }}>Lade Dokumente hoch — KI befüllt alle Felder automatisch</p>
+      </div>
+
+      {/* Upload area */}
+      <div
+        style={{ border: "2px dashed rgba(88,86,214,0.3)", borderRadius: 16, padding: "28px 20px", textAlign: "center", cursor: "pointer", background: "rgba(88,86,214,0.02)" }}
+        onClick={() => inputRef.current?.click()}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => { e.preventDefault(); handleFiles(Array.from(e.dataTransfer.files)); }}
+      >
+        <input ref={inputRef} type="file" multiple accept={ACCEPTED} style={{ display: "none" }} onChange={e => handleFiles(Array.from(e.target.files))} />
+        <Upload style={{ width: 28, height: 28, color: "#5856D6", margin: "0 auto 10px" }} />
+        <p style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>Dokumente hochladen</p>
+        <p style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>PDF, DOCX, TXT, Bilder — Drag & Drop oder klicken</p>
+      </div>
+
+      {docs.length > 0 && (
+        <div>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 8 }}>Hochgeladene Dokumente ({docs.length})</p>
+          {docs.map(doc => <FileRow key={doc.id} doc={doc} onRemove={id => setDocs(prev => prev.filter(d => d.id !== id))} />)}
+          {!done && (
+            <button
+              onClick={runKiBriefing}
+              disabled={analyzing || docs.some(d => d.status !== "done")}
+              style={{ marginTop: 10, width: "100%", padding: "11px", borderRadius: 12, border: "none", background: analyzing ? "#f0f0f0" : "linear-gradient(135deg,#5856D6,#0A84FF)", color: analyzing ? "#999" : "#fff", fontSize: 13, fontWeight: 700, cursor: analyzing ? "not-allowed" : "pointer" }}
+            >
+              {analyzing ? "KI analysiert alle Dokumente…" : "✦ KI-Briefing erstellen & Felder befüllen"}
+            </button>
+          )}
+        </div>
+      )}
+
+      {result && (
+        <div style={{ padding: "14px 16px", background: "rgba(29,185,84,0.06)", border: "1px solid rgba(29,185,84,0.2)", borderRadius: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <CheckCircle style={{ width: 16, height: 16, color: "#1DB954" }} />
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#1DB954" }}>KI-Briefing erstellt — Felder befüllt</p>
+          </div>
+          {result.rechtsgebiete?.length > 0 && (
+            <p style={{ fontSize: 11, color: "#555" }}>Erkannte Rechtsgebiete: {result.rechtsgebiete.join(", ")}</p>
+          )}
+          {result.ki_briefing && (
+            <p style={{ fontSize: 11, color: "#333", marginTop: 6, lineHeight: 1.5 }}>{result.ki_briefing.slice(0, 300)}{result.ki_briefing.length > 300 ? "…" : ""}</p>
+          )}
+        </div>
+      )}
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}

@@ -195,5 +195,122 @@ ${ctx.umsatz ? `Umsatz für Bußgeldberechnung: ${(ctx.umsatz/1e6).toFixed(1)}Mi
           {result.optionen_bewertung?.length > 0 && (
             <AppleCard title="Optionen-Vergleich (EV / RAV / Downside)" accentColor="#5856D6">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
-                {result.optionen_bewertung.map(o => (
-                  <div key={o.option} style={{ padding: "13px 14px", background: o.option
+                {result.optionen_bewertung.map((o, i) => {
+                  const isRecommended = i === 0;
+                  return (
+                    <div key={o.option || i} style={{ padding: "13px 14px", background: isRecommended ? "rgba(29,185,84,0.07)" : "rgba(0,0,0,0.025)", borderRadius: 12, border: isRecommended ? "1px solid rgba(29,185,84,0.25)" : "1px solid rgba(0,0,0,0.06)" }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: isRecommended ? "#1DB954" : "#888", textTransform: "uppercase", marginBottom: 4 }}>Option {o.option}{isRecommended ? " ★ Empfohlen" : ""}</p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                        {[["EV", (o.ev_eur || 0).toLocaleString("de-DE") + " €", "#5856D6"], ["RAV", (o.rav_eur || 0).toLocaleString("de-DE") + " €", "#0A84FF"], ["Downside", (o.downside_risk_eur || 0).toLocaleString("de-DE") + " €", "#FF3B30"], ["Eintritt", `${o.eintritt_pct ?? "—"}%`, "#FF9500"]].map(([l, v, c]) => (
+                          <div key={l}>
+                            <p style={{ fontSize: 9, color: "#aaa", textTransform: "uppercase", fontWeight: 600 }}>{l}</p>
+                            <p style={{ fontSize: 13, fontWeight: 700, color: c }}>{v}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {o.begründung && <p style={{ fontSize: 11, color: "#666", marginTop: 6 }}>{o.begründung}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+              {evData.length > 0 && (
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={evData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#888" }} />
+                    <YAxis tick={{ fontSize: 10, fill: "#888" }} tickFormatter={v => `${v}K`} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={v => [`${v}K €`]} />
+                    <ReferenceLine y={0} stroke="rgba(0,0,0,0.15)" />
+                    <Bar dataKey="EV" fill="#5856D6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="RAV" fill="#0A84FF" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Downside" fill="#FF3B30" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </AppleCard>
+          )}
+
+          {/* Monte Carlo */}
+          {result.monte_carlo && (
+            <AppleCard title="Monte Carlo Simulation" accentColor="#0A84FF">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                {[
+                  ["P10 (Best Case)", result.monte_carlo.p10_eur, "#1DB954"],
+                  ["P50 (Median)", result.monte_carlo.p50_eur, "#0A84FF"],
+                  ["P90 (Worst Case)", result.monte_carlo.p90_eur, "#FF3B30"],
+                  ["Simulationen", result.monte_carlo.simulationen?.toLocaleString(), "#888"],
+                ].map(([l, v, c]) => (
+                  <div key={l} style={{ textAlign: "center", padding: "10px", background: "rgba(0,0,0,0.025)", borderRadius: 10 }}>
+                    <p style={{ fontSize: 9, color: "#aaa", textTransform: "uppercase", fontWeight: 600, marginBottom: 4 }}>{l}</p>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: c }}>{typeof v === "number" ? v.toLocaleString("de-DE") + " €" : v || "—"}</p>
+                  </div>
+                ))}
+              </div>
+              {result.monte_carlo.haupttreiber?.length > 0 && (
+                <div style={{ marginTop: 12 }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 6 }}>Haupttreiber</p>
+                  {result.monte_carlo.haupttreiber.map((t, i) => (
+                    <p key={i} style={{ fontSize: 11, color: "#555", marginBottom: 3 }}>• {t}</p>
+                  ))}
+                </div>
+              )}
+            </AppleCard>
+          )}
+
+          {/* Sensitivität */}
+          {sensData.length > 0 && (
+            <AppleCard title="Sensitivitätsanalyse (Tornado)" accentColor="#5856D6">
+              {sensData.map((s, i) => (
+                <div key={i} style={{ marginBottom: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                    <span style={{ fontSize: 11, color: "#333" }}>{s.faktor}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#5856D6" }}>{s.einfluss_pct}%</span>
+                  </div>
+                  <div style={{ height: 8, background: "rgba(0,0,0,0.05)", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${s.einfluss_pct}%`, background: `linear-gradient(90deg, #5856D6, #0A84FF)`, borderRadius: 4 }} />
+                  </div>
+                </div>
+              ))}
+            </AppleCard>
+          )}
+
+          {/* Bußgeld Worst Case */}
+          {result.bussgeldszenario && (
+            <AppleCard title="Bußgeld-Worst-Case" accentColor="#FF3B30">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div style={{ padding: "12px", background: "rgba(255,59,48,0.06)", borderRadius: 10 }}>
+                  <p style={{ fontSize: 9, color: "#aaa", textTransform: "uppercase", fontWeight: 600 }}>Max. Bußgeld</p>
+                  <p style={{ fontSize: 20, fontWeight: 800, color: "#FF3B30" }}>{(result.bussgeldszenario.max_bussgeldbetrag_eur || 0).toLocaleString("de-DE")} €</p>
+                </div>
+                <div style={{ padding: "12px", background: "rgba(255,149,0,0.06)", borderRadius: 10 }}>
+                  <p style={{ fontSize: 9, color: "#aaa", textTransform: "uppercase", fontWeight: 600 }}>Rechtsgrundlage</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "#FF9500" }}>{result.bussgeldszenario.rechtsgrundlage || "—"}</p>
+                </div>
+              </div>
+              {result.bussgeldszenario.gegebenheiten_fuer_max?.length > 0 && (
+                <div style={{ marginTop: 10 }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 5 }}>Voraussetzungen für Maximum</p>
+                  {result.bussgeldszenario.gegebenheiten_fuer_max.map((g, i) => (
+                    <p key={i} style={{ fontSize: 11, color: "#B81C3A", marginBottom: 3 }}>• {g}</p>
+                  ))}
+                </div>
+              )}
+            </AppleCard>
+          )}
+
+          {/* Empfohlene Option */}
+          {result.empfohlene_option && (
+            <AppleCard accentColor="#1DB954">
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a", marginBottom: 4 }}>✅ Empfohlene Option: {result.empfohlene_option}</p>
+              {result.empfehlungs_begruendung && (
+                <p style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{result.empfehlungs_begruendung}</p>
+              )}
+            </AppleCard>
+          )}
+        </>
+      )}
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}
+}

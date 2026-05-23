@@ -146,4 +146,44 @@ export default function Modules() {
             {t.module.map((mod, i) => {
               const Icon = ICONS[i];
               const col = ICON_COLORS[i] || ICON_COLORS[0];
-              const isLast = i
+              const isLast = i === t.module.length - 1;
+              return (
+                <button
+                  key={mod.path || i}
+                  onClick={() => navigate(PATHS[i] || "/")}
+                  className="flex items-center gap-4 w-full px-0 py-4 text-left transition-all hover:bg-green-50 rounded-xl px-3"
+                  style={{ borderBottom: isLast ? "none" : "1px solid rgba(0,0,0,0.05)" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(52,199,89,0.04)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: col.bg }}
+                  >
+                    <Icon className="w-5 h-5" style={{ color: col.icon }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold" style={{ color: "#1a1a1a" }}>{mod.label || mod}</p>
+                    {mod.sub && <p className="text-[11px] mt-0.5" style={{ color: "#999" }}>{mod.sub}</p>}
+                  </div>
+                  <span style={{ color: "#ccc", fontSize: 14 }}>›</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Beweisstrang module */}
+        <div className="px-8 py-5" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+          <p
+            className="text-[10px] font-semibold uppercase tracking-widest mb-3"
+            style={{ color: "#aaa", letterSpacing: "0.08em" }}
+          >
+            Strategischer Beweisstrang
+          </p>
+          <StrategischerBeweisstrang />
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -31,7 +31,11 @@ export default function TabPersonen({ caseId, onCountChange }) {
   };
 
   const del = async (id) => { await base44.entities.Person.delete(id); load(true); };
-  const startEdit = (p) => { setForm({name:p.name||"",role:p.role||"Richter",organization:p.organization||"",aussagen:p.aussagen||0,widersprueche:p.widersprueche||0,glaubwuerdigkeit:p.glaubwuerdigkeit||100,klaeger_rate:p.klaeger_rate||50,vergleich_rate:p.vergleich_rate||30,dauer_monate:p.dauer_monate||12,notizen:p.notizen||""}); setEditing(p.id); setShowAdd(false); };
+  const startEdit = (p) => {
+    setForm({ name:p.name||"", role:p.role||"Richter", organization:p.organization||"", aussagen:p.aussagen||0, widersprueche:p.widersprueche||0, glaubwuerdigkeit:p.glaubwuerdigkeit||100, klaeger_rate:p.klaeger_rate||50, vergleich_rate:p.vergleich_rate||30, dauer_monate:p.dauer_monate||12, notizen:p.notizen||"" });
+    setEditing(p.id);
+    setShowAdd(false);
+  };
 
   const PersonForm = () => (
     <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
@@ -68,4 +72,42 @@ export default function TabPersonen({ caseId, onCountChange }) {
       <div className="space-y-3">
         {persons.map(p => (
           <div key={p.id}>
-            {editing
+            {editing === p.id ? (
+              <PersonForm />
+            ) : (
+              <div className="bg-white border border-gray-100 rounded-xl p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="text-sm font-semibold text-gray-900">{p.name}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[p.role] || "bg-gray-100 text-gray-600"}`}>{p.role}</span>
+                      {p.organization && <span className="text-[10px] text-gray-400">{p.organization}</span>}
+                    </div>
+                    <div className="flex gap-4 text-xs text-gray-500 mt-1">
+                      {p.aussagen > 0 && <span>Aussagen: <strong>{p.aussagen}</strong></span>}
+                      {p.widersprueche > 0 && <span>Wid.: <strong className="text-red-500">{p.widersprueche}</strong></span>}
+                      {p.glaubwuerdigkeit < 100 && <span>Glaubw.: <strong>{p.glaubwuerdigkeit}%</strong></span>}
+                      {p.klaeger_rate > 0 && <span>Kläger: <strong>{p.klaeger_rate}%</strong></span>}
+                    </div>
+                    {p.notizen && <p className="text-xs text-gray-400 mt-1 line-clamp-1">{p.notizen}</p>}
+                  </div>
+                  <div className="flex gap-1 flex-shrink-0">
+                    <button onClick={() => startEdit(p)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"><Edit className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => del(p.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+        {persons.length === 0 && (
+          <div className="text-center py-10 text-gray-400">
+            <p className="text-sm">Noch keine Personen erfasst</p>
+            <p className="text-xs mt-1">Füge Zeugen, Richter oder Parteien hinzu</p>
+          </div>
+        )}
+      </div>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}

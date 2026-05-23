@@ -247,4 +247,97 @@ Berechne: eintritt_pct(%), schaden_eur(€), reputation(gering/mittel/hoch/exist
           }
         }
       });
-      const u = { ...sit, module: sit.module.map(x => x.rechtsgebiet
+      const u = { ...sit, module: sit.module.map(x => x.rechtsgebiet === m.rechtsgebiet ? { ...x, quantifizierung: r } : x) };
+      setSit(u);
+      await onSave({ situationsanalyse: u });
+    } catch (err) {
+      console.error("Quantifizierung fehlgeschlagen", err);
+    } finally {
+      setQId(null);
+    }
+  };
+
+  return (
+    <div style={{ ...SF, display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.06em" }}>Schritt 2 · Rechtsgebiet-Analyse</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color: "#1a1a1a", marginTop: 2 }}>KI-Tiefenanalyse pro Rechtsgebiet</p>
+        </div>
+        {rechtsgebiete.length > 0 && (
+          <button
+            onClick={run}
+            disabled={analyzing}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "9px 16px", borderRadius: 10, border: "none", cursor: analyzing ? "not-allowed" : "pointer",
+              background: analyzing ? "#f0f0f0" : "linear-gradient(135deg,#5856D6,#0A84FF)",
+              color: analyzing ? "#999" : "#fff", fontSize: 12, fontWeight: 700,
+            }}
+          >
+            {analyzing ? (
+              <>
+                <div style={{ width: 12, height: 12, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                Analysiert…
+              </>
+            ) : (
+              <>
+                <span>✦</span>
+                {sit.module?.length > 0 ? "Neu analysieren" : "KI-Analyse starten"}
+              </>
+            )}
+          </button>
+        )}
+      </div>
+
+      {analyzeError && (
+        <div style={{ padding: "10px 14px", background: "rgba(255,59,48,0.08)", border: "1px solid rgba(255,59,48,0.2)", borderRadius: 10 }}>
+          <p style={{ fontSize: 12, color: "#FF3B30" }}>{analyzeError}</p>
+        </div>
+      )}
+
+      {rechtsgebiete.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "40px 20px", background: "rgba(0,0,0,0.025)", borderRadius: 16 }}>
+          <p style={{ fontSize: 14, color: "#888" }}>Bitte in Schritt 1 zuerst Rechtsgebiete auswählen.</p>
+        </div>
+      ) : sit.module?.length > 0 ? (
+        <>
+          {sit.gesamt_risiko !== undefined && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+              {[
+                ["Gesamt-Risiko", `${sit.gesamt_risiko}/10`, sit.gesamt_risiko >= 7 ? "#FF3B30" : sit.gesamt_risiko >= 4 ? "#FF9500" : "#34C759"],
+                ["Exposure", sit.gesamt_exposure_eur ? `${(sit.gesamt_exposure_eur/1000).toFixed(0)}K €` : "—", "#5856D6"],
+                ["Module", `${sit.module.length}`, "#0A84FF"],
+              ].map(([l, v, c]) => (
+                <div key={l} style={{ textAlign: "center", padding: "12px 10px", background: "#fff", borderRadius: 12, border: "1px solid rgba(0,0,0,0.06)" }}>
+                  <p style={{ fontSize: 9, color: "#aaa", textTransform: "uppercase", fontWeight: 600 }}>{l}</p>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: c, marginTop: 3 }}>{v}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          {sit.kritische_punkte?.length > 0 && (
+            <div style={{ padding: "12px 16px", background: "rgba(255,59,48,0.06)", border: "1px solid rgba(255,59,48,0.15)", borderRadius: 12 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#FF3B30", textTransform: "uppercase", marginBottom: 6 }}>⚠ Kritische Punkte</p>
+              {sit.kritische_punkte.map((p, i) => (
+                <p key={i} style={{ fontSize: 12, color: "#B81C3A", marginBottom: 4, lineHeight: 1.4 }}>• {p}</p>
+              ))}
+            </div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {sit.module.map((m, i) => (
+              <ModulPanel key={i} m={m} onQuantify={quantify} loading={qId === m.rechtsgebiet} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <div style={{ textAlign: "center", padding: "40px 20px", background: "rgba(0,0,0,0.025)", borderRadius: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "#888" }}>Noch keine Analyse vorhanden</p>
+          <p style={{ fontSize: 12, color: "#bbb", marginTop: 4 }}>Klicke auf „KI-Analyse starten" um die {rechtsgebiete.length} ausgewählten Rechtsgebiete zu analysieren.</p>
+        </div>
+      )}
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}

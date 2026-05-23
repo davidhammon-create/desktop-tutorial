@@ -15,8 +15,7 @@ import { Shield, ShieldOff, ShieldQuestion } from "lucide-react";
  *  - KI-Bewertung + Diskrepanz ≥ 4 → Prüfung empfohlen
  */
 export function getComplianceStatus(item, type = "argument") {
-  const hasKi = item.ki_strength !== undefined && item.ki_strength !== null
-    || item.ki_weight !== undefined && item.ki_weight !== null;
+  const hasKi = item.ki_strength !== undefined && item.ki_strength !== null || item.ki_weight !== undefined && item.ki_weight !== null;
   const discrepancy = type === "argument"
     ? Math.abs((item.strength || 5) - (item.ki_strength ?? item.strength ?? 5))
     : Math.abs((item.weight || 5) - (item.ki_weight ?? item.weight ?? 5));

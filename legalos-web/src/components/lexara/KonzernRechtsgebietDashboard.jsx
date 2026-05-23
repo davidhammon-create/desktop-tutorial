@@ -58,4 +58,45 @@ export default function KonzernRechtsgebietDashboard({ cases, questionnaires }) 
       if (c.status === "Abgeschlossen") {
         map[rg].abgeschlossen++;
         if ((c.prognose || 0) >= 50) map[rg].won++;
-        const q = questionnaires.find(q => q.case_id
+        const q = questionnaires.find(q => q.case_id === c.id);
+        if (q?.tatsaechliche_dauer) map[rg].dauerArr.push(q.tatsaechliche_dauer);
+      }
+      map[rg].sumPrognose += c.prognose || 0;
+      map[rg].sumStreitwert += c.streitwert || 0;
+    });
+    return Object.values(map).map(d => ({
+      ...d,
+      avgPrognose: d.total ? Math.round(d.sumPrognose / d.total) : 0,
+      avgStreitwert: d.total ? Math.round(d.sumStreitwert / d.total) : 0,
+      winRate: d.abgeschlossen ? Math.round((d.won / d.abgeschlossen) * 100) : 0,
+      avgDauer: d.dauerArr.length ? Math.round(d.dauerArr.reduce((a, b) => a + b, 0) / d.dauerArr.length) : 0,
+    })).sort((a, b) => b.total - a.total);
+  }, [cases, questionnaires]);
+
+  if (!rgData.length) {
+    return (
+      <div className="text-center py-12 text-gray-400">
+        <p className="text-sm">Keine Rechtsgebietsdaten vorhanden</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-sm font-semibold text-gray-800">📊 Konzern-Rechtsgebiet-Dashboard</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {rgData.slice(0, 8).map(d => (
+          <div key={d.name} className="bg-white border border-gray-100 rounded-xl p-3">
+            <p className="text-xs font-semibold text-gray-700 truncate">{d.name}</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{d.total}</p>
+            <div className="flex gap-2 mt-1">
+              <span className="text-[10px] text-blue-500">{d.aktiv} aktiv</span>
+              <span className="text-[10px] text-green-500">{d.winRate}% Win</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+}

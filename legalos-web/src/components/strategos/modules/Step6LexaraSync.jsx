@@ -207,4 +207,15 @@ Vertraulich — Erstellt mit STRATEGOS Enterprise · ${new Date().toLocaleDateSt
       {/* Sync-Felder */}
       <AppleCard title="Synchronisierbare Felder" accentColor="#34C759">
         {SYNC_ITEMS.map((item, i) => (
-          <SyncRow key={i} label={item.label} value={item.value} synced={(sync.synchronisierte_felder || []).includes(item.field)} conflict={(sync.konflikte || []).some(k => k.feld
+          <SyncRow
+            key={i}
+            label={item.label}
+            value={item.value}
+            synced={(sync.synchronisierte_felder || []).includes(item.field)}
+            conflict={(sync.konflikte || []).some(k => k.feld === item.field)}
+          />
+        ))}
+      </AppleCard>
+    </div>
+  );
+}

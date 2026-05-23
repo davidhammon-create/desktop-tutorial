@@ -293,4 +293,182 @@ function KlauselSelector({ sorted, selectedIdx, onChange }) {
           return (
             <button key={i} onClick={() => onChange(i)}
               style={{
-                padding: "4px 10px", borderRadius: 7, border: `1px solid ${selectedIdx
+                padding: "4px 10px", borderRadius: 7,
+                border: `1px solid ${selectedIdx === i ? color : "rgba(0,0,0,0.1)"}`,
+                background: selectedIdx === i ? `${color}15` : "rgba(0,0,0,0.02)",
+                color: selectedIdx === i ? color : "#666",
+                fontSize: 11, fontWeight: selectedIdx === i ? 700 : 500,
+                cursor: "pointer",
+              }}>
+              {k.klausel_typ || `Klausel ${i + 1}`}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default function Step2VertragsAnalyse({ scenario, onSave }) {
+  const ctx = scenario.unternehmenskontext || {};
+  const ki = scenario.ki_analyse || {};
+  const [result, setResult] = useState(ki.vertrags_analyse || null);
+  const [analysing, setAnalysing] = useState(false);
+  const [activeViz, setActiveViz] = useState("heatmap");
+  const [vizResult, setVizResult] = useState({});
+  const [vizLoading, setVizLoading] = useState({});
+  const [selectedKlauselIdx, setSelectedKlauselIdx] = useState(0);
+
+  const klauseln = result?.kritische_klauseln || [];
+  const sorted = [...klauseln].sort((a, b) => {
+    const order = { kritisch: 0, hoch: 1, mittel: 2, niedrig: 3, positiv: 4 };
+    return (order[a.risiko_stufe] ?? 2) - (order[b.risiko_stufe] ?? 2);
+  });
+  const selectedKlausel = sorted[selectedKlauselIdx] || null;
+
+  const analyse = async () => {
+    setAnalysing(true);
+    try {
+      const r = await base44.integrations.Core.InvokeLLM({
+        prompt: `Du bist Senior-Partner einer Großkanzlei für Vertragsrecht. Analysiere den folgenden Vertrag aus juristisch-strategischer Sicht.
+
+Unternehmen: ${ctx.unternehmen_name} (${ctx.rechtsform}, ${ctx.branche})
+Gegner: ${ctx.gegner_name || "—"} (${ctx.gegner_rolle || "—"})
+Sachverhalt: ${ctx.sachverhalt_lang?.slice(0, 500) || "—"}
+Dokumente: ${(scenario.ki_kontext?.dokument_typen || []).join(", ") || "—"}
+
+Analysiere alle kritischen Klauseln, deren Risiken, Szenarien und Verhandlungsempfehlungen.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            kritische_klauseln: { type: "array", items: { type: "object", properties: {
+              klausel_typ: { type: "string" },
+              risiko_stufe: { type: "string" },
+              kurzbeschreibung: { type: "string" },
+              rechtliche_mechanik: { type: "string" },
+              norm: { type: "string" },
+              juristische_vorteile: { type: "array", items: { type: "string" } },
+              juristische_nachteile: { type: "array", items: { type: "string" } },
+              szenarien: { type: "array", items: { type: "object", properties: {
+                horizont: { type: "string" },
+                beschreibung: { type: "string" },
+                eintrittsbedingung: { type: "string" },
+                empfohlene_reaktion: { type: "string" },
+                chancen: { type: "string" },
+                risiken: { type: "string" }
+              }}},
+              verhandlungsempfehlung: { type: "string" },
+              alternativ_formulierung: { type: "string" },
+              durchsetzbarkeit: { type: "string" },
+              durchsetzbar: { type: "boolean" },
+              illegale_umgehung: { type: "string" }
+            }}},
+            gesamtbewertung: { type: "string" },
+            vertragstyp: { type: "string" },
+            risiko_index: { type: "number" },
+            top_prioritaet: { type: "string" }
+          }
+        },
+        model: "claude_sonnet_4_6"
+      });
+      setResult(r);
+      await onSave({ ki_analyse: { ...ki, vertrags_analyse: r } });
+    } catch (err) {
+      console.error("Vertragsanalyse fehlgeschlagen", err);
+    } finally {
+      setAnalysing(false);
+    }
+  };
+
+  const runViz = async (vizId) => {
+    if (!result || klauseln.length === 0) return;
+    setVizLoading(v => ({ ...v, [vizId]: true }));
+    try {
+      const promptCfg = VIZ_PROMPTS[vizId]?.(sorted, selectedKlausel, ctx);
+      if (!promptCfg) return;
+      const r = await base44.integrations.Core.InvokeLLM(promptCfg);
+      setVizResult(v => ({ ...v, [vizId]: r }));
+    } catch (err) {
+      console.error("Viz-Analyse fehlgeschlagen", err);
+    } finally {
+      setVizLoading(v => ({ ...v, [vizId]: false }));
+    }
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, ...SF }}>
+      <div style={{ textAlign: "center", paddingBottom: 4 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: "#0A84FF", letterSpacing: "0.15em", textTransform: "uppercase" }}>Schritt 3 · Strategos</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1a", letterSpacing: "-0.4px", marginTop: 4 }}>Vertragsanalyse</h2>
+        <p style={{ fontSize: 12, color: "#888", marginTop: 3 }}>Klausel-Risiko · Szenarioprojektion · Visualisierungen</p>
+      </div>
+
+      <AppleCard accentColor="#0A84FF" action={
+        <AppleButton onClick={analyse} disabled={analysing} variant="blue" icon={Sparkles}>
+          {analysing ? "Analysiert…" : result ? "Neu analysieren" : "Analyse starten"}
+        </AppleButton>
+      }>
+        <p style={{ fontSize: 13, color: "#1a1a1a" }}>
+          {result
+            ? `${klauseln.length} Klauseln analysiert · Risiko-Index: ${result.risiko_index ?? "—"}/10 · Typ: ${result.vertragstyp || "—"}`
+            : "Klicke auf Analyse starten, um den Vertrag zu untersuchen."}
+        </p>
+        {result?.gesamtbewertung && (
+          <p style={{ fontSize: 11, color: "#666", marginTop: 6, lineHeight: 1.5 }}>{result.gesamtbewertung}</p>
+        )}
+      </AppleCard>
+
+      {result && klauseln.length > 0 && (
+        <>
+          {/* Klausel-Liste */}
+          <AppleCard title="Kritische Klauseln" accentColor="#B81C3A">
+            {sorted.map((k, i) => <KlauselCard key={i} k={k} idx={i} />)}
+          </AppleCard>
+
+          {/* Visualisierungen */}
+          <AppleCard title="Visualisierungen & KI-Tiefenanalysen" accentColor="#5856D6">
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+              {VIZ_TABS.map(v => (
+                <button key={v.id} onClick={() => setActiveViz(v.id)}
+                  style={{
+                    padding: "5px 11px", borderRadius: 8,
+                    border: `1px solid ${activeViz === v.id ? "#5856D6" : "rgba(0,0,0,0.1)"}`,
+                    background: activeViz === v.id ? "rgba(88,86,214,0.1)" : "rgba(0,0,0,0.02)",
+                    color: activeViz === v.id ? "#5856D6" : "#666",
+                    fontSize: 11, fontWeight: activeViz === v.id ? 700 : 500, cursor: "pointer"
+                  }}>
+                  {v.icon} {v.label}
+                </button>
+              ))}
+            </div>
+
+            {["heatmap", "quadrant", "wirkung", "zeitachse", "vergleich"].includes(activeViz) && (
+              <KlauselSelector sorted={sorted} selectedIdx={selectedKlauselIdx} onChange={setSelectedKlauselIdx} />
+            )}
+
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+              <AppleButton onClick={() => runViz(activeViz)} disabled={vizLoading[activeViz]} variant="violet" icon={Sparkles}>
+                {vizLoading[activeViz] ? "Analysiert…" : "KI-Analyse für diese Ansicht"}
+              </AppleButton>
+            </div>
+
+            {vizResult[activeViz] ? (
+              <div style={{ padding: "12px", background: "rgba(88,86,214,0.04)", borderRadius: 12 }}>
+                <pre style={{ fontSize: 11, color: "#333", whiteSpace: "pre-wrap", lineHeight: 1.5 }}>
+                  {JSON.stringify(vizResult[activeViz], null, 2)}
+                </pre>
+              </div>
+            ) : (
+              <p style={{ fontSize: 11, color: "#aaa", textAlign: "center", padding: "20px 0" }}>
+                Klicke auf „KI-Analyse für diese Ansicht" um die {VIZ_TABS.find(v => v.id === activeViz)?.desc || "Analyse"} zu laden.
+              </p>
+            )}
+          </AppleCard>
+        </>
+      )}
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}
+}
+}

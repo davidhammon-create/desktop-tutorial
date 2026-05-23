@@ -193,4 +193,100 @@ Vertraulich — Erstellt mit STRATEGOS · ${new Date().toLocaleDateString("de-DE
           {/* Umsetzung 3 Horizonte */}
           {HORIZONTE_CFG.map(h => {
             const data = plan[`umsetzung_${h.key}`] || [];
-            if (data.length
+            if (!data.length) return null;
+            return (
+              <AppleCard key={h.key} title={`${h.label} · ${h.sub}`} accentColor={h.color}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {data.map((m, i) => (
+                    <div key={i} style={{ padding: "10px 13px", background: "rgba(0,0,0,0.025)", borderRadius: 11, borderLeft: `3px solid ${h.color}` }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: h.color, minWidth: 18 }}>{i + 1}.</span>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontSize: 12, fontWeight: 700, color: "#1a1a1a" }}>{m.massnahme}</p>
+                          {m.zeitraum && <p style={{ fontSize: 10, color: "#888", marginTop: 2 }}>⏱ {m.zeitraum}{m.verantwortlich ? ` · ${m.verantwortlich}` : ""}</p>}
+                          {m.normen && <p style={{ fontSize: 10, color: "#5856D6", marginTop: 2 }}>{m.normen}</p>}
+                          {m.kosten_indikation && <p style={{ fontSize: 10, color: "#FF9500", marginTop: 2 }}>💰 {m.kosten_indikation}</p>}
+                          {m.erwartetes_ergebnis && <p style={{ fontSize: 10, color: "#1DB954", marginTop: 2 }}>→ {m.erwartetes_ergebnis}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AppleCard>
+            );
+          })}
+
+          {/* Monitoring */}
+          {plan.monitoring_indikatoren?.length > 0 && (
+            <AppleCard title="Monitoring-Indikatoren" accentColor="#0A84FF">
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {plan.monitoring_indikatoren.map((m, i) => (
+                  <div key={i} style={{ display: "flex", gap: 10, padding: "8px 11px", background: "rgba(10,132,255,0.05)", borderRadius: 9 }}>
+                    <span style={{ fontSize: 14 }}>📊</span>
+                    <div>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: "#1a1a1a" }}>{m.indikator}</p>
+                      <p style={{ fontSize: 10, color: "#888" }}>Schwellenwert: {m.schwellenwert} · Frequenz: {m.frequenz}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </AppleCard>
+          )}
+
+          {/* Schiedsempfehlung */}
+          {plan.schiedsverfahren_empfehlung && (
+            <AppleCard title="Schiedsverfahren-Empfehlung" accentColor="#AF52DE">
+              <p style={{ fontSize: 12, color: "#333", lineHeight: 1.5 }}>{plan.schiedsverfahren_empfehlung.begruendung}</p>
+              {plan.schiedsverfahren_empfehlung.institution && (
+                <p style={{ fontSize: 11, color: "#AF52DE", marginTop: 8, fontWeight: 600 }}>
+                  Institution: {plan.schiedsverfahren_empfehlung.institution} · Ort: {plan.schiedsverfahren_empfehlung.schiedsort}
+                </p>
+              )}
+            </AppleCard>
+          )}
+
+          {/* LEXARA-Export */}
+          <AppleCard title="LEXARA Integration" accentColor="#34C759">
+            {lexaraCreated ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <CheckCircle style={{ width: 18, height: 18, color: "#34C759" }} />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a" }}>LEXARA-Fall erstellt</p>
+                  <p style={{ fontSize: 11, color: "#888" }}>Fall-ID: {lexaraCreated}</p>
+                </div>
+                <button onClick={() => navigate(`/lexara`)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, padding: "7px 13px", background: "#34C759", color: "#fff", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                  <ExternalLink style={{ width: 12, height: 12 }} /> Zu LEXARA
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a" }}>Als LEXARA-Fall anlegen</p>
+                  <p style={{ fontSize: 11, color: "#888", marginTop: 2 }}>Erstelle einen Fall in LEXARA mit allen Strategos-Erkenntnissen.</p>
+                </div>
+                <AppleButton onClick={async () => {
+                  setCreatingLexara(true);
+                  try {
+                    const c = await base44.entities.Case.create({
+                      fallname: `${ctx.unternehmen_name || "Strategos"} – ${scenario.title}`,
+                      rechtsgebiet: (scenario.situationsanalyse?.module?.[0]?.rechtsgebiet) || "Vertragsrecht",
+                      sachverhalt: ctx.sachverhalt_lang?.slice(0, 500) || "",
+                      prognose: 50,
+                      status: "aktiv",
+                    });
+                    setLexaraCreated(c.id);
+                    await onSave({ ki_analyse: { ...(scenario.ki_analyse || {}), lexara_case_created: c.id } });
+                  } catch (e) { console.error(e); } finally { setCreatingLexara(false); }
+                }} disabled={creatingLexara} variant="success" icon={Link2}>
+                  {creatingLexara ? "Wird erstellt…" : "Fall in LEXARA anlegen"}
+                </AppleButton>
+              </div>
+            )}
+          </AppleCard>
+        </>
+      )}
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}
+}

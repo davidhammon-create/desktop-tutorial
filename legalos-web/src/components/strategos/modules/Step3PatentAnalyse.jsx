@@ -251,5 +251,70 @@ Liefere konkrete quantitative Bewertungen (Verletzungswahrscheinlichkeit %, Nich
           {result.strategische_optionen?.length > 0 && (
             <AppleCard title="Strategische Optionen" accentColor="#1DB954">
               <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-                {result.strategische_optionen.sort((a, b) => (b.empfehlung_score || 0) - (a.empfehlung_score || 0)).map((o, i) => (
-                  <div key={i} style={{ padding: "10px 13px", background: o.ist_illegal ? "rgba(184,28,58,0.06)" : "rgba(0,0,0,0.025)", borderRadius: 11, borderLeft: `3px solid ${o.ist_illegal ? "#B81C3A" : i
+                {result.strategische_optionen.sort((a, b) => (b.empfehlung_score || 0) - (a.empfehlung_score || 0)).map((o, i) => {
+                  const optColors = ["#1DB954", "#0A84FF", "#5856D6", "#FF9500", "#AF52DE"];
+                  const borderColor = o.ist_illegal ? "#B81C3A" : (optColors[i % optColors.length]);
+                  return (
+                    <div key={i} style={{ padding: "10px 13px", background: o.ist_illegal ? "rgba(184,28,58,0.06)" : "rgba(0,0,0,0.025)", borderRadius: 11, borderLeft: `3px solid ${borderColor}` }}>
+                      {o.ist_illegal && (
+                        <p style={{ fontSize: 9, fontWeight: 800, color: "#B81C3A", textTransform: "uppercase", marginBottom: 4 }}>⚠ ILLEGAL — NUR ZUR INFORMATION</p>
+                      )}
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: borderColor }}>Option {i + 1}: {o.option}</span>
+                        {o.empfehlung_score !== undefined && (
+                          <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 6, background: `${borderColor}20`, color: borderColor, fontWeight: 700 }}>Score: {o.empfehlung_score}/10</span>
+                        )}
+                      </div>
+                      <p style={{ fontSize: 11, color: "#333", lineHeight: 1.4, marginBottom: 4 }}>{o.beschreibung}</p>
+                      {o.kosten_indikation && <p style={{ fontSize: 10, color: "#888" }}>💰 Kosten: {o.kosten_indikation} | ⏱ {o.zeithorizont}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </AppleCard>
+          )}
+
+          {/* Schadensberechnung */}
+          {result.schadensberechnung && (
+            <AppleCard title="Schadensberechnung (§ 139 Abs. 2 PatG)" accentColor="#B81C3A">
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {[
+                  ["Methode 1: Entgangener Gewinn", result.schadensberechnung.methode_1_entgangener_gewinn],
+                  ["Methode 2: Lizenzanalogie", result.schadensberechnung.methode_2_lizenzanalogie],
+                  ["Methode 3: Verletzergewinn", result.schadensberechnung.methode_3_verletzergewinn],
+                ].filter(([, v]) => v).map(([l, v]) => (
+                  <div key={l} style={{ padding: "7px 10px", background: "rgba(0,0,0,0.025)", borderRadius: 8 }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 3 }}>{l}</p>
+                    <p style={{ fontSize: 11, color: "#333" }}>{v}</p>
+                  </div>
+                ))}
+                {result.schadensberechnung.empfohlene_methode && (
+                  <div style={{ padding: "7px 10px", background: "rgba(29,185,84,0.07)", borderRadius: 8, borderLeft: "3px solid #1DB954" }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "#1DB954", textTransform: "uppercase", marginBottom: 3 }}>Empfohlene Methode</p>
+                    <p style={{ fontSize: 11, color: "#333" }}>{result.schadensberechnung.empfohlene_methode}</p>
+                  </div>
+                )}
+              </div>
+            </AppleCard>
+          )}
+
+          {/* Sofortmaßnahmen */}
+          {result.sofortmassnahmen?.length > 0 && (
+            <AppleCard title="Sofortmaßnahmen" accentColor="#FF3B30">
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {result.sofortmassnahmen.map((m, i) => (
+                  <div key={i} style={{ padding: "6px 10px", background: "rgba(255,59,48,0.06)", borderRadius: 8, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#FF3B30", minWidth: 16 }}>{i + 1}.</span>
+                    <p style={{ fontSize: 12, color: "#333", lineHeight: 1.4 }}>{m}</p>
+                  </div>
+                ))}
+              </div>
+            </AppleCard>
+          )}
+        </>
+      )}
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}
+}

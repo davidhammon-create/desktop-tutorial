@@ -328,4 +328,58 @@ Für jedes Urteil: Aktenzeichen, Gericht, Datum, Leitsatz, Relevanz, ob es uns o
           </div>
           {results.map((urteil, idx) => {
             const seite = SEITE_CONFIG[urteil.seite] || SEITE_CONFIG.neutral;
-            const isExpanded = expanded
+            const isExpanded = expanded === idx;
+            return (
+              <div key={idx} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                <div
+                  className="flex items-start gap-3 p-4 cursor-pointer hover:bg-gray-50"
+                  onClick={() => setExpanded(isExpanded ? null : idx)}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${seite.bg}`}>
+                    {seite.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${seite.bg} ${seite.text}`}>{urteil.seite || "neutral"}</span>
+                      {urteil.aktenzeichen && <span className="text-[10px] font-mono text-gray-400">{urteil.aktenzeichen}</span>}
+                      {urteil.gericht && <span className="text-[10px] text-gray-400">{urteil.gericht}</span>}
+                      {urteil.datum && <span className="text-[10px] text-gray-400">{urteil.datum}</span>}
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900">{urteil.titel}</p>
+                    {urteil.leitsatz && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{urteil.leitsatz}</p>}
+                  </div>
+                  <span className="text-gray-300 text-sm">{isExpanded ? "▲" : "▼"}</span>
+                </div>
+                {isExpanded && (
+                  <div className="px-4 pb-4 pt-0 border-t border-gray-50 space-y-3">
+                    {urteil.rechtssatz && (
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Rechtssatz</p>
+                        <p className="text-xs text-gray-700 leading-relaxed">{urteil.rechtssatz}</p>
+                      </div>
+                    )}
+                    {urteil.relevanz_begruendung && (
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Relevanz für deinen Fall</p>
+                        <p className="text-xs text-gray-600">{urteil.relevanz_begruendung}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2 flex-wrap pt-1">
+                      <button onClick={() => importAsArgument(urteil, idx)} className="flex items-center gap-1 text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-800">
+                        <Plus className="w-3 h-3" /> Als Argument
+                      </button>
+                      <button onClick={() => importAsEvidence(urteil, idx)} className="flex items-center gap-1 text-xs border border-blue-300 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50">
+                        <Plus className="w-3 h-3" /> Als Beweis
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+}

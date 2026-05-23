@@ -31,4 +31,42 @@ export default function KlauselHeatmap({ klauseln, onSelect, selectedIdx }) {
         {sorted.map((k, i) => {
           const color = RISIKO_COLOR[k.risiko_stufe] || "#0A84FF";
           const score = RISIKO_SCORE[k.risiko_stufe] || 5;
-          const isSelected = selectedIdx
+          const isSelected = selectedIdx === i;
+          return (
+            <div
+              key={i}
+              onClick={() => onSelect?.(i)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "8px 10px",
+                borderRadius: 9,
+                marginBottom: 5,
+                cursor: "pointer",
+                background: isSelected ? `${color}10` : "rgba(0,0,0,0.015)",
+                border: `1px solid ${isSelected ? color + "50" : "transparent"}`,
+                transition: "all 0.15s",
+              }}
+            >
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0, boxShadow: `0 0 0 3px ${color}25` }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "#1a1a1a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {k.klausel_typ || `Klausel ${i + 1}`}
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+                  <div style={{ height: 4, background: "rgba(0,0,0,0.06)", borderRadius: 2, flex: 1, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${(score / 10) * 100}%`, background: color, borderRadius: 2 }} />
+                  </div>
+                  <span style={{ fontSize: 9, fontWeight: 700, color, textTransform: "uppercase", letterSpacing: "0.05em" }}>{LABEL[k.risiko_stufe] || "—"}</span>
+                  <span style={{ fontSize: 9, color: "#aaa" }}>{score}/10</span>
+                </div>
+              </div>
+              {k.norm && <span style={{ fontSize: 9, fontFamily: "monospace", color: "#999", flexShrink: 0 }}>{k.norm}</span>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

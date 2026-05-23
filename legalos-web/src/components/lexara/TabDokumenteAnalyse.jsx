@@ -235,4 +235,28 @@ function KIExplanationPanel() {
           <div className="space-y-1.5">
             {STEP_MAP.map((step, i) => (
               <div key={i} className="rounded-lg border cursor-pointer transition-all"
-                style={{ borderColor: detailStep
+                style={{ borderColor: detailStep === i ? step.color : "rgba(0,0,0,0.07)", background: detailStep === i ? `${step.color}08` : "transparent" }}
+                onClick={() => setDetailStep(detailStep === i ? null : i)}
+              >
+                <div className="flex items-center gap-2 px-3 py-2">
+                  <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white" style={{ background: step.color }}>{step.num}</div>
+                  <span className="text-xs font-medium text-gray-700 flex-1">{step.label}</span>
+                  <span className="text-[10px] text-gray-400">{step.wo}</span>
+                  {detailStep === i ? <ChevronUp className="w-3 h-3 text-gray-400" /> : <ChevronDown className="w-3 h-3 text-gray-400" />}
+                </div>
+                {detailStep === i && (
+                  <div className="px-3 pb-3">
+                    <p className="text-[10px] text-gray-500 mb-1">{step.hinweis}</p>
+                    <div className="flex flex-wrap gap-1">
+                      {step.felder.map(f => <span key={f} className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{f}</span>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

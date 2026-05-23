@@ -516,4 +516,12 @@ export default function Tab10Abschluss({ caseId, caseData, kiMode }) {
               {[
                 ["Datenbasis", `${data.args.length + data.evs.length} Einträge`, data.args.length + data.evs.length > 5 ? "text-green-700 bg-green-50" : "text-amber-700 bg-amber-50"],
                 ["KI-Treffsicherheit", `${kiAccData.accuracy}%`, kiAccData.accuracy >= 70 ? "text-green-700 bg-green-50" : kiAccData.accuracy >= 50 ? "text-amber-700 bg-amber-50" : "text-red-700 bg-red-50"],
-                ["Compliance", `${criticalWarnings.length} kritisch offen`, criticalWarnings.length
+                ["Compliance", `${criticalWarnings.length} kritisch offen`, criticalWarnings.length === 0 ? "text-green-700 bg-green-50" : "text-red-700 bg-red-50"],
+              ].map(([label, val, cls]) => (
+                <div key={label} className={`rounded-xl p-3 border ${cls.includes("green") ? "border-green-200" : cls.includes("amber") ? "border-amber-200" : "border-red-200"}`}>
+                  <p className="text-[10px] text-gray-500 mb-0.5">{label}</p>
+                  <p className={`text-sm font-bold ${cls.split(" ")[0]}`}>{val}</p>
+                </div>
+              ))}
+            </div>
+}

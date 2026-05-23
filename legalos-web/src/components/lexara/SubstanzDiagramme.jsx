@@ -151,4 +151,47 @@ export default function SubstanzDiagramme({ caseId }) {
           <button key={v.id} onClick={() => setView(v.id)}
             className="no-override px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
             style={{
-              background: view
+              background: view === v.id ? "#007AFF" : "rgba(0,0,0,0.05)",
+              color: view === v.id ? "#fff" : "#666",
+              border: "none",
+              cursor: "pointer",
+            }}>
+            {v.label}
+          </button>
+        ))}
+      </div>
+
+      {view === "bar" && barData.length > 0 && (
+        <div className="bg-white border border-gray-100 rounded-xl p-4">
+          <p className="text-xs font-semibold text-gray-600 mb-3">Argument-Stärken</p>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={barData.slice(0, 10)}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+              <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#aaa" }} />
+              <YAxis tick={{ fontSize: 9, fill: "#aaa" }} />
+              <Tooltip />
+              <Bar dataKey="eigen" fill="#007AFF" name="Eigene" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="gegner" fill="#FF3B30" name="Gegner" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {view === "discrepancy" && discrepancyData.length > 0 && (
+        <div className="space-y-2">
+          {discrepancyData.map((d, i) => (
+            <div key={i} className="bg-white border border-gray-100 rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-700 truncate flex-1">{d.name}</span>
+                <span className={`text-xs font-bold ml-2 ${d.diff > 0 ? "text-blue-500" : "text-red-500"}`}>
+                  {d.diff > 0 ? "+" : ""}{d.diff}%
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+}
