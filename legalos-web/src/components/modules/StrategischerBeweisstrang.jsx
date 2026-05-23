@@ -61,3 +61,29 @@ export default function StrategischerBeweisstrang() {
   }
 
   if (cases.length
+ === 0) {
+    return (
+      <div className="rounded-xl flex items-center justify-center py-12 text-center" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
+        <div>
+          <p className="text-sm font-medium text-gray-500">Keine Fälle vorhanden</p>
+          <p className="text-xs text-gray-400 mt-1">Erstelle zuerst einen Fall in LEXARA.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl p-4" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
+      <p className="text-xs text-gray-500 mb-3">Strategischer Beweisstrang – {cases.length} Fall/Fälle</p>
+      <div className="space-y-2">
+        {cases.map(c => (
+          <div key={c.id} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
+            <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
+            <span className="text-sm text-gray-800 font-medium">{c.fallname}</span>
+            <span className="ml-auto text-xs text-gray-400">{Math.round(c.prognose || 0)}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

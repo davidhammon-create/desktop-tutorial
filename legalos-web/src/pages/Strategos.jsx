@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, ArrowLeft, GitCompare, Building2, Target, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Building2, Target, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EnterpriseShell from "@/components/strategos/EnterpriseShell";
 
@@ -25,7 +24,6 @@ function ScenarioCard({ scenario, onClick }) {
   const step = scenario.enterprise_step ?? 0;
   const totalSteps = 7;
   const progress = Math.round((step / totalSteps) * 100);
-
   return (
     <div onClick={onClick} className="bg-white rounded-xl border border-gray-100 p-4 cursor-pointer hover:shadow-lg hover:border-blue-200 transition-all">
       <div className="flex items-start gap-3">
@@ -103,12 +101,7 @@ export default function Strategos() {
 
   const createScenario = async () => {
     if (!newScenario.title.trim()) return;
-    const created = await base44.entities.StrategosScenario.create({
-      ...newScenario,
-      status: "entwurf",
-      step_completed: 1,
-      enterprise_step: 0,
-    });
+    const created = await base44.entities.StrategosScenario.create({ ...newScenario, status: "entwurf", step_completed: 1, enterprise_step: 0 });
     setNewScenario({ title: "", szenario_typ: "sonstiges", rechtsgebiet: "" });
     setShowCreate(false);
     loadData();
@@ -117,15 +110,12 @@ export default function Strategos() {
 
   const deleteLoophole = async (id) => { await base44.entities.LegalLoophole.delete(id); loadData(); };
 
-  // ── Szenario-Detail: Enterprise direkt ──────────────────────────────────────
   if (activeScenario) {
     return (
       <div className="min-h-screen" style={{ background: "#f0f0f0", fontFamily: "-apple-system,'Helvetica Neue',Arial,sans-serif" }}>
-        {/* Topbar */}
         <div className="sticky top-0 z-20" style={{ background: "rgba(246,246,246,0.97)", borderBottom: "1px solid rgba(0,0,0,0.1)", backdropFilter: "blur(20px)" }}>
           <div className="max-w-6xl mx-auto px-5 py-2.5 flex items-center gap-3">
-            <button onClick={() => { setActiveScenario(null); loadData(); }}
-              className="flex items-center gap-1 text-[11px] font-medium text-gray-500 hover:text-gray-800">
+            <button onClick={() => { setActiveScenario(null); loadData(); }} className="flex items-center gap-1 text-[11px] font-medium text-gray-500 hover:text-gray-800">
               <ArrowLeft className="w-3 h-3" /> Zurück
             </button>
             <span className="text-gray-300">›</span>
@@ -140,8 +130,6 @@ export default function Strategos() {
             </div>
           </div>
         </div>
-
-        {/* Content */}
         <div className="max-w-6xl mx-auto px-5 py-5">
           <EnterpriseShell
             scenario={activeScenario}
@@ -156,10 +144,8 @@ export default function Strategos() {
     );
   }
 
-  // ── Übersicht ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen" style={{ background: "#f0f0f0", fontFamily: "-apple-system,'Helvetica Neue',Arial,sans-serif" }}>
-      {/* Topbar */}
       <div className="sticky top-0 z-20" style={{ background: "rgba(246,246,246,0.97)", borderBottom: "1px solid rgba(0,0,0,0.1)", backdropFilter: "blur(20px)" }}>
         <div className="max-w-5xl mx-auto px-5 py-3 flex items-center gap-3">
           <div className="mr-auto">
@@ -185,4 +171,83 @@ export default function Strategos() {
             <div className="flex items-center justify-center py-20">
               <div className="w-5 h-5 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
             </div>
-          ) : scenarios.length
+          ) : scenarios.length === 0 ? (
+            <div className="text-center py-20 text-gray-400">
+              <Target className="w-12 h-12 mx-auto mb-3 opacity-20" />
+              <p className="text-sm font-medium">Noch keine Szenarien</p>
+              <p className="text-xs mt-1">Erstelle dein erstes Strategos-Szenario</p>
+              <Button size="sm" onClick={() => setShowCreate(true)} className="mt-4 bg-gray-900 text-white">
+                <Plus className="w-3 h-3 mr-1" /> Szenario erstellen
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {scenarios.map(s => (
+                <ScenarioCard key={s.id} scenario={s} onClick={() => setActiveScenario(s)} />
+              ))}
+            </div>
+          )
+        ) : (
+          <div className="space-y-3">
+            {loopholes.length === 0 ? (
+              <div className="text-center py-20 text-gray-400">
+                <p className="text-sm font-medium">Keine Gesetzeslücken erfasst</p>
+              </div>
+            ) : (
+              loopholes.map(l => <LoopholeCard key={l.id} loophole={l} onDelete={deleteLoophole} />)
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Create Modal */}
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowCreate(false)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-base font-semibold text-gray-900 mb-4">Neues Szenario</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Titel *</label>
+                <input
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+                  placeholder="z.B. Fusion mit TechCorp AG"
+                  value={newScenario.title}
+                  onChange={e => setNewScenario(p => ({ ...p, title: e.target.value }))}
+                  onKeyDown={e => e.key === "Enter" && createScenario()}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Szenario-Typ</label>
+                <select
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+                  value={newScenario.szenario_typ}
+                  onChange={e => setNewScenario(p => ({ ...p, szenario_typ: e.target.value }))}
+                >
+                  {Object.entries(SZENARIO_TYPEN).map(([k, v]) => (
+                    <option key={k} value={k}>{v.icon} {v.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Rechtsgebiet</label>
+                <input
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+                  placeholder="z.B. Gesellschaftsrecht, IP-Recht"
+                  value={newScenario.rechtsgebiet}
+                  onChange={e => setNewScenario(p => ({ ...p, rechtsgebiet: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => setShowCreate(false)} className="flex-1 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">Abbrechen</button>
+              <button onClick={createScenario} disabled={!newScenario.title.trim()} className="flex-1 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium disabled:opacity-40 hover:bg-gray-800">
+                Erstellen & starten
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -304,3 +304,19 @@ function LiveCompliancePanel() {
   );
 
   if (cases.length
+ === 0) {
+    return (
+      <div className="flex items-center justify-center py-10 bg-white border rounded-2xl" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+        <span className="text-sm text-gray-400">Keine Fälle vorhanden – erstelle zuerst einen Fall in LEXARA.</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {cases.map(c => (
+        <LiveCompliancePanel key={c.id} caseData={c} />
+      ))}
+    </div>
+  );
+}
