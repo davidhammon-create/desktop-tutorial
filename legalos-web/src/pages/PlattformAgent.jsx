@@ -1,0 +1,150 @@
+
+import { useState, useEffect, useRef } from "react";
+import { base44 } from "@/api/base44Client";
+import { Link } from "react-router-dom";
+import { getTByLanguage } from "../lib/jurisdictionConfig";
+import { useUserProfile } from "../hooks/useUserProfile";
+import { ArrowLeft, Bot, Send, Zap, TrendingUp, Target, ChevronRight, Shield } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+
+function MessageBubble({ message }) {
+  const isUser = message.role === "user";
+  return (
+    <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
+      {!isUser && (
+        <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Bot className="w-4 h-4 text-white" />
+        </div>
+      )}
+      <div className={`max-w-[85%] ${isUser ? "items-end flex flex-col" : ""}`}>
+        {message.content && (
+          <div className={`rounded-2xl px-4 py-3 ${isUser ? "bg-gray-900 text-white" : "bg-white border border-gray-100"}`}>
+            {isUser ? (
+              <p className="text-sm">{message.content}</p>
+            ) : (
+              <ReactMarkdown className="text-sm prose prose-sm prose-slate max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                {message.content}
+              </ReactMarkdown>
+            )}
+          </div>
+        )}
+        {(message.tool_calls || []).map((tc, i) => (
+          <div key={i} className="mt-1.5 ml-1 text-xs text-gray-500 flex items-center gap-1.5">
+            <Zap className="w-3 h-3 text-amber-500" />
+            <span>{tc.status === "completed" ? "✓" : "⏳"} {tc.name?.replace(/_/g, " ")}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function PlattformAgent() {
+  const { language } = useUserProfile();
+  const t = getTByLanguage(language);
+  const [conversations, setConversations] = useState([]);
+  const [activeConv, setActiveConv] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(null);
+  const [loadingConvs, setLoadingConvs] = useState(true);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    loadConversations();
+  }, []);
+
+  useEffect(() => {
+    if (!activeConv) return;
+    const unsub = base44.agents.subscribeToConversation(activeConv.id, (data) => {
+      setMessages(data.messages || []);
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    });
+    return unsub;
+  }, [activeConv?.id]);
+
+  const loadConversations = async () => {
+    setLoadingConvs(true);
+    const convs = await base44.agents.listConversations({ agent_name: "plattform_optimierer" });
+    setConversations(convs || []);
+    setLoadingConvs(false);
+  };
+
+  const startNewConversation = async (initialPrompt) => {
+    const conv = await base44.agents.createConversation({
+      agent_name: "plattform_optimierer",
+      metadata: { name: initialPrompt ? initialPrompt.slice(0, 50) + "…" : t.newSession.replace("+ ", "") }
+    });
+    setActiveConv(conv);
+    setMessages(conv.messages || []);
+    setConversations(prev => [conv, ...prev]);
+    if (initialPrompt) {
+      await sendMessage(conv, initialPrompt);
+    }
+  };
+
+  const sendMessage = async (conv, text) => {
+    const convToUse = conv || activeConv;
+    if (!convToUse || !text.trim()) return;
+    setSending(true);
+    setSendError(null);
+    setInput("");
+    try {
+      await base44.agents.addMessage(convToUse, { role: "user", content: text });
+    } catch (err) {
+      setSendError(language === "EN" ? "Network error – please try again." : language === "FR" ? "Erreur réseau – veuillez réessayer." : "Netzwerkfehler – bitte erneut versuchen.");
+    }
+    setSending(false);
+  };
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    if (!activeConv) {
+      await startNewConversation(input);
+    } else {
+      await sendMessage(null, input);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/modules" className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm">
+              <ArrowLeft className="w-4 h-4" /> {t.backLabel}
+            </Link>
+            <span className="text-gray-200">·</span>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center">
+                <Bot className="w-3.5 h-3.5 text-white" />
+              </div>
+              <h1 className="font-bold text-gray-900 text-sm">{t.platformAgentTitle}</h1>
+              <span className="text-[10px] bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-medium">KI-Agent</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/ki-compliance"
+              className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors">
+              <Shield className="w-3.5 h-3.5" /> Compliance
+            </Link>
+            <button onClick={() => startNewConversation(null)}
+              className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">
+              {t.newSession}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 flex max-w-6xl mx-auto w-full">
+        {/* Sidebar */}
+        <div className="w-56 border-r border-gray-100 bg-white flex-shrink-0 hidden md:flex flex-col">
+          <div className="p-3 border-b border-gray-50">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{t.sessionsLabel}</p>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {loadingConvs ? (
+              <p className="text-xs text-gray-400 p-3">Laden…</p>
+            ) : conversations.length
