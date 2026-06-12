@@ -1,0 +1,1156 @@
+import { useState, useEffect, useRef } from "react";
+import { base44 } from "@/api/base44Client";
+import { invokeLLM, uploadFile } from "@/lib/kiProvider";
+import ComplianceStatusBadge from "./ComplianceStatusBadge";
+import { Plus, Upload, X, RefreshCw, Trash2, ChevronDown, ChevronUp, Sparkles, Pencil, Check, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useKIProtokoll } from "@/hooks/useKIProtokoll";
+import { toast } from "sonner";
+
+function ScoreBar({ value, max = 10, color = "bg-green-500" }) {
+  return (
+    <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${((value || 0) / max) * 100}%` }} />
+    </div>
+  );
+}
+
+function ArgCard({ arg, onDelete, onSave, onKiWeight }) {
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ title: arg.title, description: arg.description || "", side: arg.side || "eigen", type: arg.type || "Rechtsargument", strength: arg.strength || 5, zeitpunkt: arg.zeitpunkt || "", anmerkungen: arg.anmerkungen || "", paragraphs: arg.paragraphs || [] });
+  const [newPara, setNewPara] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState(null);
+  const [kiWeighting, setKiWeighting] = useState(false);
+
+  const discrepancy = arg.ki_strength !== undefined && arg.ki_strength !== null
+    ? Math.abs((arg.strength || 5) - arg.ki_strength)
+    : 0;
+  const hasDiscrepancy = discrepancy >= 2;
+
+  const save = async () => {
+    await base44.entities.Argument.update(arg.id, { ...form, zeitpunkt: form.zeitpunkt || null, anmerkungen: form.anmerkungen || null });
+    setEditing(false);
+    onSave();
+  };
+
+  const addParagraph = () => {
+    if (!newPara.trim()) return;
+    setForm(f => ({ ...f, paragraphs: [...(f.paragraphs || []), newPara.trim()] }));
+    setNewPara("");
+  };
+
+  const removeParagraph = (i) => {
+    setForm(f => ({ ...f, paragraphs: (f.paragraphs || []).filter((_, j) => j !== i) }));
+  };
+
+  const kiWeight = async () => {
+    setKiWeighting(true);
+    const result = await invokeLLM({
+      prompt: `Du bist ein erfahrener Rechtsanwalt. Bewerte die Stärke dieses Rechtsarguments im deutschen Zivilprozess.\nArgument: "${arg.title}"\nBeschreibung: "${arg.description || ""}"\nTyp: ${arg.type || "Rechtsargument"}, Seite: ${arg.side || "eigen"}\n\nGib eine Stärke (0-10) UND eine kurze juristische Begründung (2-3 Sätze) zurück.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          staerke: { type: "number", minimum: 0, maximum: 10 },
+          begruendung: { type: "string" }
+        }
+      }
+    });
+    if (result && result.staerke !== undefined) {
+      await base44.entities.Argument.update(arg.id, {
+        ki_strength: Math.min(10, Math.max(0, result.staerke)),
+        ki_reasoning: result.begruendung || ""
+      });
+      onSave();
+    }
+    setKiWeighting(false);
+  };
+
+  const analyzeDiscrepancy = async () => {
+    setAnalyzing(true);
+    const res = await invokeLLM({
+      prompt: `Analysiere die Diskrepanz zwischen manueller und KI-Bewertung dieses Rechtsarguments:\n\nArgument: "${arg.title}"\nBeschreibung: "${arg.description || ""}"\nManuelle Stärke: ${arg.strength || 5}/10\nKI-Stärke: ${arg.ki_strength}/10\nDiskrepanz: ${discrepancy.toFixed(1)} Punkte\n\nErkläre warum die Bewertungen abweichen und mache 3 konkrete Verbesserungsvorschläge, um das Argument zu stärken.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          erklaerung: { type: "string" },
+          vorschlaege: { type: "array", items: { type: "string" } }
+        }
+      }
+    });
+    setAnalysis(res);
+    setAnalyzing(false);
+  };
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-all">
+      {editing ? (
+        <div className="space-y-2">
+          <input className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Titel *" />
+          <textarea className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" rows={2} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Beschreibung" />
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-[10px] text-gray-400 block mb-1">Zeitpunkt der Argumentation</label>
+              <input type="date" className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white" value={form.zeitpunkt} onChange={e => setForm({ ...form, zeitpunkt: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-[10px] text-gray-400 block mb-1">Anmerkungen (Risiken / Vorteile)</label>
+              <input className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white" placeholder="z.B. Beweis fehlt noch, starkes Argument..." value={form.anmerkungen} onChange={e => setForm({ ...form, anmerkungen: e.target.value })} />
+            </div>
+          </div>
+          {/* Paragraphen im Edit-Modus */}
+          <div>
+            <label className="text-[10px] text-gray-400 block mb-1">Paragraphen / Normen</label>
+            <div className="flex gap-1 mb-1 flex-wrap">
+              {(form.paragraphs || []).map((p, i) => (
+                <span key={i} className="flex items-center gap-1 text-[9px] font-mono bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5">
+                  {p}
+                  <button onClick={() => removeParagraph(i)} className="text-blue-400 hover:text-red-500">×</button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-1">
+              <input className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs bg-white" placeholder="z.B. § 280 BGB" value={newPara} onChange={e => setNewPara(e.target.value)} onKeyDown={e => e.key === "Enter" && addParagraph()} />
+              <button onClick={addParagraph} className="text-[10px] px-2 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+</button>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <select className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white" value={form.side} onChange={e => setForm({ ...form, side: e.target.value })}>
+              <option value="eigen">Eigen</option><option value="gegner">Gegner</option>
+            </select>
+            <select className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
+              <option>Rechtsargument</option><option>Tatsachenargument</option><option>Widerspruch</option><option>Druckmittel</option>
+            </select>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">Stärke:</span>
+              <input type="number" min={0} max={10} step={0.5} className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs w-16 bg-white" value={form.strength} onChange={e => setForm({ ...form, strength: +e.target.value })} />
+            </div>
+            <Button size="sm" onClick={save} className="bg-gray-900 text-white rounded-lg text-xs gap-1"><Check className="w-3 h-3" /> Speichern</Button>
+            <Button size="sm" variant="outline" onClick={() => setEditing(false)} className="rounded-lg text-xs">Abbrechen</Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div className="flex items-start gap-2">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${arg.side === "eigen" ? "bg-blue-50 text-blue-700" : "bg-red-50 text-red-700"}`}>
+                  {arg.side === "eigen" ? "Eigen" : "Gegner"}
+                </span>
+                {arg.type && <span className="text-[10px] text-gray-400">{arg.type}</span>}
+                {hasDiscrepancy && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 font-medium flex items-center gap-1">
+                    <AlertTriangle className="w-2.5 h-2.5" /> Δ {discrepancy.toFixed(1)}
+                  </span>
+                )}
+                <ComplianceStatusBadge item={arg} type="argument" />
+              </div>
+              <h4 className="font-medium text-gray-900 text-sm">{arg.title}</h4>
+              {arg.description && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{arg.description}</p>}
+              <div className="flex flex-wrap gap-3 mt-1">
+                {arg.zeitpunkt && (
+                  <span className="text-[10px] text-gray-400 flex items-center gap-1">🗓 {new Date(arg.zeitpunkt).toLocaleDateString("de-DE")}</span>
+                )}
+                {arg.anmerkungen && (
+                  <span className="text-[10px] text-amber-600 flex items-center gap-1">📝 {arg.anmerkungen}</span>
+                )}
+              </div>
+
+              {/* Score comparison */}
+              <div className="mt-3 space-y-1.5">
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] text-gray-400 w-20 flex-shrink-0">Manuell</span>
+                  <div className="flex-1"><ScoreBar value={arg.strength || 5} color="bg-blue-500" /></div>
+                  <span className="text-xs font-semibold text-blue-600 w-8 text-right">{arg.strength || 5}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] text-gray-400 w-20 flex-shrink-0">KI-Stärke</span>
+                  <div className="flex-1">
+                    {arg.ki_strength !== undefined && arg.ki_strength !== null
+                      ? <ScoreBar value={arg.ki_strength} color="bg-violet-500" />
+                      : <div className="w-full h-1.5 bg-gray-100 rounded-full" />}
+                  </div>
+                  <span className="text-xs font-semibold text-violet-600 w-8 text-right">
+                    {arg.ki_strength !== undefined && arg.ki_strength !== null ? arg.ki_strength : "–"}
+                  </span>
+                </div>
+              </div>
+
+              {(arg.paragraphs && arg.paragraphs.length > 0) && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {arg.paragraphs.map((p, i) => (
+                    <span key={i} className="text-[9px] font-mono bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5">{p}</span>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <button onClick={kiWeight} disabled={kiWeighting}
+                  className="flex items-center gap-1 text-[10px] text-violet-600 hover:text-violet-800 border border-violet-200 rounded px-1.5 py-0.5 disabled:opacity-40">
+                  {kiWeighting ? <RefreshCw className="w-2.5 h-2.5 animate-spin" /> : <Sparkles className="w-2.5 h-2.5" />}
+                  KI bewerten
+                </button>
+                {hasDiscrepancy && (
+                  <button onClick={analyzeDiscrepancy} disabled={analyzing}
+                    className="flex items-center gap-1 text-[10px] text-amber-600 hover:text-amber-800 border border-amber-200 rounded px-1.5 py-0.5 disabled:opacity-40">
+                    {analyzing ? <RefreshCw className="w-2.5 h-2.5 animate-spin" /> : <AlertTriangle className="w-2.5 h-2.5" />}
+                    Diskrepanz analysieren
+                  </button>
+                )}
+              </div>
+
+              {analysis && (
+                <div className="mt-3 bg-amber-50 border border-amber-100 rounded-xl p-3 space-y-2">
+                  <p className="text-xs text-amber-800">{analysis.erklaerung}</p>
+                  {(analysis.vorschlaege || []).map((v, i) => (
+                    <div key={i} className="flex gap-2 text-xs text-gray-700">
+                      <span className="text-amber-500 font-bold flex-shrink-0">{i + 1}.</span>
+                      <span>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </div>
+
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button onClick={() => setEditing(true)} className="text-gray-300 hover:text-blue-500 p-1"><Pencil className="w-3.5 h-3.5" /></button>
+              <button onClick={() => onDelete(arg.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function TabArgumente({ caseId, caseData, onCountChange }) {
+  const [args, setArgs] = useState([]);
+  const [evidence, setEvidence] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("created"); // "created" | "date" | "strength"
+  const [showAdd, setShowAdd] = useState(false);
+  const [newArg, setNewArg] = useState({ title: "", description: "", side: "eigen", strength: 5, type: "Rechtsargument", zeitpunkt: "", anmerkungen: "" });
+  const [extractError, setExtractError] = useState(null);
+  const [batchRating, setBatchRating] = useState(false);
+  const [kiGenerating, setKiGenerating] = useState(false);
+  const [kiGenResult, setKiGenResult] = useState(null);
+  const { logKI } = useKIProtokoll(caseId);
+  const [showExtraction, setShowExtraction] = useState(false);
+  const [extractMode, setExtractMode] = useState("ki");
+  const [dsgvo, setDsgvo] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [text, setText] = useState("");
+  const [extracting, setExtracting] = useState(false);
+  const [extracted, setExtracted] = useState(null);
+  const [detectingDuplicates, setDetectingDuplicates] = useState(false);
+  const [duplicates, setDuplicates] = useState(null);
+  const fileRef = useRef(null);
+
+  useEffect(() => { loadAll(); }, [caseId]);
+
+  const loadAll = async (notify = false) => {
+    const [args, evs] = await Promise.all([
+      base44.entities.Argument.filter({ case_id: caseId }),
+      base44.entities.Evidence.filter({ case_id: caseId })
+    ]);
+    setArgs(args);
+    setEvidence(evs);
+    if (notify) onCountChange && onCountChange();
+  };
+
+  const load = loadAll;
+
+  const handleExtract = async () => {
+    if (extractMode === "ki" && !dsgvo) { setExtractError("Bitte DSGVO-Hinweis akzeptieren"); return; }
+    if (!files.length && !text.trim()) { setExtractError("Dokument oder Text erforderlich"); return; }
+    if (!caseId) { setExtractError("Fall-ID erforderlich"); return; }
+    setExtracting(true);
+    setExtractError(null);
+    try {
+      let fileUrls = [];
+      if (files.length > 0) {
+        const uploads = await Promise.all(files.map(f => uploadFile({ file: f })));
+        fileUrls = uploads.map(r => r.file_url);
+      }
+      const result = await invokeLLM({
+        prompt: `Du bist ein erfahrener Rechtsanwalt. Analysiere diese Dokumente gründlich und extrahiere:
+1. EIGENE ARGUMENTE (welche Vertragsklauseln unterstützen unsere Position?)
+2. GEGENSEITE-ARGUMENTE (was könnte der Gegner argumentieren?)
+3. BEWEISE (konkrete Klauseln, Unterschriften, Daten aus dem Vertrag - dies sind die Belege!)
+4. Für JEDES Argument: Welche Beweise aus Punkt 3 unterstützen es?
+5. DATUM: Extrahiere für Argumente und Beweise das jeweilige Datum (YYYY-MM-DD) — z.B. Vertragsdatum, Schreibdatum, Ereignisdatum. Nur wenn im Dokument erkennbar.
+
+Fallkontext: ${caseData?.fallname || ""} | ${caseData?.rechtsgebiet || ""}
+Rechtsfrage: ${caseData?.zentrale_rechtsfrage || ""}
+${!fileUrls.length ? "TEXT: " + text : ""}`,
+        file_urls: fileUrls.length ? fileUrls : undefined,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            zusammenfassung: { type: "string" },
+            beweise: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  titel: { type: "string" },
+                  beschreibung: { type: "string" },
+                  typ: { type: "string", enum: ["Klausel", "Unterschrift", "Daten", "Dokument", "Sonstiges"] },
+                  gewicht: { type: "number", minimum: 1, maximum: 10 }
+                },
+                required: ["titel"]
+              }
+            },
+            eigene_argumente: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  titel: { type: "string" },
+                  beschreibung: { type: "string" },
+                  typ: { type: "string" },
+                  staerke: { type: "number" },
+                  datum: { type: "string", description: "Datum des Arguments (YYYY-MM-DD) falls im Dokument erkennbar" },
+                  verlinkte_beweise: { type: "array", items: { type: "string" }, description: "Titel der Beweise die dieses Argument stützen" },
+                  paragraphen: { type: "array", items: { type: "string" } }
+                },
+                required: ["titel"]
+              }
+              },
+              gegenseite_argumente: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  titel: { type: "string" },
+                  beschreibung: { type: "string" },
+                  typ: { type: "string" },
+                  staerke: { type: "number" },
+                  datum: { type: "string", description: "Datum des Arguments (YYYY-MM-DD) falls erkennbar" },
+                  verlinkte_beweise: { type: "array", items: { type: "string" } }
+                },
+                required: ["titel"]
+              }
+              },
+            widersprueche: { type: "array", items: { type: "object", properties: { titel: { type: "string" }, staerke: { type: "number" } }, required: ["titel"] } },
+            relevante_paragraphen: { type: "array", items: { type: "string" } }
+          },
+          required: ["beweise", "eigene_argumente"]
+        }
+      });
+      if (!result) { setExtractError("KI-Analyse fehlgeschlagen. Bitte erneut versuchen."); setExtracting(false); return; }
+      setExtracted(result);
+
+      // Protokollieren
+      await logKI({
+        kiName: "Argument-Extraktion",
+        eingabe: text || `Dokumente: ${files.map(f => f.name).join(", ")}`,
+        ausgabe: result,
+        dokumente: files.map(f => f.name),
+        modell: "standard"
+      });
+
+      setFiles([]);
+      setText("");
+    } catch (error) {
+      setExtractError("Fehler bei der Analyse: " + (error?.message || "Unbekannter Fehler"));
+    } finally {
+      setExtracting(false);
+    }
+  }
+
+  const takeAll = async () => {
+    if (!extracted) return;
+    try {
+      const all = [
+        ...(extracted.eigene_argumente || []).map(a => ({ ...a, side: "eigen" })),
+        ...(extracted.gegenseite_argumente || []).map(a => ({ ...a, side: "gegner" }))
+      ];
+
+      // Erstelle zuerst alle Beweise und baue eine Map Titel → ID
+      const evidenceMap = {};
+      if (extracted.beweise && Array.isArray(extracted.beweise)) {
+        for (const ev of extracted.beweise) {
+          if (!ev.titel) continue;
+          const evEntity = await base44.entities.Evidence.create({
+            case_id: caseId,
+            title: ev.titel,
+            description: ev.beschreibung || "",
+            type: ev.typ || "Dokument",
+            source: "Extraktion",
+            weight: ev.gewicht || 5
+          });
+          evidenceMap[ev.titel] = evEntity?.id;
+        }
+      }
+
+      // Erstelle alle Argumente (unabhängig von Beweisen)
+      for (const a of all) {
+        await base44.entities.Argument.create({
+          case_id: caseId,
+          title: a.titel,
+          description: a.beschreibung || "",
+          side: a.side,
+          strength: a.staerke || 5,
+          type: a.typ || "Rechtsargument",
+          paragraphs: a.paragraphen || [],
+          zeitpunkt: a.datum || null,
+        });
+      }
+
+      setExtracted(null);
+      await loadAll(true);
+      toast.success(`${all.length} Argument(e) übernommen`, {
+        description: Object.keys(evidenceMap).length > 0 ? `+ ${Object.keys(evidenceMap).length} Beweis(e) erstellt` : undefined,
+        duration: 4000,
+      });
+    } catch (e) {
+      console.error("Fehler beim Übernehmen all:", e);
+      alert("Fehler beim Übernehmen der Argumente: " + e.message);
+    }
+  };
+
+  const deleteExistingArgIfConverted = async (titel) => {
+    const existing = args.find(arg => arg.title === titel);
+    if (existing) {
+      await base44.entities.Argument.delete(existing.id);
+    }
+  };
+
+  const take = async (a, side) => {
+    try {
+      // Argumente aus der Extraktion haben verlinkte_beweise (Titelstrings die auf extracted.beweise zeigen)
+      // Prüfe ob verlinkte Beweise bereits als Evidence existieren (wurden in takeAll erstellt)
+      // Für einzelnes Übernehmen: erstelle das Argument direkt
+      await base44.entities.Argument.create({
+        case_id: caseId,
+        title: a.titel,
+        description: a.beschreibung || "",
+        side,
+        strength: a.staerke || 5,
+        type: a.typ || "Rechtsargument",
+        paragraphs: a.paragraphen || [],
+        zeitpunkt: a.datum || null,
+      });
+      // Entferne das Argument aus der Extraktions-Liste
+      setExtracted(prev => {
+        if (!prev) return null;
+        const key = side === "eigen" ? "eigene_argumente" : "gegenseite_argumente";
+        const updated = { ...prev };
+        updated[key] = (updated[key] || []).filter(x => x.titel !== a.titel);
+        return updated;
+      });
+      await loadAll(true);
+    } catch (e) {
+      console.error("Fehler beim Übernehmen:", e);
+      alert("Fehler beim Übernehmen des Arguments: " + e.message);
+    }
+  };
+
+  const rateBatch = async () => {
+    if (args.length === 0) return;
+    setBatchRating(true);
+    try {
+      const prompt = `Du bist ein erfahrener Rechtsanwalt. Bewerte die Stärke dieser Argumente und gib für JEDES eine kurze Begründung (1-2 Sätze).
+
+Fall: ${caseData?.fallname || ""}
+Rechtsgebiet: ${caseData?.rechtsgebiet || ""}
+Zentrale Frage: ${caseData?.zentrale_rechtsfrage || ""}
+
+${args.map((a, i) => `${i + 1}. [${a.side === "eigen" ? "EIGEN" : "GEGNER"}] ${a.title}\nBeschreibung: ${a.description || "-"}\nVerknüpfte Beweise: ${a.evidence_ids && a.evidence_ids.length > 0 ? evidence.filter(e => a.evidence_ids.includes(e.id)).map(e => e.title).join(", ") : "-"}`).join("\n\n")}
+
+Gib für jedes Argument ein JSON mit Stärke (0-10) und Begründung (unter Berücksichtigung der Beweise).`;
+
+      const result = await invokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            bewertungen: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  index: { type: "integer" },
+                  staerke: { type: "number", minimum: 0, maximum: 10 },
+                  begruendung: { type: "string" }
+                },
+                required: ["index", "staerke", "begruendung"]
+              }
+            }
+          },
+          required: ["bewertungen"]
+        },
+        model: "gemini_3_flash"
+      });
+
+      // Update alle Argumente
+      if (result && result.bewertungen) {
+        for (const bew of result.bewertungen) {
+          if (args[bew.index]) {
+            await base44.entities.Argument.update(args[bew.index].id, {
+              ki_strength: Math.min(10, Math.max(0, bew.staerke)),
+              ki_reasoning: bew.begruendung
+            });
+          }
+        }
+      }
+      await loadAll(true);
+
+      // Protokollieren
+      await logKI({
+        kiName: "Argument-Batch-Bewertung",
+        eingabe: `Bewertung von ${args.length} Argumenten für Fall: ${caseData?.fallname || caseId}`,
+        ausgabe: result,
+        modell: "gemini_3_flash"
+      });
+    } catch (error) {
+      console.error("Batch-Bewertung fehler:", error);
+      setExtractError("Fehler bei Batch-Bewertung");
+    } finally {
+      setBatchRating(false);
+    }
+  };
+
+  const generateKiArgumente = async () => {
+    setKiGenerating(true);
+    setKiGenResult(null);
+    const result = await invokeLLM({
+      prompt: `Du bist ein erfahrener Rechtsanwalt. Generiere auf Basis des folgenden Fallkontexts die stärksten juristischen Argumente für unsere Seite UND die zu erwartenden Gegenargumente.
+
+Fall: ${caseData?.fallname || ""}
+Rechtsgebiet: ${caseData?.rechtsgebiet || ""}
+Zentrale Rechtsfrage: ${caseData?.zentrale_rechtsfrage || ""}
+Prozessziel: ${caseData?.prozessziel || ""}
+Instanz: ${caseData?.instanz || ""}
+Gericht: ${caseData?.gericht || ""}
+
+Generiere MAXIMAL 19 Argumente insgesamt (Eigen + Gegner). Priorisiere die stärksten und relevantesten. Für jedes Argument: Titel, Beschreibung (2-3 Sätze), Stärke 1-10, relevante Paragraphen.
+
+Zusätzlich: Generiere für JEDES eigene Argument (falls geeignet) 1-3 konkrete Beweismittel, die dieses Argument belegen könnten. Nur wenn ein Beweis wirklich sinnvoll und typisch für diesen Argumenttyp ist – keine generischen Platzhalter. Falls kein geeigneter Beweis existiert, lass das Array leer.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          eigene_argumente: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                titel: { type: "string" },
+                beschreibung: { type: "string" },
+                staerke: { type: "number" },
+                paragraphen: { type: "array", items: { type: "string" } },
+                beweise: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      titel: { type: "string" },
+                      beschreibung: { type: "string" },
+                      typ: { type: "string" },
+                      gewicht: { type: "number" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          gegner_argumente: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                titel: { type: "string" },
+                beschreibung: { type: "string" },
+                staerke: { type: "number" },
+                paragraphen: { type: "array", items: { type: "string" } }
+              }
+            }
+          }
+        }
+      }
+    });
+    setKiGenResult(result);
+    setKiGenerating(false);
+  };
+
+  const takeKiArg = async (a, side) => {
+    try {
+      // Erstelle zuerst Beweise (falls vorhanden)
+      const evidenceIds = [];
+      if (side === "eigen" && (a.beweise || []).length > 0) {
+        for (const ev of a.beweise) {
+          const created = await base44.entities.Evidence.create({
+            case_id: caseId,
+            title: ev.titel,
+            description: ev.beschreibung || "",
+            type: ev.typ || "Dokument",
+            weight: ev.gewicht || 5,
+          });
+          if (created?.id) evidenceIds.push(created.id);
+        }
+      }
+      // Wenn das Argument zu Beweis(en) wurde, NICHT als Argument speichern + ggf. vorhandenes löschen
+      if (evidenceIds.length > 0) {
+        await deleteExistingArgIfConverted(a.titel);
+        toast.success(`Argument → Beweis konvertiert: "${a.titel}"`, {
+          description: `${evidenceIds.length} Beweis(e) erstellt. Bitte Beweisliste prüfen.`,
+          duration: 6000,
+        });
+        setKiGenResult(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            [side === "eigen" ? "eigene_argumente" : "gegner_argumente"]: (prev[side === "eigen" ? "eigene_argumente" : "gegner_argumente"] || []).filter(x => x.titel !== a.titel)
+          };
+        });
+        await loadAll(true);
+        return;
+      }
+      await base44.entities.Argument.create({
+        case_id: caseId,
+        title: a.titel,
+        description: a.beschreibung || "",
+        side,
+        strength: a.staerke || 5,
+        type: "Rechtsargument",
+        paragraphs: a.paragraphen || [],
+      });
+      // Entferne das Argument aus der KI-Liste
+      setKiGenResult(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          [side === "eigen" ? "eigene_argumente" : "gegner_argumente"]: (prev[side === "eigen" ? "eigene_argumente" : "gegner_argumente"] || []).filter(x => x.titel !== a.titel)
+        };
+      });
+      await loadAll(true);
+    } catch (e) {
+      console.error("Fehler beim Übernehmen:", e);
+      alert("Fehler beim Übernehmen des Arguments: " + e.message);
+    }
+  };
+
+  const takeAllKiArgumente = async () => {
+    if (!kiGenResult) return;
+    try {
+      const all = [
+        ...(kiGenResult.eigene_argumente || []).map(a => ({ ...a, side: "eigen" })),
+        ...(kiGenResult.gegner_argumente || []).map(a => ({ ...a, side: "gegner" }))
+      ];
+      const konvertiert = [];
+      for (const a of all) {
+        const evidenceIds = [];
+        if (a.side === "eigen" && (a.beweise || []).length > 0) {
+          for (const ev of a.beweise) {
+            const created = await base44.entities.Evidence.create({
+              case_id: caseId,
+              title: ev.titel,
+              description: ev.beschreibung || "",
+              type: ev.typ || "Dokument",
+              weight: ev.gewicht || 5,
+            });
+            if (created?.id) evidenceIds.push(created.id);
+          }
+        }
+        // Wenn Argument zu Beweis(en) wurde → NICHT als Argument speichern + ggf. vorhandenes löschen
+        if (evidenceIds.length > 0) {
+          await deleteExistingArgIfConverted(a.titel);
+          konvertiert.push(a.titel);
+          continue;
+        }
+        await base44.entities.Argument.create({
+          case_id: caseId,
+          title: a.titel,
+          description: a.beschreibung || "",
+          side: a.side,
+          strength: a.staerke || 5,
+          type: "Rechtsargument",
+          paragraphs: a.paragraphen || [],
+        });
+      }
+      if (konvertiert.length > 0) {
+        toast.success(`${konvertiert.length} Argument(e) → Beweis konvertiert`, {
+          description: `Bitte Beweisliste prüfen: ${konvertiert.slice(0, 3).join(", ")}${konvertiert.length > 3 ? "…" : ""}`,
+          duration: 6000,
+        });
+      }
+      // Lösche das KI-Panel nach erfolgreichem Übernehmen
+      setKiGenResult(null);
+      await loadAll(true);
+    } catch (e) {
+      console.error("Fehler beim Übernehmen KI-Arguments:", e);
+      alert("Fehler beim Übernehmen der KI-Argumente: " + e.message);
+    }
+  };
+
+  const addManual = async () => {
+    if (!newArg.title.trim()) return;
+    await base44.entities.Argument.create({ case_id: caseId, ...newArg });
+    setNewArg({ title: "", description: "", side: "eigen", strength: 5, type: "Rechtsargument" });
+    setShowAdd(false);
+    await load(true);
+  };
+
+  const del = async (id) => { await base44.entities.Argument.delete(id); load(true); };
+
+  const detectDuplicates = async () => {
+    if (args.length < 2) {
+      alert("✓ Zu wenige Argumente zum Vergleich.");
+      return;
+    }
+    setDetectingDuplicates(true);
+    try {
+      // Kurze Zusammenfassung für große Listen
+      const argsList = args.length > 20 
+        ? args.map((a, i) => `${i + 1}. ${a.title}`).join("\n")
+        : args.map((a, i) => `${i + 1}. ${a.title}${a.description ? ` — ${a.description.substring(0, 60)}` : ""}`).join("\n");
+      
+      const result = await invokeLLM({
+        prompt: `Finde ÄHNLICHE oder DOPPELTE Argumente. Paraphrasierungen und Formulierungsvarianten zählen.
+
+ARGUMENTE:
+${argsList}
+
+Gib NUR Gruppen ähnlicher Arguments zurück (min. 2 pro Gruppe). JSON: nummern[], grund (kurz), zu_behalten (Nummer).`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            duplikat_gruppen: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  nummern: { type: "array", items: { type: "integer" } },
+                  grund: { type: "string" },
+                  zu_behalten: { type: "integer" }
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      if (result?.duplikat_gruppen && result.duplikat_gruppen.length > 0) {
+        setDuplicates(result.duplikat_gruppen);
+      } else {
+        alert("✓ Keine ähnlichen Argumente gefunden.");
+        setDuplicates(null);
+      }
+    } catch (e) {
+      console.error("Duplikat-Erkennung fehler:", e);
+      alert("Fehler bei Duplikat-Erkennung: " + (e?.message || "Versuche später erneut"));
+    } finally {
+      setDetectingDuplicates(false);
+    }
+  };
+
+  const deleteDuplicates = async (groups) => {
+    const toDelete = [];
+    for (const group of groups) {
+      const keep = group.zu_behalten;
+      for (const idx of group.nummern) {
+        if (idx !== keep && args[idx - 1]) {
+          toDelete.push(args[idx - 1].id);
+        }
+      }
+    }
+    
+    const confirmed = window.confirm(
+      `${toDelete.length} doppelte Argumente löschen?\n\nBestätige zum Löschen.`
+    );
+    if (confirmed) {
+      let deleted = 0;
+      for (const id of toDelete) {
+        try {
+          await base44.entities.Argument.delete(id);
+          deleted++;
+        } catch (e) {
+          console.warn(`Argument ${id} konnte nicht gelöscht werden:`, e);
+        }
+      }
+      await load(true);
+      setDuplicates(null);
+      alert(`✓ ${deleted} doppelte Argumente gelöscht.`);
+    }
+  };
+
+  const cleanupWithoutEvidence = async () => {
+    const withoutEvidence = args.filter(a => !a.evidence_ids || a.evidence_ids.length === 0);
+    if (withoutEvidence.length === 0) {
+      alert("✓ Alle Argumente haben Dokumentbelege.");
+      return;
+    }
+
+    // KI-Analyse: Vergleiche Arguments gegen Dokumentbeweise + description für inhaltliche Bezüge
+    const allEvidence = evidence
+      .map(e => `[${e.type || "Beweis"}] ${e.title}\nBeschreibung: ${e.description || ""}\nQuelle: ${e.source || "Dokument"}`)
+      .join("\n---\n");
+    
+    if (!allEvidence.trim()) {
+      // Keine Beweise vorhanden — nur auf evidence_ids prüfen
+      const confirmed = window.confirm(
+        `${withoutEvidence.length} Argumente ohne Dokumentbelege löschen?\n\n${withoutEvidence.map(a => `• ${a.title}`).join("\n")}`
+      );
+      if (confirmed) {
+        for (const arg of withoutEvidence) {
+          await base44.entities.Argument.delete(arg.id);
+        }
+        await load(true);
+        alert(`✓ ${withoutEvidence.length} Argumente gelöscht.`);
+      }
+      return;
+    }
+
+    // KI prüft inhaltliche Bezüge: Titel + Beschreibung gegen Evidence
+    const result = await invokeLLM({
+      prompt: `Du bist ein Rechtsanwalt. Prüfe SORGFÄLTIG, ob diese Arguments einen inhaltlichen Bezug zu den verfügbaren Dokumentbeweisen haben.
+
+VERFÜGBARE DOKUMENTBEWEISE:
+${allEvidence}
+
+ARGUMENTS ZU PRÜFEN (ohne explizite evidence_ids):
+${withoutEvidence.map(a => `ARGUMENT: ${a.title}\nBeschreibung: ${a.description || "-"}\nTyp: ${a.type || "-"}`).join("\n\n===\n\n")}
+
+ANALYSE:
+- Prüfe INHALT der Arguments gegen INHALT der Beweise (nicht nur Keywords)
+- Ein Argument mit Bezug zu Vertragsklauseln gehört zu Evidence vom Typ "Klausel"
+- Ein Argument zu Unterschriften gehört zu Evidence vom Typ "Unterschrift"
+- Wenn ein Argument KEINE erkennbare Verbindung hat → zur Löschung kandidieren
+
+Gib NUR Arguments zurück, die WIRKLICH KEINEN Bezug haben (keine false positives, sondern nur klare Orphans).`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          zu_loeschen: {
+            type: "array",
+            items: { type: "object", properties: { titel: { type: "string" }, grund: { type: "string" } } }
+          }
+        }
+      }
+    });
+
+    const toDelete = (result?.zu_loeschen || []).filter(item =>
+      withoutEvidence.some(a => a.title === item.titel)
+    );
+
+    if (toDelete.length === 0) {
+      alert("✓ KI hat festgestellt: Alle Arguments haben erkennbaren Dokumentbezug. Keine Löschung.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `KI empfiehlt: ${toDelete.length} von ${withoutEvidence.length} Arguments löschen\n\n${toDelete.map(a => `• ${a.titel}\n  Grund: ${a.grund}`).join("\n\n")}`
+    );
+    if (confirmed) {
+      let deleted = 0;
+      for (const item of toDelete) {
+        const arg = withoutEvidence.find(a => a.title === item.titel);
+        if (arg) {
+          try {
+            await base44.entities.Argument.delete(arg.id);
+            deleted++;
+          } catch (e) {
+            console.warn(`Argument ${arg.id} konnte nicht gelöscht werden:`, e);
+          }
+        }
+      }
+      await load(true);
+      if (deleted > 0) alert(`✓ ${deleted} Argumente gelöscht (KI-basiert).`);
+    }
+  };
+
+  const filtered = args
+    .filter(a => filter === "all" || a.side === filter)
+    .sort((a, b) => {
+      if (sortBy === "date") {
+        const da = a.zeitpunkt ? new Date(a.zeitpunkt).getTime() : 0;
+        const db = b.zeitpunkt ? new Date(b.zeitpunkt).getTime() : 0;
+        return db - da;
+      }
+      if (sortBy === "strength") return (b.ki_strength ?? b.strength ?? 0) - (a.ki_strength ?? a.strength ?? 0);
+      return 0; // "created" — natural order
+    });
+
+  const linkedEvidenceForArg = (argId) => {
+    const arg = args.find(a => a.id === argId);
+    if (!arg || !arg.evidence_ids) return [];
+    return evidence.filter(e => arg.evidence_ids.includes(e.id));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 flex-wrap">
+        {[["all", "Alle"], ["eigen", "Eigene"], ["gegner", "Gegner"]].map(([f, l]) => (
+          <button key={f} onClick={() => setFilter(f)}
+            className={`px-3 py-1 rounded-full text-xs border transition-all ${filter === f ? "bg-gray-900 text-white border-gray-900" : "border-gray-200 text-gray-600 hover:border-gray-400"}`}>{l}</button>
+        ))}
+        <div className="w-px h-4 bg-gray-200 mx-1" />
+        <span className="text-[10px] text-gray-400">Sortierung:</span>
+        {[["created", "Erstellt"], ["date", "Datum"], ["strength", "Stärke"]].map(([s, l]) => (
+          <button key={s} onClick={() => setSortBy(s)}
+            className={`px-2.5 py-1 rounded-full text-xs border transition-all ${sortBy === s ? "bg-blue-600 text-white border-blue-600" : "border-gray-200 text-gray-500 hover:border-gray-400"}`}>{l}</button>
+        ))}
+        <div className="ml-auto flex gap-2">
+           <Button size="sm" onClick={rateBatch} disabled={batchRating || args.length === 0} className="bg-violet-600 text-white rounded-xl text-xs gap-1">
+            {batchRating ? "Bewerte..." : "⭐ Alle bewerten"}
+           </Button>
+           <Button size="sm" onClick={generateKiArgumente} disabled={kiGenerating} className="bg-emerald-700 text-white rounded-xl text-xs gap-1">
+            {kiGenerating ? <><RefreshCw className="w-3 h-3 animate-spin" /> KI generiert…</> : <><Sparkles className="w-3 h-3" /> KI-Argumente (max. 19)</>}
+           </Button>
+           <Button size="sm" onClick={detectDuplicates} disabled={detectingDuplicates} className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs gap-1">
+             {detectingDuplicates ? <><RefreshCw className="w-3 h-3 animate-spin" /> Prüfe…</> : "🔍 Duplikate"}
+            </Button>
+           <Button size="sm" onClick={cleanupWithoutEvidence} className="bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs gap-1">
+             🗑️ Ohne Belege löschen
+            </Button>
+           <Button size="sm" onClick={() => setShowAdd(!showAdd)} className="bg-gray-900 text-white rounded-xl text-xs gap-1">
+            <Plus className="w-3 h-3" /> Argument
+           </Button>
+         </div>
+      </div>
+
+      {duplicates && (
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-orange-900">🔍 Ähnliche Argumente gefunden</p>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => deleteDuplicates(duplicates)} className="bg-orange-700 text-white text-xs gap-1">
+                <Trash2 className="w-3 h-3" /> Doppelte löschen
+              </Button>
+              <button onClick={() => setDuplicates(null)} className="text-orange-500 hover:text-orange-700 text-xs">Schließen</button>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {duplicates.map((group, gi) => (
+              <div key={gi} className="bg-white rounded-lg border border-orange-100 p-3 text-xs">
+                <p className="font-semibold text-orange-900 mb-2">Gruppe {gi + 1}: {group.grund}</p>
+                <div className="space-y-1">
+                  {group.nummern.map(idx => {
+                    const arg = args[idx - 1];
+                    const isKeeped = idx === group.zu_behalten;
+                    return (
+                      <div key={idx} className={`flex items-start gap-2 p-2 rounded ${isKeeped ? "bg-green-50 border border-green-100" : "bg-red-50 border border-red-100"}`}>
+                        <span className={`font-mono font-bold ${isKeeped ? "text-green-700" : "text-red-600"}`}>#{idx}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-800">{arg?.title}</p>
+                          {arg?.description && <p className="text-gray-500 text-[10px] mt-0.5 line-clamp-1">{arg.description}</p>}
+                        </div>
+                        {isKeeped && <span className="text-green-600 font-semibold flex-shrink-0">✓ BEHALTEN</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {kiGenResult && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-emerald-900">✨ KI-generierte Argumente</p>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={takeAllKiArgumente} className="bg-emerald-700 text-white text-xs gap-1">
+                <Check className="w-3 h-3" /> Alle übernehmen
+              </Button>
+              <Button size="sm" onClick={() => setKiGenResult(null)} className="bg-red-600 hover:bg-red-700 text-white text-xs gap-1">
+                <Trash2 className="w-3 h-3" /> Alle löschen
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[["EIGENE ARGUMENTE", kiGenResult.eigene_argumente || [], "eigen"], ["GEGNERARGUMENTE", kiGenResult.gegner_argumente || [], "gegner"]].map(([label, items, side]) => (
+              <div key={side}>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{label} · {items.length}</p>
+                {items.map((a, i) => (
+                  <div key={i} className="mb-2 bg-white rounded-lg border border-gray-100 p-2 text-xs">
+                    <div className="flex items-start gap-1">
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800">{a.titel}</p>
+                        {a.beschreibung && <p className="text-gray-500 mt-0.5 text-[10px]">{a.beschreibung}</p>}
+                        {(a.paragraphen || []).length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {a.paragraphen.map((p, pi) => (
+                              <span key={pi} className="text-[9px] font-mono bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5">{p}</span>
+                            ))}
+                          </div>
+                        )}
+                        {side === "eigen" && (a.beweise || []).length > 0 && (
+                          <div className="mt-1.5">
+                            <p className="text-[9px] font-semibold text-gray-400 mb-0.5">Beweise:</p>
+                            {a.beweise.map((ev, ei) => (
+                              <div key={ei} className="text-[9px] text-gray-500 flex items-start gap-1">
+                                <span className="text-green-500 flex-shrink-0">📄</span>
+                                <span>{ev.titel}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <span className="text-[10px] text-gray-400">{a.staerke}/10</span>
+                        <button onClick={() => takeKiArg(a, side)} className="text-[9px] border border-gray-200 rounded px-2 py-0.5 hover:bg-gray-50 whitespace-nowrap">Übernehmen</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showAdd && (
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2">
+          <input className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" placeholder="Titel *" value={newArg.title} onChange={e => setNewArg({ ...newArg, title: e.target.value })} />
+          <textarea className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" placeholder="Beschreibung" rows={2} value={newArg.description} onChange={e => setNewArg({ ...newArg, description: e.target.value })} />
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-[10px] text-gray-400 block mb-1">Zeitpunkt der Argumentation</label>
+              <input type="date" className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white" value={newArg.zeitpunkt} onChange={e => setNewArg({ ...newArg, zeitpunkt: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-[10px] text-gray-400 block mb-1">Anmerkungen (Risiken / Vorteile)</label>
+              <input className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white" placeholder="z.B. Beweis fehlt noch..." value={newArg.anmerkungen} onChange={e => setNewArg({ ...newArg, anmerkungen: e.target.value })} />
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <select className="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white" value={newArg.side} onChange={e => setNewArg({ ...newArg, side: e.target.value })}>
+              <option value="eigen">Eigen</option><option value="gegner">Gegner</option>
+            </select>
+            <select className="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white" value={newArg.type} onChange={e => setNewArg({ ...newArg, type: e.target.value })}>
+              <option>Rechtsargument</option><option>Tatsachenargument</option><option>Widerspruch</option><option>Druckmittel</option>
+            </select>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">Stärke:</span>
+              <input type="number" min={0} max={10} step={0.5} className="border border-gray-200 rounded-lg px-2 py-2 text-xs w-16 bg-white" value={newArg.strength} onChange={e => setNewArg({ ...newArg, strength: +e.target.value })} />
+            </div>
+            <Button size="sm" onClick={addManual} className="bg-gray-900 text-white rounded-lg text-xs">Hinzufügen</Button>
+            <Button size="sm" variant="outline" onClick={() => setShowAdd(false)} className="rounded-lg text-xs">Abbrechen</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Extraction */}
+      <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+        <button onClick={() => setShowExtraction(!showExtraction)}
+          className="w-full px-4 py-3 flex items-center gap-2 text-sm font-medium hover:bg-gray-50">
+          <span>👑 Argument-Extraktion</span>
+          <span className="ml-auto text-gray-400 text-xs">Dokumente & Texte analysieren</span>
+          {showExtraction ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        </button>
+        {showExtraction && (
+          <div className="p-4 border-t border-gray-100 space-y-3">
+            <div className="flex items-center gap-3 text-xs">
+              <span className="text-gray-400">Modus:</span>
+              {[["algo", "🔧 Algorithmus"], ["ki", "👑 KI"]].map(([m, l]) => (
+                <button key={m} onClick={() => setExtractMode(m)} className={`px-3 py-1 rounded-lg ${extractMode === m ? "bg-gray-100 font-medium" : "text-gray-400"}`}>{l}</button>
+              ))}
+            </div>
+            {extractMode === "ki" && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs space-y-1">
+                <p className="font-medium">🔒 DSGVO-Hinweis (Art. 13, 28 DSGVO)</p>
+                <ul className="space-y-0.5 text-gray-600">
+                  <li>• Dokumente werden <strong>ausschließlich zur Analyse</strong> verarbeitet und <strong>sofort nach Extraktion gelöscht</strong></li>
+                  <li>• Es erfolgt <strong>keine dauerhafte Speicherung</strong> der Originaldokumente</li>
+                  <li>• <strong>Keine Weitergabe</strong> an Dritte – Daten werden nicht für KI-Training verwendet</li>
+                </ul>
+                <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                  <input type="checkbox" checked={dsgvo} onChange={e => setDsgvo(e.target.checked)} className="w-4 h-4 accent-blue-600" />
+                  <span className="text-blue-600 font-medium">Ich habe den DSGVO-Hinweis gelesen und stimme der Verarbeitung zu</span>
+                </label>
+                <p className="text-amber-600">⚠️ KI-Vorschläge – müssen juristisch geprüft werden</p>
+              </div>
+            )}
+            <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,.csv,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff" multiple className="hidden" onChange={e => setFiles(prev => [...prev, ...Array.from(e.target.files)])} />
+            <div>
+              <button onClick={() => fileRef.current?.click()} className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">
+                <Upload className="w-4 h-4" /> Dokumente hochladen <span className="text-gray-400 text-xs">PDF, DOCX, TXT, CSV, JPG, PNG · mehrere möglich</span>
+              </button>
+              {files.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {files.map((f, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
+                      📄 {f.name} ({Math.round(f.size / 1024)}KB)
+                      <button onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))}><X className="w-3 h-3" /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <textarea className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm min-h-[70px]" placeholder="Oder Text manuell einfügen..." value={text} onChange={e => setText(e.target.value)} />
+            <Button onClick={handleExtract} disabled={extracting} className="w-full bg-blue-600 text-white hover:bg-blue-700 gap-2 text-sm">
+              {extracting ? <><RefreshCw className="w-4 h-4 animate-spin" /> Analysiere...</> : "🔄 Analysieren"}
+            </Button>
+            {extractError && <p className="text-xs text-red-500 mt-2">⚠️ {extractError}</p>}
+            {extracted && (
+              <div className="space-y-4 mt-2">
+                {extracted.zusammenfassung && <p className="text-xs text-gray-600 italic border-l-2 border-gray-300 pl-3">{extracted.zusammenfassung}</p>}
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" onClick={takeAll} className="bg-green-700 text-white hover:bg-green-800 text-xs">✓ Alle übernehmen</Button>
+                  <Button size="sm" onClick={() => { setExtracted(null); setFiles([]); setText(""); }} className="bg-red-600 hover:bg-red-700 text-white text-xs gap-1">
+                    <Trash2 className="w-3 h-3" /> Alle löschen
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[["EIGENE ARGUMENTE", extracted.eigene_argumente || [], "eigen"], ["GEGENSEITE", extracted.gegenseite_argumente || [], "gegner"]].map(([label, items, side]) => (
+                    <div key={side}>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{label} · {items.length}</p>
+                      {items.map((a, i) => (
+                        <div key={i} className="mb-2 text-xs">
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <span className="font-medium text-gray-800 flex-1">{a.titel}</span>
+                            <span className="text-gray-400">{a.staerke || 5}/10</span>
+                            {a.datum && <span className="text-[9px] bg-orange-50 text-orange-600 border border-orange-200 rounded px-1.5 py-0.5">🗓 {a.datum}</span>}
+                            {(a.paragraphen || []).length > 0 && (
+                              <span className="text-[9px] font-mono bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5">§§: {a.paragraphen.length}</span>
+                            )}
+                            <button onClick={() => take(a, side)} className="text-[10px] border border-gray-200 rounded px-2 py-0.5 hover:bg-gray-50">Übernehmen</button>
+                          </div>
+                          {a.typ && <p className="text-gray-400">{a.typ}</p>}
+                          {(a.paragraphen || []).length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {a.paragraphen.slice(0, 3).map((p, pi) => (
+                                <span key={pi} className="text-[8px] font-mono bg-blue-50 text-blue-700 border border-blue-200 rounded px-1 py-0.5">{p}</span>
+                              ))}
+                              {a.paragraphen.length > 3 && <span className="text-[8px] text-gray-400">+{a.paragraphen.length - 3}</span>}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* List */}
+      <div className="space-y-2">
+        {filtered.map(arg => {
+          const linkedEv = linkedEvidenceForArg(arg.id);
+          return (
+            <div key={arg.id}>
+              <ArgCard arg={arg} onDelete={del} onSave={() => loadAll()} onKiWeight={arg} />
+              {arg.ki_reasoning && (
+                <div className="ml-0 mt-2 bg-violet-50 border border-violet-100 rounded-lg p-3 text-xs">
+                  <p className="font-semibold text-violet-900 mb-1">KI-Begründung (Stärke {arg.ki_strength}/10):</p>
+                  <p className="text-violet-700">{arg.ki_reasoning}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div className="text-center text-gray-400 text-sm py-10">
+            Noch keine Argumente. Fügen Sie manuell hinzu oder extrahieren Sie aus einem Dokument.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

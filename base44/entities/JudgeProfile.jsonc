@@ -1,0 +1,138 @@
+{
+  "name": "JudgeProfile",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name"
+    },
+    "kategorie": {
+      "type": "string",
+      "title": "Kategorie",
+      "enum": [
+        "Richter",
+        "Anwalt",
+        "Kanzlei",
+        "Zeuge",
+        "Sachverst\u00e4ndiger",
+        "Partei",
+        "Sonstiges"
+      ],
+      "default": "Richter"
+    },
+    "gericht": {
+      "type": "string",
+      "title": "Gericht / Institution / Kanzlei"
+    },
+    "kammer": {
+      "type": "string",
+      "title": "Kammer / Senat / Abteilung"
+    },
+    "rechtsgebiet": {
+      "type": "string",
+      "title": "Rechtsgebiet / Spezialisierung"
+    },
+    "klaeger_rate": {
+      "type": "number",
+      "title": "Kl\u00e4gerquote / Erfolgsquote %"
+    },
+    "vergleich_rate": {
+      "type": "number",
+      "title": "Vergleichsrate %"
+    },
+    "durchschnitt_dauer_monate": {
+      "type": "number",
+      "title": "\u00d8 Verfahrensdauer (Monate)"
+    },
+    "urteile_gesamt": {
+      "type": "number",
+      "title": "Urteile / F\u00e4lle gesamt"
+    },
+    "stil": {
+      "type": "string",
+      "title": "Verhandlungsstil",
+      "enum": [
+        "Kooperativ",
+        "Streng",
+        "Neutral",
+        "Prozessaktiv",
+        "Vergleichsorientiert"
+      ]
+    },
+    "bekannt_fuer": {
+      "type": "string",
+      "title": "Bekannt f\u00fcr"
+    },
+    "schwerpunkte": {
+      "type": "array",
+      "title": "Schwerpunkte",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notizen": {
+      "type": "string",
+      "title": "Notizen"
+    },
+    "erfahrungen": {
+      "type": "array",
+      "title": "Kanzlei-Erfahrungen",
+      "items": {
+        "type": "object",
+        "properties": {
+          "datum": {
+            "type": "string"
+          },
+          "autor": {
+            "type": "string"
+          },
+          "fall_kontext": {
+            "type": "string"
+          },
+          "vergleichsbereitschaft": {
+            "type": "number"
+          },
+          "entscheidungsgeschwindigkeit": {
+            "type": "number"
+          },
+          "sachkompetenz": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ki_analyse": {
+      "type": "object",
+      "title": "KI-Analyse"
+    },
+    "erfolgs_matrix": {
+      "type": "object",
+      "title": "Erfolgswahrscheinlichkeits-Matrix"
+    },
+    "beziehungsanalyse": {
+      "type": "object",
+      "title": "Beziehungsnetz-Analyse"
+    }
+  },
+  "required": [
+    "name",
+    "gericht"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}
