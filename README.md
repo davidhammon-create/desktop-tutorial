@@ -1,5 +1,18 @@
-# Welcome to GitHub Desktop!
+# AboWandler
 
-This is your README. READMEs are where you can communicate what your project is and how to use it.
+KI-Finanz & Abo-Check App — findet vergessene Abos und verdächtige Abbuchungen und zeigt, was aus dem Geld werden könnte, wenn es stattdessen in einen ETF investiert wird.
 
-Write your name on line 6, save it, and then head back to GitHub Desktop.
+Built with React + Vite.
+
+## Entwicklung
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
