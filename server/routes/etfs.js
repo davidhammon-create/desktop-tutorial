@@ -1,10 +1,9 @@
 import { Router } from "express";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { BUNDLED_DATA_DIR } from "../lib/paths.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const etfs = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "etfs.json"), "utf8"));
+const etfs = JSON.parse(fs.readFileSync(path.join(BUNDLED_DATA_DIR, "etfs.json"), "utf8"));
 
 const router = Router();
 

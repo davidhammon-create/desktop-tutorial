@@ -31,3 +31,6 @@ server/data/config.json
 
 # Electron build output
 release/
+
+# Standalone single-executable build output
+standalone-dist/
