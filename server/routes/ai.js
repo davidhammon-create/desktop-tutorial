@@ -4,6 +4,7 @@ import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import { analyzeStatement, companyReport, cancellationLetter, autoClassify, AnthropicNotConfigured } from "../lib/anthropic.js";
 import { classifyAll } from "../lib/classify.js";
 import { store } from "../lib/store.js";
+import { hasApiKey } from "../lib/config.js";
 
 const router = Router();
 const upload = multer({ limits: { fileSize: 15 * 1024 * 1024 } });
@@ -91,7 +92,7 @@ router.post("/auto-classify", async (req, res) => {
   let summary;
   let engine;
 
-  if (process.env.ANTHROPIC_API_KEY) {
+  if (hasApiKey()) {
     try {
       const raw = await autoClassify(subs);
       const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
@@ -106,7 +107,7 @@ router.post("/auto-classify", async (req, res) => {
   if (!results) {
     results = classifyAll(subs);
     const warn = results.filter((r) => r.status === "warning").length;
-    summary = `Basis-Check (ohne KI) abgeschlossen: ${results.length} Zahlungen geprüft, ${warn} Warnung${warn !== 1 ? "en" : ""}. Mit ANTHROPIC_API_KEY wird die Analyse deutlich genauer.`;
+    summary = `Basis-Check (ohne KI) abgeschlossen: ${results.length} Zahlungen geprüft, ${warn} Warnung${warn !== 1 ? "en" : ""}. Mit hinterlegtem KI-Zugang (Konto → KI-Zugang) wird die Analyse deutlich genauer.`;
     engine = "basis";
   }
 

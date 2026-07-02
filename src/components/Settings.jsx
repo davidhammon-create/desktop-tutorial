@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { T, S } from "../shared/tokens";
-import { fmt } from "../shared/format";
 import { api } from "../shared/api";
 
 export default function Settings({ user, setUser, aiUsageCount }) {
   const [saving, setSaving] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
+  const [savingKey, setSavingKey] = useState(false);
+  const [keyMessage, setKeyMessage] = useState("");
+
+  useEffect(() => {
+    api.config.get().then((c) => setHasApiKey(c.hasApiKey)).catch(() => {});
+  }, []);
 
   const save = async () => {
     setSaving(true);
@@ -13,6 +20,31 @@ export default function Settings({ user, setUser, aiUsageCount }) {
       setUser(saved);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const saveApiKey = async () => {
+    setSavingKey(true);
+    setKeyMessage("");
+    try {
+      const res = await api.config.saveApiKey(apiKeyInput);
+      setHasApiKey(res.hasApiKey);
+      setApiKeyInput("");
+      setKeyMessage(res.hasApiKey ? "✓ Gespeichert — KI-Funktionen sind jetzt aktiv." : "Key entfernt.");
+    } catch (e) {
+      setKeyMessage(e.message);
+    }
+    setSavingKey(false);
+  };
+
+  const removeApiKey = async () => {
+    setSavingKey(true);
+    try {
+      const res = await api.config.saveApiKey("");
+      setHasApiKey(res.hasApiKey);
+      setKeyMessage("Key entfernt.");
+    } finally {
+      setSavingKey(false);
     }
   };
 
@@ -42,17 +74,42 @@ export default function Settings({ user, setUser, aiUsageCount }) {
       </div>
 
       <div style={{ ...S.card, marginBottom: 20 }}>
-        <div style={{ fontWeight: 650, marginBottom: 14 }}>Abrechnung & KI-Nutzung</div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14.5 }}><span style={{ color: T.textDim }}>Plattform-Abo</span><span>4,99 €/Monat</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14.5, borderTop: `1px solid ${T.border}` }}><span style={{ color: T.textDim }}>KI-Nutzung diesen Monat</span><span>{aiUsageCount} Analysen ≈ {fmt(aiUsageCount * 0.02)}</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 15, fontWeight: 650, borderTop: `1px solid ${T.border}` }}><span>Gesamt</span><span>{fmt(4.99 + aiUsageCount * 0.02)}</span></div>
-        <p style={{ fontSize: 12.5, color: T.textFaint, marginTop: 10 }}>Du zahlst KI-Kosten transparent nach tatsächlicher Nutzung — keine versteckten Gebühren, keine Kostenexplosion möglich.</p>
+        <div style={{ fontWeight: 650, marginBottom: 6 }}>✦ KI-Zugang</div>
+        <p style={{ fontSize: 13, color: T.textDim, margin: "0 0 14px", lineHeight: 1.5 }}>
+          Für KI-Auto-Check, Kontoauszug-Analyse, Firmenberichte und Kündigungsbriefe brauchst du einen eigenen{" "}
+          <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer" style={{ color: T.teal }}>Anthropic API-Key</a>.
+          Er wird nur lokal auf diesem Gerät gespeichert (in deinem App-Datenordner) — nie auf einem fremden Server.
+        </p>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
+          <span style={S.tag(hasApiKey ? T.green : T.orange)}>{hasApiKey ? "✓ KI-Zugang aktiv" : "⚠ Kein Key hinterlegt"}</span>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input
+            type="password"
+            style={{ ...S.input, maxWidth: 340 }}
+            placeholder="sk-ant-…"
+            value={apiKeyInput}
+            onChange={(e) => setApiKeyInput(e.target.value)}
+          />
+          <button style={{ ...S.btn, padding: "10px 18px", fontSize: 13.5 }} onClick={saveApiKey} disabled={savingKey || !apiKeyInput}>
+            {savingKey ? "…" : "Speichern"}
+          </button>
+          {hasApiKey && (
+            <button style={{ ...S.btnGhost, padding: "10px 18px", fontSize: 13.5, color: T.red, borderColor: T.red + "55" }} onClick={removeApiKey} disabled={savingKey}>
+              Entfernen
+            </button>
+          )}
+        </div>
+        {keyMessage && <div style={{ fontSize: 12.5, color: T.textDim, marginTop: 8 }}>{keyMessage}</div>}
+        {aiUsageCount > 0 && (
+          <p style={{ fontSize: 12, color: T.textFaint, marginTop: 12 }}>{aiUsageCount} KI-Analysen in dieser Sitzung. Abgerechnet direkt über dein Anthropic-Konto — AboWandler selbst verlangt keine eigene Gebühr.</p>
+        )}
       </div>
 
       <div style={{ ...S.card, marginBottom: 20 }}>
-        <div style={{ fontWeight: 650, marginBottom: 10 }}>🔒 Sicherheit</div>
+        <div style={{ fontWeight: 650, marginBottom: 10 }}>🔒 Daten & Sicherheit</div>
         <p style={{ fontSize: 13.5, color: T.textDim, lineHeight: 1.6, margin: 0 }}>
-          Zugangsdaten (Passwörter) werden serverseitig AES-256-verschlüsselt gespeichert und nie im Klartext geloggt. Kontoauszüge werden nur zur Analyse an die KI übermittelt, nicht dauerhaft bei Drittanbietern gespeichert.
+          Alle Abo-Daten und Zugangsdaten bleiben auf diesem Gerät — es gibt keinen zentralen Cloud-Server. Passwörter werden lokal AES-256-verschlüsselt gespeichert und nie im Klartext geloggt. Kontoauszüge werden nur bei aktiver KI-Analyse an Anthropic übermittelt, sonst nirgendwo hin.
         </p>
       </div>
 

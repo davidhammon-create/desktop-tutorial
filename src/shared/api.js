@@ -31,6 +31,10 @@ export const api = {
     get: () => req("/user"),
     save: (body) => req("/user", { method: "PUT", body: JSON.stringify(body) }),
   },
+  config: {
+    get: () => req("/config"),
+    saveApiKey: (apiKey) => req("/config", { method: "PUT", body: JSON.stringify({ apiKey }) }),
+  },
   ai: {
     analyzeStatement: (text, file) => {
       const form = new FormData();

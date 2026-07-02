@@ -1,10 +1,9 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { DATA_DIR } from "./paths.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const KEY_FILE = path.join(__dirname, "..", "data", ".encryption.key");
+const KEY_FILE = path.join(DATA_DIR, ".encryption.key");
 
 // Resolves the AES key: prefer ENCRYPTION_KEY env (base64, 32 bytes), else
 // persist a locally-generated dev key so restarts don't invalidate stored secrets.

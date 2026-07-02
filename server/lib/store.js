@@ -1,10 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { DATA_DIR, BUNDLED_DATA_DIR } from "./paths.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_FILE = path.join(__dirname, "..", "data", "db.json");
-const SEED_FILE = path.join(__dirname, "..", "data", "db.seed.json");
+// db.json is user data — lives in DATA_DIR (the OS app-data folder when
+// running as the desktop app). db.seed.json is the shipped starter
+// dataset and always stays with the app's own files.
+const DB_FILE = path.join(DATA_DIR, "db.json");
+const SEED_FILE = path.join(BUNDLED_DATA_DIR, "db.seed.json");
 
 function load() {
   if (!fs.existsSync(DB_FILE)) {

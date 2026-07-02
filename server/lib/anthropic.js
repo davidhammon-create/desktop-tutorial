@@ -1,15 +1,17 @@
+import { getApiKey } from "./config.js";
+
 const API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-5";
 
 export class AnthropicNotConfigured extends Error {
   constructor() {
-    super("ANTHROPIC_API_KEY ist nicht gesetzt. Bitte in server/.env eintragen.");
+    super("Kein Anthropic API-Key hinterlegt. Bitte unter Konto → KI-Zugang eintragen.");
     this.name = "AnthropicNotConfigured";
   }
 }
 
 async function callMessages({ messages, maxTokens = 1000, tools }) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = getApiKey();
   if (!apiKey) throw new AnthropicNotConfigured();
 
   const res = await fetch(API_URL, {
