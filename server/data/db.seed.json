@@ -1,0 +1,21 @@
+{
+  "user": {
+    "name": "",
+    "emails": [""]
+  },
+  "accounts": [
+    { "id": "girokonto", "provider": "bank", "label": "Girokonto", "status": "disconnected" },
+    { "id": "paypal", "provider": "paypal", "label": "PayPal", "status": "disconnected" },
+    { "id": "kreditkarte", "provider": "card", "label": "Kreditkarte", "status": "disconnected" },
+    { "id": "klarna", "provider": "klarna", "label": "Klarna", "status": "disconnected" }
+  ],
+  "subscriptions": [
+    { "id": 1, "name": "Netflix", "domain": "netflix.com", "amount": 17.99, "cycle": "monatlich", "since": "2019-03", "category": "Streaming", "status": "keep", "color": "#E50914", "letter": "N", "iban": "DE44 5001 0517 5407 3249 31", "email": "", "username": "", "passwordEnc": null, "phone": "", "lastCharge": "2026-06-28", "note": "", "priceHistory": [{ "date": "2019-03", "amount": 12.99 }, { "date": "2022-07", "amount": 15.99 }, { "date": "2024-01", "amount": 17.99 }] },
+    { "id": 2, "name": "Spotify", "domain": "spotify.com", "amount": 10.99, "cycle": "monatlich", "since": "2020-01", "category": "Musik", "status": "keep", "color": "#1DB954", "letter": "S", "iban": "DE89 3704 0044 0532 0130 00", "email": "", "username": "", "passwordEnc": null, "phone": "", "lastCharge": "2026-06-25", "note": "", "priceHistory": [{ "date": "2020-01", "amount": 9.99 }, { "date": "2024-03", "amount": 10.99 }] },
+    { "id": 3, "name": "Adobe Creative Cloud", "domain": "adobe.com", "amount": 59.99, "cycle": "monatlich", "since": "2021-06", "category": "Software", "status": "switch", "color": "#FF0000", "letter": "A", "iban": "DE02 1203 0000 0000 2020 51", "email": "", "username": "", "passwordEnc": null, "phone": "", "lastCharge": "2026-06-20", "note": "Wird kaum noch genutzt", "priceHistory": [{ "date": "2021-06", "amount": 59.99 }] },
+    { "id": 4, "name": "Fitness First", "domain": "fitnessfirst.de", "amount": 39.90, "cycle": "monatlich", "since": "2018-09", "category": "Sport", "status": "pending", "color": "#0A84FF", "letter": "F", "iban": "DE12 5005 0201 0200 4455 66", "email": "", "username": "", "passwordEnc": null, "phone": "", "lastCharge": "2026-06-15", "note": "Läuft seit fast 8 Jahren — nie überprüft", "priceHistory": [{ "date": "2018-09", "amount": 34.90 }, { "date": "2023-01", "amount": 39.90 }] },
+    { "id": 5, "name": "Amazon Prime", "domain": "amazon.de", "amount": 8.99, "cycle": "monatlich", "since": "2017-11", "category": "Shopping", "status": "keep", "color": "#FF9900", "letter": "P", "iban": "DE87 3007 0010 0111 2223 33", "email": "", "username": "", "passwordEnc": null, "phone": "", "lastCharge": "2026-06-22", "note": "", "priceHistory": [{ "date": "2017-11", "amount": 7.99 }, { "date": "2022-09", "amount": 8.99 }] },
+    { "id": 6, "name": "CloudSecure Pro LTD", "domain": null, "amount": 24.99, "cycle": "monatlich", "since": "2026-04", "category": "Unbekannt", "status": "warning", "color": "#FF453A", "letter": "?", "iban": "FI21 1234 5600 0007 85", "email": "", "username": "", "passwordEnc": null, "phone": "", "lastCharge": "2026-06-29", "note": "⚠ Finnische IBAN · Firma nicht im Handelsregister auffindbar · neue Abbuchung", "priceHistory": [{ "date": "2026-04", "amount": 24.99 }] },
+    { "id": 7, "name": "Vodafone", "domain": "vodafone.de", "amount": 39.99, "cycle": "monatlich", "since": "2022-02", "category": "Mobilfunk", "status": "pending", "color": "#E60000", "letter": "V", "iban": "DE33 5002 0000 0011 2233 44", "email": "", "username": "", "passwordEnc": null, "phone": "", "lastCharge": "2026-06-27", "note": "Preiserhöhung: früher 29,99 €", "priceHistory": [{ "date": "2022-02", "amount": 29.99 }, { "date": "2026-05", "amount": 39.99 }] }
+  ]
+}
