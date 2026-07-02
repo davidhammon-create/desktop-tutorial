@@ -2,7 +2,7 @@
 
 KI-Finanz & Abo-Check App. Findet wiederkehrende und verdächtige Zahlungen, klassifiziert alle Abos auf Knopfdruck, recherchiert Firmen im Web, schreibt Kündigungsbriefe und rechnet vor, was aus einem gekündigten Abo in einem ETF-Sparplan werden könnte.
 
-**Alle Daten bleiben auf deinem Gerät** — es gibt keinen zentralen Cloud-Server. Frontend: React + Vite. Backend: eine lokale Express-App, die nur auf `127.0.0.1` läuft. Als Desktop-App: Electron.
+**Alle Daten bleiben auf deinem Gerät** — es gibt keinen zentralen Cloud-Server. Dein PC ist der Host: er startet lokal einen kleinen Server (Frontend: React + Vite, Backend: Express) und ist damit auch von deinem Handy im selben WLAN aus erreichbar — wie eine eigene kleine Web-App, aber ohne Cloud. `HOST`/`PORT` sind bewusst als Umgebungsvariablen gehalten, falls du später auf einen echten Server/eine echte Domain umziehen willst (siehe unten).
 
 ---
 
@@ -40,7 +40,15 @@ npm run dist
 
 Das Ergebnis liegt danach im Ordner `release/`. **Wichtig:** Baue für dein eigenes Betriebssystem — ein `.dmg` entsteht nur auf einem Mac, ein `.exe` nur unter Windows (bzw. mit passendem Cross-Build-Setup).
 
-### Weg C — Für die Entwicklung (im Browser, mit Hot-Reload)
+### Weg C — Als einzelne Programmdatei (kein Node.js nötig)
+
+```bash
+bash build-standalone.sh
+```
+
+Baut eine einzelne ausführbare Datei mit eingebauter Node.js-Laufzeit — der Zielrechner braucht danach weder Node.js noch npm. Muss auf dem Betriebssystem gebaut werden, für das sie laufen soll (kein Cross-Compiling): auf Linux gebaut → läuft auf Linux, auf einem Mac gebaut → läuft auf macOS, unter Windows (Git Bash/WSL) gebaut → läuft unter Windows. Ergebnis liegt in `standalone-dist/` (Programmdatei + `dist/` + `data/` — alle drei zusammen kopieren/weitergeben).
+
+### Weg D — Für die Entwicklung (im Browser, mit Hot-Reload)
 
 Zwei Terminals:
 
@@ -59,7 +67,22 @@ Dann `http://localhost:5173` im Browser öffnen.
 
 ### KI-Funktionen aktivieren
 
-Egal welcher Weg: In der App unter **Konto → KI-Zugang** einmal deinen eigenen [Anthropic API-Key](https://console.anthropic.com/settings/keys) eintragen. Er wird lokal auf deinem Gerät gespeichert (App-Datenordner bzw. `server/data/config.json` im Dev-Modus) — nicht in der Cloud, nicht im Code. Ohne Key läuft die App trotzdem vollständig; KI-Funktionen (Kontoauszug-Analyse, Firmenbericht, Kündigungsbrief, KI-Auto-Check) nutzen dann einen eingebauten Basis-Check statt echter KI.
+Egal welcher Weg: In der App unter **Konto → KI-Zugang** einmal deinen eigenen [Anthropic API-Key](https://console.anthropic.com/settings/keys) eintragen. Er wird lokal auf deinem Gerät gespeichert — nicht in der Cloud, nicht im Code. Ohne Key läuft die App trotzdem vollständig; KI-Funktionen (Kontoauszug-Analyse, Firmenbericht, Kündigungsbrief, KI-Auto-Check) nutzen dann einen eingebauten Basis-Check statt echter KI.
+
+---
+
+## Auch vom Handy nutzen (gleiches WLAN)
+
+Beim Start (Weg A, B oder C) zeigt die Konsole zwei Adressen an:
+
+```
+AboWandler läuft auf http://127.0.0.1:8787
+Im selben WLAN erreichbar (z.B. vom Handy) unter: http://192.168.1.23:8787
+```
+
+Die zweite Adresse auf dem iPhone/Android-Handy im selben WLAN öffnen (Safari/Chrome) — danach über "Zum Home-Bildschirm hinzufügen" wie eine echte App-Kachel ablegen. Es ist weiterhin dieselbe lokale App auf deinem PC, kein Cloud-Server; dein PC muss dafür nur an und im selben Netzwerk sein.
+
+**Später auf einen echten Server/eine echte Domain umziehen:** `HOST` und `PORT` sind Umgebungsvariablen, keine feste Einstellung. Willst du AboWandler z. B. auf einem gemieteten Server oder mit eigener Domain betreiben, genügt es, den Server dort mit den gewünschten Werten zu starten (z. B. `HOST=0.0.0.0 PORT=443 node server/index.js` hinter einem Reverse Proxy) — am Code ändert sich nichts. Standardmäßig bindet die App bei jedem "vollständigen" Start (Weg A/B/C) auf `0.0.0.0` (alle Netzwerk-Schnittstellen); willst du sie stattdessen strikt auf dieses Gerät beschränken, `HOST=127.0.0.1` setzen, bevor du startest.
 
 ---
 
@@ -68,9 +91,10 @@ Egal welcher Weg: In der App unter **Konto → KI-Zugang** einmal deinen eigenen
 | Modus | Speicherort |
 |---|---|
 | `npm run electron` / `npm run dist` | Betriebssystem-Datenordner der App (z. B. `~/Library/Application Support/AboWandler` auf Mac, `%APPDATA%\AboWandler` auf Windows, `~/.config/AboWandler` auf Linux) |
+| `build-standalone.sh` (Weg C) | `~/.abowandler/` im Home-Verzeichnis |
 | `npm run dev` (Browser) | `server/data/` im Projektordner |
 
-In beiden Fällen: nur auf deinem eigenen Rechner, nie auf einem fremden Server. Passwörter sind zusätzlich AES-256-verschlüsselt.
+In allen Fällen: nur auf deinem eigenen Rechner, nie auf einem fremden Server (außer du richtest das später selbst so ein, siehe oben). Passwörter sind zusätzlich AES-256-verschlüsselt.
 
 ## Build (nur Frontend, ohne Electron)
 

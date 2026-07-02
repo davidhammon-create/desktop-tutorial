@@ -27,28 +27,32 @@ if [ ! -d "dist" ]; then
 fi
 
 export ABOWANDLER_STATIC_DIR="$(pwd)/dist"
-export PORT=8787
-export HOST=127.0.0.1
+export PORT="${PORT:-8787}"
+# HOST is intentionally not forced here — the server defaults to 0.0.0.0
+# (reachable from your phone on the same WiFi) unless you export HOST
+# yourself before running this script, e.g. to point it at a real
+# server/host later or lock it back to 127.0.0.1-only.
 
 echo "Starte AboWandler..."
 (cd server && node index.js) &
 SERVER_PID=$!
 
 for i in $(seq 1 60); do
-  if curl -sf "http://127.0.0.1:8787/api/health" >/dev/null 2>&1; then
+  if curl -sf "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1; then
     break
   fi
   sleep 0.5
 done
 
 if command -v xdg-open >/dev/null 2>&1; then
-  xdg-open "http://127.0.0.1:8787"
+  xdg-open "http://127.0.0.1:$PORT"
 else
-  echo "Öffne http://127.0.0.1:8787 in deinem Browser."
+  echo "Öffne http://127.0.0.1:$PORT in deinem Browser."
 fi
 
 echo ""
 echo "AboWandler läuft jetzt in deinem Browser."
+echo "Auf dem Handy (im selben WLAN) siehst du oben die Netzwerk-Adresse zum Öffnen."
 echo "Dieses Fenster offen lassen, solange du die App nutzt."
 echo "Zum Beenden: dieses Fenster schließen oder Strg+C drücken."
 echo ""

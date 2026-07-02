@@ -7,8 +7,10 @@ import path from "node:path";
 import { exec } from "node:child_process";
 
 process.env.ABOWANDLER_DATA_DIR = path.join(os.homedir(), ".abowandler", "data");
-process.env.HOST = process.env.HOST || "127.0.0.1";
 process.env.PORT = process.env.PORT || "8787";
+// HOST is intentionally left to index.js's own default (0.0.0.0 for a full
+// app run) unless the user sets it explicitly — e.g. to migrate to a real
+// server/host later, or to lock it back down to 127.0.0.1-only.
 
 // dist/ (frontend) and data/ (seed + ETF reference data) ship next to the
 // compiled executable rather than being embedded in the binary itself.
@@ -24,17 +26,19 @@ function openBrowser(url) {
 async function main() {
   await import("./index.js");
 
-  const url = `http://${process.env.HOST}:${process.env.PORT}`;
+  // Always browse via localhost, even when the server binds to 0.0.0.0 for
+  // LAN access — 0.0.0.0 itself isn't a visitable address.
+  const localUrl = `http://127.0.0.1:${process.env.PORT}`;
   for (let i = 0; i < 40; i++) {
     try {
-      const res = await fetch(`${url}/api/health`);
+      const res = await fetch(`${localUrl}/api/health`);
       if (res.ok) break;
     } catch {
       // not up yet
     }
     await new Promise((r) => setTimeout(r, 250));
   }
-  openBrowser(url);
+  openBrowser(localUrl);
 }
 
 main();

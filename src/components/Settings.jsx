@@ -108,8 +108,11 @@ export default function Settings({ user, setUser, aiUsageCount }) {
 
       <div style={{ ...S.card, marginBottom: 20 }}>
         <div style={{ fontWeight: 650, marginBottom: 10 }}>🔒 Daten & Sicherheit</div>
-        <p style={{ fontSize: 13.5, color: T.textDim, lineHeight: 1.6, margin: 0 }}>
+        <p style={{ fontSize: 13.5, color: T.textDim, lineHeight: 1.6, margin: "0 0 10px" }}>
           Alle Abo-Daten und Zugangsdaten bleiben auf diesem Gerät — es gibt keinen zentralen Cloud-Server. Passwörter werden lokal AES-256-verschlüsselt gespeichert und nie im Klartext geloggt. Kontoauszüge werden nur bei aktiver KI-Analyse an Anthropic übermittelt, sonst nirgendwo hin.
+        </p>
+        <p style={{ fontSize: 12.5, color: T.textFaint, lineHeight: 1.6, margin: 0 }}>
+          Damit du AboWandler auch von deinem Handy im selben WLAN öffnen kannst, ist es im lokalen Netzwerk erreichbar (nicht nur auf diesem Gerät). Andere Geräte in deinem WLAN könnten die Adresse theoretisch mit-erraten — für ein privates Heimnetz unkritisch. Willst du es auf dieses Gerät beschränken oder später an einen echten Server/eine echte Domain anbinden, ist das über die Umgebungsvariablen <code>HOST</code>/<code>PORT</code> beim Start einstellbar (siehe README).
         </p>
       </div>
 
