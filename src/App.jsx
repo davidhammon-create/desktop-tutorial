@@ -20,8 +20,8 @@ export default function AboWandler() {
   const [error, setError] = useState(null);
   const [filterOverride, setFilterOverride] = useState(null);
 
-  const loadAll = () => {
-    setLoading(true);
+  const loadAll = (silent = false) => {
+    if (!silent) setLoading(true);
     Promise.all([api.subscriptions.list(), api.accounts.list(), api.user.get()])
       .then(([s, a, u]) => {
         setSubs(s);
@@ -85,6 +85,7 @@ export default function AboWandler() {
                 subs={subs}
                 onGoAbos={() => setTab("abos")}
                 onFilterWarning={() => { setFilterOverride("warning"); setTab("abos"); }}
+                onRefresh={() => loadAll(true)}
               />
             )}
             {tab === "abos" && (

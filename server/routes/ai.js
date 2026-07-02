@@ -1,7 +1,8 @@
 import { Router } from "express";
 import multer from "multer";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
-import { analyzeStatement, companyReport, cancellationLetter, AnthropicNotConfigured } from "../lib/anthropic.js";
+import { analyzeStatement, companyReport, cancellationLetter, autoClassify, AnthropicNotConfigured } from "../lib/anthropic.js";
+import { classifyAll } from "../lib/classify.js";
 import { store } from "../lib/store.js";
 
 const router = Router();
@@ -78,6 +79,45 @@ router.post("/cancellation-letter", async (req, res) => {
   } catch (err) {
     handleAiError(res, err);
   }
+});
+
+// Classifies every subscription at once. Uses Claude when a key is configured;
+// otherwise falls back to the built-in rule engine so the feature works out of the box.
+router.post("/auto-classify", async (req, res) => {
+  const subs = store.collection("subscriptions");
+  if (subs.length === 0) return res.json({ results: [], summary: "Keine Abos vorhanden.", engine: "none" });
+
+  let results;
+  let summary;
+  let engine;
+
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const raw = await autoClassify(subs);
+      const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
+      results = parsed.results;
+      summary = parsed.summary;
+      engine = "ki";
+    } catch (err) {
+      console.error("KI-Klassifizierung fehlgeschlagen, nutze Basis-Check:", err.message);
+    }
+  }
+
+  if (!results) {
+    results = classifyAll(subs);
+    const warn = results.filter((r) => r.status === "warning").length;
+    summary = `Basis-Check (ohne KI) abgeschlossen: ${results.length} Zahlungen geprüft, ${warn} Warnung${warn !== 1 ? "en" : ""}. Mit ANTHROPIC_API_KEY wird die Analyse deutlich genauer.`;
+    engine = "basis";
+  }
+
+  const byId = new Map(results.map((r) => [r.id, r]));
+  const updated = subs.map((s) => {
+    const r = byId.get(s.id);
+    return r ? { ...s, status: r.status, note: r.reason || s.note } : s;
+  });
+  store.setCollection("subscriptions", updated);
+
+  res.json({ results, summary, engine });
 });
 
 export default router;

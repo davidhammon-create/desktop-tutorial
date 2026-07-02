@@ -33,6 +33,21 @@ npm run build
 - `src/` — Frontend (Landing, Dashboard, Abo-Liste, Konten & Import, ETF-Explorer, Einstellungen)
 - `server/` — Backend: AI-Proxy (hält den Anthropic-Key serverseitig), Abo-CRUD mit AES-256-verschlüsselter Passwortablage, ETF-Referenzdaten, Konten-Demo-Endpunkte
 
+### KI-Auto-Check
+
+Der Button „✦ KI-Auto-Check starten" (Übersicht) klassifiziert alle Abos auf einen Klick in Behalten / In ETF umwandeln / Warnung / Ausstehender Check — inkl. Begründung pro Abo:
+
+- **Mit `ANTHROPIC_API_KEY`**: echte Claude-Analyse (Betrugsmuster, Plausibilität, Preisentwicklung).
+- **Ohne Key**: eingebauter Basis-Check (Regel-Engine: ausländische IBAN + unbekannte Firma, Preissprünge ≥ 25 %, nie überprüfte Alt-Verträge, Abgleich mit bekannter Anbieter-Liste) — klar als Basis-Check gekennzeichnet.
+
+### ETF-Tausch pro Abo
+
+Jede Abo-Karte hat einen „↗ ETF-Tausch"-Button: „Statt 19,99 € für Streaming → 19,99 €/Monat in MSCI World bzw. den rendite-stärksten ETF", mit 10/20/30-Jahres-Projektion und Renten-Boost nach 4%-Regel.
+
+### Mobile / Cross-Platform
+
+Das Frontend ist React — die portabelste Basis für den späteren Handy-Schritt (iOS + Android): als PWA installierbar (Manifest + Apple-Meta-Tags sind eingerichtet) oder per Capacitor/React Native in echte Store-Apps überführbar. Das Layout ist responsiv und auf Mobilgeräten getestet.
+
 ### Was echt ist, was Demo ist
 
 - **Abo-Verwaltung, ETF-Rechner, KI-Analyse/-Berichte/-Kündigungsbriefe**: voll funktionsfähig (KI-Teile benötigen `ANTHROPIC_API_KEY`).

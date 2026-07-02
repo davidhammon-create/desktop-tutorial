@@ -67,6 +67,33 @@ export function companyReport({ name, ibanCountry, amount }) {
   });
 }
 
+export function autoClassify(subs) {
+  const compact = subs.map((s) => ({
+    id: s.id, name: s.name, amount: s.amount, since: s.since,
+    iban: s.iban ? s.iban.replace(/\s/g, "").slice(0, 2) : null,
+    category: s.category, priceHistory: s.priceHistory,
+  }));
+  return callMessages({
+    maxTokens: 1500,
+    messages: [
+      {
+        role: "user",
+        content: `Du bist ein Finanz-Sicherheits-Analyst. Ordne jedes dieser Abos/wiederkehrenden Zahlungen in genau eine Kategorie ein:
+- "keep": bekannter seriöser Anbieter, Betrag plausibel
+- "switch": läuft, aber Kündigung/Wechsel lohnt sich (starke Preiserhöhung, überteuert, selten genutzt laut Notiz)
+- "warning": verdächtig (unbekannte Firma, ausländische IBAN ohne plausiblen Grund, Betrugsverdacht, plötzliche Betragssprünge)
+- "pending": unklar, Nutzer sollte selbst prüfen (z.B. sehr alte nie überprüfte Verträge)
+
+Antworte NUR mit validem JSON ohne Markdown:
+{"results":[{"id":1,"status":"keep","reason":"kurze deutsche Begründung"}],"summary":"1-2 Sätze Gesamtfazit auf Deutsch"}
+
+Abos:
+${JSON.stringify(compact)}`,
+      },
+    ],
+  });
+}
+
 export function cancellationLetter({ name, since, note }) {
   return callMessages({
     maxTokens: 500,

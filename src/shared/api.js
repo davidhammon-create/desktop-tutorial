@@ -40,5 +40,6 @@ export const api = {
     },
     companyReport: (subscriptionId) => req("/ai/company-report", { method: "POST", body: JSON.stringify({ subscriptionId }) }),
     cancellationLetter: (subscriptionId) => req("/ai/cancellation-letter", { method: "POST", body: JSON.stringify({ subscriptionId }) }),
+    autoClassify: () => req("/ai/auto-classify", { method: "POST", body: JSON.stringify({}) }),
   },
 };

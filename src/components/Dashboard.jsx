@@ -1,8 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { T, S, statusCfg } from "../shared/tokens";
 import { Reveal } from "../shared/Reveal";
 import { GrowthChart } from "../shared/GrowthChart";
 import { fmt, futureValue, monthsSince } from "../shared/format";
+import { api } from "../shared/api";
 
 // 0-100 health score: rewards low suspicious share and reviewed subscriptions, penalizes stale unreviewed ones.
 function healthScore(subs) {
@@ -17,17 +18,65 @@ function healthScore(subs) {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-export default function Dashboard({ subs, onGoAbos, onFilterWarning }) {
+export default function Dashboard({ subs, onGoAbos, onFilterWarning, onRefresh }) {
   const switchedSum = subs.filter((s) => s.status === "switch").reduce((a, s) => a + s.amount, 0);
   const totalMonthly = subs.reduce((a, s) => a + s.amount, 0);
   const warnings = subs.filter((s) => s.status === "warning");
   const score = useMemo(() => healthScore(subs), [subs]);
   const scoreColor = score >= 75 ? T.green : score >= 45 ? T.orange : T.red;
+  const [checking, setChecking] = useState(false);
+  const [checkResult, setCheckResult] = useState(null);
+
+  const runAutoCheck = async () => {
+    setChecking(true);
+    setCheckResult(null);
+    try {
+      const res = await api.ai.autoClassify();
+      setCheckResult(res);
+      onRefresh?.();
+    } catch (e) {
+      setCheckResult({ summary: e.message, engine: "fehler", results: [] });
+    }
+    setChecking(false);
+  };
 
   return (
     <div>
-      <Reveal><h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1, margin: "0 0 6px" }}>Deine Finanz-Übersicht</h1></Reveal>
-      <Reveal delay={0.05}><p style={{ color: T.textDim, margin: "0 0 32px" }}>{subs.length} erkannte wiederkehrende Zahlungen</p></Reveal>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <Reveal><h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1, margin: "0 0 6px" }}>Deine Finanz-Übersicht</h1></Reveal>
+          <Reveal delay={0.05}><p style={{ color: T.textDim, margin: "0 0 32px" }}>{subs.length} erkannte wiederkehrende Zahlungen</p></Reveal>
+        </div>
+        <Reveal delay={0.1}>
+          <button style={{ ...S.btn, opacity: checking ? 0.6 : 1 }} disabled={checking} onClick={runAutoCheck}>
+            {checking ? "⏳ Prüft alle Abos…" : "✦ KI-Auto-Check starten"}
+          </button>
+        </Reveal>
+      </div>
+
+      {checkResult && (
+        <Reveal>
+          <div style={{ ...S.card, marginBottom: 32, borderColor: checkResult.engine === "ki" ? "rgba(191,90,242,0.35)" : "rgba(100,210,255,0.3)" }}>
+            <div style={{ fontWeight: 650, marginBottom: 8, color: checkResult.engine === "ki" ? T.purple : T.teal }}>
+              {checkResult.engine === "ki" ? "✦ KI-Analyse abgeschlossen" : checkResult.engine === "basis" ? "🛡 Basis-Check abgeschlossen" : "Fehler"}
+            </div>
+            <p style={{ fontSize: 14, color: T.textDim, margin: "0 0 12px", lineHeight: 1.5 }}>{checkResult.summary}</p>
+            {checkResult.results?.length > 0 && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {checkResult.results.map((r) => {
+                  const sub = subs.find((s) => s.id === r.id);
+                  const cfg = statusCfg[r.status];
+                  return cfg && (
+                    <span key={r.id} style={S.tag(cfg.color)} title={r.reason}>
+                      {cfg.icon} {sub?.name || `#${r.id}`}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </Reveal>
+      )}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 16, marginBottom: 32 }}>
         {[

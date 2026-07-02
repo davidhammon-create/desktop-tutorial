@@ -1,8 +1,45 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { T, S, statusCfg } from "../shared/tokens";
-import { fmt, yearsLabel, monthsSince } from "../shared/format";
+import { fmt, yearsLabel, monthsSince, futureValue } from "../shared/format";
 import { Logo } from "../shared/Logo";
 import { api } from "../shared/api";
+
+// "Statt 19,99 € fürs Abo → 19,99 € in einen ETF" — Projektion für denselben Monatsbetrag.
+function SwapSuggestion({ sub, etfs }) {
+  const popular = etfs.find((e) => e.tags?.includes("Beliebtester")) || etfs[0];
+  const best = etfs.reduce((a, b) => (b.ret > (a?.ret ?? -Infinity) ? b : a), null);
+  if (!popular || !best) return null;
+  const rows = [popular, ...(best.id !== popular.id ? [best] : [])];
+  return (
+    <div style={{ marginTop: 14, padding: 16, background: "rgba(48,209,88,0.06)", border: "1px solid rgba(48,209,88,0.25)", borderRadius: 14 }}>
+      <div style={{ color: T.green, fontWeight: 650, marginBottom: 4, fontSize: 14 }}>
+        ↗ Tausch-Vorschlag: Statt {fmt(sub.amount)} für „{sub.name}“ …
+      </div>
+      <div style={{ fontSize: 13, color: T.textDim, marginBottom: 12 }}>… denselben Betrag monatlich in einen ETF-Sparplan:</div>
+      <div style={{ display: "grid", gap: 10 }}>
+        {rows.map((e) => (
+          <div key={e.id} style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 10 }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 13.5 }}>{e.name} <span style={{ color: T.green }}>({e.ret}% p.a.*)</span></div>
+              <div style={{ fontSize: 12, color: T.textFaint }}>Risiko: {e.risk} · TER {e.ter}%</div>
+            </div>
+            <div style={{ display: "flex", gap: 16, fontSize: 12.5, alignItems: "center", flexWrap: "wrap" }}>
+              {[10, 20, 30].map((y) => (
+                <div key={y} style={{ textAlign: "right" }}>
+                  <div style={{ color: T.textFaint }}>{y} J.</div>
+                  <div style={{ fontWeight: 700, color: T.green }}>{fmt(futureValue(sub.amount, e.ret, y))}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 11.5, color: T.textFaint, marginTop: 10 }}>
+        Eingezahlt wären es {fmt(sub.amount * 12 * 20)} in 20 Jahren — Renten-Boost nach 4%-Regel: +{fmt((futureValue(sub.amount, popular.ret, 20) * 0.04) / 12)}/Monat.* Modellrechnung, keine Anlageberatung.
+      </div>
+    </div>
+  );
+}
 
 function CredentialForm({ sub, emails, onSave }) {
   const [email, setEmail] = useState(sub.email || "");
@@ -83,6 +120,12 @@ export default function Subscriptions({ subs, setSubs, emails, forceFilter, onFo
   const [letterLoading, setLetterLoading] = useState(null);
   const [letters, setLetters] = useState({});
   const [openCreds, setOpenCreds] = useState(null);
+  const [openSwap, setOpenSwap] = useState(null);
+  const [etfs, setEtfs] = useState([]);
+
+  useEffect(() => {
+    api.etfs.list().then(setEtfs).catch(() => {});
+  }, []);
 
   const filtered = useMemo(() => {
     let list = subs.filter((s) => s.name.toLowerCase().includes(search.toLowerCase()));
@@ -223,11 +266,18 @@ export default function Subscriptions({ subs, setSubs, emails, forceFilter, onFo
                 <button onClick={() => generateLetter(sub)} disabled={letterLoading === sub.id} style={{ ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.teal, borderColor: T.teal + "55" }}>
                   {letterLoading === sub.id ? "⏳ KI schreibt…" : "✉ Kündigungsbrief"}
                 </button>
+                <button onClick={() => setOpenSwap(openSwap === sub.id ? null : sub.id)} style={{ ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.green, borderColor: T.green + "55" }}>
+                  ↗ ETF-Tausch
+                </button>
                 <button onClick={() => setOpenCreds(openCreds === sub.id ? null : sub.id)} style={{ ...S.btnGhost, padding: "7px 14px", fontSize: 12.5 }}>
                   🔑 Zugangsdaten
                 </button>
                 <button onClick={() => removeSub(sub.id)} style={{ ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.textFaint }}>Entfernen</button>
               </div>
+
+              {openSwap === sub.id && etfs.length > 0 && (
+                <SwapSuggestion sub={sub} etfs={etfs} />
+              )}
 
               {openCreds === sub.id && (
                 <CredentialForm sub={sub} emails={emails} onSave={(body) => saveCreds(sub.id, body)} />
