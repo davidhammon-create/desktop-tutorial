@@ -30,7 +30,9 @@ cd server && npm install && cd ..
 npm run electron
 ```
 
-Öffnet AboWandler als eigenes Fenster statt im Browser. Für eine installierbare Datei (`.dmg` / `.exe` / `.AppImage`):
+Öffnet AboWandler als eigenes Fenster statt im Browser. Der erste Aufruf lädt dabei zusätzlich Electron selbst herunter (separat von den normalen npm-Paketen, ca. 100+ MB) — das kann in Firmennetzwerken/hinter restriktiven Firewalls fehlschlagen. Falls `npm run electron` einen Download-/403-Fehler wirft, nutze stattdessen **Weg A**, der ganz ohne Electron auskommt.
+
+Für eine installierbare Datei (`.dmg` / `.exe` / `.AppImage`):
 
 ```bash
 npm run dist
