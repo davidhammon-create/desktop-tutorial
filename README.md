@@ -8,28 +8,29 @@ KI-Finanz & Abo-Check App. Findet wiederkehrende und verdächtige Zahlungen, kla
 
 ## Genaue Anleitung: App starten
 
-Es gibt zwei Wege — such dir einen aus.
+Voraussetzung für alle Wege: **Node.js** muss installiert sein (kostenlos, [nodejs.org](https://nodejs.org), LTS-Version reicht). Ohne Node.js läuft nichts von alldem — das ist die einzige Voraussetzung, es braucht keinen Account, keine Cloud, keine Installation von irgendwas anderem.
 
-### Weg A — Als richtige Desktop-App (empfohlen)
+### Weg A — Doppelklick-Start (am einfachsten)
 
-Einmalig einrichten:
+Im Hauptordner liegt ein Startprogramm für dein Betriebssystem:
+
+- **Mac**: `start-mac.command` doppelklicken
+- **Windows**: `start-windows.bat` doppelklicken
+- **Linux**: `start-linux.sh` doppelklicken (oder `bash start-linux.sh`)
+
+Beim ersten Start installiert es automatisch alles Nötige (kann ein paar Minuten dauern), danach öffnet sich AboWandler in deinem Standard-Browser unter `http://127.0.0.1:8787`. Bei jedem weiteren Start geht es sofort los.
+
+> Mac: Falls eine Sicherheitswarnung erscheint ("nicht verifizierter Entwickler"), einmal rechtsklicken → Öffnen, statt doppelzuklicken.
+
+### Weg B — Als natives Fenster (Electron)
 
 ```bash
-git clone <dieses-repo>
-cd desktop-tutorial
 npm install
 cd server && npm install && cd ..
-```
-
-Starten:
-
-```bash
 npm run electron
 ```
 
-Das baut das Frontend und öffnet AboWandler als eigenes Fenster — wie eine normale Mac/Windows/Linux-App, kein Browser, kein Terminal-Tab offen lassen nötig.
-
-Für eine installierbare Datei (`.dmg` / `.exe` / `.AppImage`), die du auch ohne `npm` doppelklicken kannst:
+Öffnet AboWandler als eigenes Fenster statt im Browser. Für eine installierbare Datei (`.dmg` / `.exe` / `.AppImage`):
 
 ```bash
 npm run dist
@@ -37,7 +38,7 @@ npm run dist
 
 Das Ergebnis liegt danach im Ordner `release/`. **Wichtig:** Baue für dein eigenes Betriebssystem — ein `.dmg` entsteht nur auf einem Mac, ein `.exe` nur unter Windows (bzw. mit passendem Cross-Build-Setup).
 
-### Weg B — Für die Entwicklung (im Browser, mit Hot-Reload)
+### Weg C — Für die Entwicklung (im Browser, mit Hot-Reload)
 
 Zwei Terminals:
 
