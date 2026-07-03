@@ -1,14 +1,27 @@
 import { Router } from "express";
+import fs from "node:fs";
+import path from "node:path";
 import { store } from "../lib/store.js";
 import { encrypt, decrypt } from "../lib/crypto.js";
 import { requireUser } from "../lib/currentUser.js";
+import { BUNDLED_DATA_DIR } from "../lib/paths.js";
+
+// Kündigungsbutton-Gesetz: direct links to each provider's cancellation page,
+// matched against the subscription name/subject by keyword.
+const cancelLinks = JSON.parse(fs.readFileSync(path.join(BUNDLED_DATA_DIR, "cancel-links.json"), "utf8"));
+
+function findCancelLink(sub) {
+  const hay = `${sub.name || ""} ${sub.note || ""}`.toLowerCase();
+  const hit = cancelLinks.find((c) => c.match.some((m) => hay.includes(m)));
+  return hit ? { label: hit.label, url: hit.url } : null;
+}
 
 const router = Router();
 router.use(requireUser);
 
 function toPublic(sub) {
   const { passwordEnc, ...rest } = sub;
-  return { ...rest, hasPassword: Boolean(passwordEnc) };
+  return { ...rest, hasPassword: Boolean(passwordEnc), cancelLink: findCancelLink(sub) };
 }
 
 router.get("/", (req, res) => {
@@ -62,6 +75,19 @@ router.patch("/:id", (req, res) => {
   }
   if (body.paused !== undefined) updated.paused = Boolean(body.paused);
   if (body.paymentDay !== undefined) updated.paymentDay = body.paymentDay === null ? null : Math.min(28, Math.max(1, Number(body.paymentDay) || 1));
+  // 3-point conversion checklist (Abo gekündigt / Sparplan angelegt / Betrag
+  // bestätigt) plus the chosen ETF/broker — the app remembers the progress.
+  if (body.conversion !== undefined) {
+    const c = body.conversion || {};
+    updated.conversion = {
+      cancelled: Boolean(c.cancelled),
+      planCreated: Boolean(c.planCreated),
+      confirmed: Boolean(c.confirmed),
+      etfIsin: c.etfIsin ?? current.conversion?.etfIsin ?? null,
+      etfName: c.etfName ?? current.conversion?.etfName ?? null,
+      brokerId: c.brokerId ?? current.conversion?.brokerId ?? null,
+    };
+  }
   if (body.amount !== undefined) {
     const newAmount = Number(body.amount);
     if (newAmount !== current.amount) {

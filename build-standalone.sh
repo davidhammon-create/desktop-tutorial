@@ -53,7 +53,7 @@ cp -r dist "$OUT_DIR/dist"
 mkdir -p "$OUT_DIR/data"
 # Alle Referenzdaten (Seed, ETF-/Invest-Universum, Finanz-Radar-Tipps) —
 # aber niemals Laufzeitdaten wie db.json oder Schlüssel.
-cp server/data/db.seed.json server/data/etfs.json server/data/invest.json server/data/tips.json server/data/providers.json "$OUT_DIR/data/"
+cp server/data/db.seed.json server/data/etfs.json server/data/invest.json server/data/tips.json server/data/providers.json server/data/brokers.json server/data/cancel-links.json "$OUT_DIR/data/"
 rm -f "$OUT_DIR/server-bundle.cjs" "$OUT_DIR/sea-prep.blob" "$OUT_DIR/sea-config.json"
 
 echo ""

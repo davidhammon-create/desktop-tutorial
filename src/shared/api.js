@@ -52,6 +52,9 @@ export const api = {
   etfs: {
     list: (q) => req(`/etfs${q ? `?q=${encodeURIComponent(q)}` : ""}`),
   },
+  brokers: {
+    list: () => req("/brokers"),
+  },
   invest: {
     list: ({ q, cls } = {}) => {
       const params = new URLSearchParams();

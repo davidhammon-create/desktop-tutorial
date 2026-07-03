@@ -12,6 +12,7 @@ export function accountsPage({ accounts: initialAccounts, onAccountsChanged, onS
   let selectedAccountId = null;
   let showCatalog = false;
   let importOpenId = null;
+  let lastImportMsg = null; // { ok, text } — survives the transaction-list re-render
 
   const accountsSlot = h("div", {});
   const catalogSlot = h("div", {});
@@ -162,27 +163,56 @@ export function accountsPage({ accounts: initialAccounts, onAccountsChanged, onS
     const account = accounts.find((a) => a.id === importOpenId);
     let importBox = null;
     if (account) {
+      const prov = providerOf(account.provider);
       const ta = h("textarea", {
         style: { ...S.input, minHeight: 120, fontFamily: "ui-monospace, monospace", fontSize: 12.5, marginTop: 4 },
         placeholder: "15.06.2026  NETFLIX INTERNATIONAL B.V.  NL91ABNA0417164300  Netflix Abo  -17,99\n01.06.2026  Wohnbau GmbH  Miete Juni  -950,00\n…",
       });
-      const importBtn2 = h("button", { style: { ...S.btn, padding: "10px 20px", fontSize: 14, marginTop: 10 } }, `In „${account.label}" importieren`);
-      const msg = h("div", { style: { fontSize: 13, marginTop: 8 } });
-      importBtn2.addEventListener("click", async () => {
+      const msg = h("div", { style: { fontSize: 13, marginTop: 8, color: lastImportMsg ? (lastImportMsg.ok ? T.green : T.red) : T.text } }, lastImportMsg?.text || "");
+
+      async function doImport(text) {
         try {
-          const res = await api.accounts.import(account.id, ta.value);
-          msg.style.color = T.green;
-          msg.textContent = `✓ ${res.imported} Umsätze importiert. Jetzt oben scannen.`;
-          loadTransactions();
+          const res = await api.accounts.import(account.id, text);
+          lastImportMsg = { ok: true, text: `✓ ${res.imported} Umsätze importiert. Jetzt oben scannen.` };
         } catch (e) {
-          msg.style.color = T.red;
-          msg.textContent = e.message;
+          lastImportMsg = { ok: false, text: e.message };
         }
+        loadTransactions();
+      }
+
+      // CSV/TXT file upload — read locally in the browser, then the same
+      // algorithmic import path as pasted text. No AI involved.
+      const fileInput = h("input", { type: "file", accept: ".csv,.txt,text/csv,text/plain", style: { display: "none" } });
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => doImport(String(reader.result || ""));
+        reader.readAsText(file);
       });
+      const uploadBtn = h("button", { style: { ...S.btn, padding: "10px 20px", fontSize: 14 } }, "📄 CSV-Datei hochladen");
+      uploadBtn.addEventListener("click", () => fileInput.click());
+
+      const importBtn2 = h("button", { style: { ...S.btnGhost, padding: "9px 18px", fontSize: 14 } }, "Eingefügten Text importieren");
+      importBtn2.addEventListener("click", () => doImport(ta.value));
+
+      // 30-second export guide, per provider (Kündigungsbutton für Daten quasi).
+      const guide = prov.exportGuide || [];
       importBox = h("div", { style: { ...S.card, marginBottom: 14 } },
         h("div", { style: { fontWeight: 600, marginBottom: 4 } }, `Umsätze importieren — ${account.label}`),
-        h("p", { style: { fontSize: 12.5, color: T.textDim, margin: "0 0 4px" } }, "Text oder CSV einfügen (eine Buchung pro Zeile: Datum, Name, optional IBAN/Verwendungszweck, Betrag). Rein algorithmische Auswertung, keine KI."),
-        ta, importBtn2, msg
+        guide.length
+          ? h("div", { style: { background: "#fff", borderRadius: 12, padding: 14, margin: "8px 0 12px" } },
+              h("div", { style: { fontSize: 12.5, fontWeight: 600, marginBottom: 6 } }, `So exportierst du deine Umsätze bei ${prov.name} in 30 Sekunden:`),
+              ...guide.map((step, i) =>
+                h("div", { style: { fontSize: 12.5, color: T.textDim, padding: "3px 0", display: "flex", gap: 8 } },
+                  h("span", { style: { color: T.blue, fontWeight: 700, minWidth: 16 } }, `${i + 1}.`), step
+                )
+              )
+            )
+          : null,
+        h("div", { style: { display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 } }, uploadBtn, fileInput),
+        h("p", { style: { fontSize: 12.5, color: T.textDim, margin: "0 0 4px" } }, "Oder Text/CSV direkt einfügen (eine Buchung pro Zeile: Datum, Name, optional IBAN/Verwendungszweck, Betrag). Rein algorithmische Auswertung, keine KI. Banking-Passwörter werden niemals abgefragt."),
+        ta, h("div", { style: { marginTop: 10 } }, importBtn2), msg
       );
     }
 

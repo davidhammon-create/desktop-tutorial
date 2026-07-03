@@ -96,11 +96,18 @@ export function dashboardPage({ subs: initialSubs, aiEnabled: initialAi, onFilte
   const score = healthScore(subs);
   const scoreColor = score >= 75 ? T.green : score >= 45 ? T.orange : T.red;
 
+  const convertedSubs = subs.filter((s) => s.conversion?.confirmed);
+  const convertedSum = convertedSubs.reduce((a, s) => a + s.amount, 0);
+  // Reminder: marked for conversion or checklist started, but not confirmed yet.
+  const pendingConversions = subs.filter(
+    (s) => !s.conversion?.confirmed && (s.status === "switch" || s.conversion?.cancelled || s.conversion?.planCreated)
+  );
+
   const statCards = [
     ["Monatliche Abo-Kosten", fmt(totalMonthly), T.text],
-    ["Umwandlungs-Potenzial", fmt(switchedSum) + "/Monat", T.green],
+    ["Aktiv umgewandelt", fmt(convertedSum) + "/Monat", T.green],
+    ["Umwandlungs-Potenzial", fmt(switchedSum) + "/Monat", T.blue],
     ["Warnungen", warnings.length + " verdächtige Zahlung" + (warnings.length !== 1 ? "en" : ""), T.red],
-    ["In 25 J. (bei 7,1% p.a.)", "≈ " + fmt(futureValue(switchedSum, 7.1, 25)), T.teal],
   ];
 
   const circumference = 2 * Math.PI * 40;
@@ -168,6 +175,27 @@ export function dashboardPage({ subs: initialSubs, aiEnabled: initialAi, onFilte
         )
       )
     ),
+    pendingConversions.length > 0
+      ? reveal(
+          h("div", { style: { ...S.card, borderColor: "rgba(0,113,227,0.3)", background: "rgba(0,113,227,0.05)", marginBottom: 32 } },
+            h("div", { style: { fontWeight: 650, color: T.blue, marginBottom: 10 } }, "☑ Umwandlungen abschließen"),
+            ...pendingConversions.slice(0, 4).map((s) => {
+              const c = s.conversion || {};
+              const missing = !c.cancelled ? "Kündigung fehlt noch" : !c.planCreated ? "Sparplan fehlt noch" : "Bestätigung fehlt noch";
+              const wealth = futureValue(s.amount, 7.1, 25);
+              const goBtn = h("button", { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5 } }, "Fortsetzen →");
+              goBtn.addEventListener("click", () => onGoTo?.("abos"));
+              return h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderTop: `1px solid ${T.border}`, gap: 12, flexWrap: "wrap" } },
+                h("div", {},
+                  h("div", { style: { fontWeight: 600, fontSize: 14 } }, `${s.name} · ${fmt(s.amount)}/Monat`),
+                  h("div", { style: { fontSize: 12.5, color: T.textDim } }, `${missing} — ≈ ${fmt(wealth)} in 25 J. warten.*`)
+                ),
+                goBtn
+              );
+            })
+          )
+        )
+      : null,
     warnings.length > 0
       ? reveal(
           h("div", { style: { ...S.card, borderColor: "rgba(255,69,58,0.35)", background: "rgba(255,69,58,0.06)", marginBottom: 32 } },

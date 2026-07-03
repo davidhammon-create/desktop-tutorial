@@ -178,6 +178,8 @@ export function subscriptionsPage({ subs, emails, aiEnabled: initialAi, forceFil
   let currentSubs = subs;
   let currentEmails = emails;
   let aiEnabled = Boolean(initialAi);
+  let brokers = [];
+  api.brokers.list().then((list) => { brokers = list; }).catch(() => {});
 
   let search = "";
   let sortBy = "amount";
@@ -193,6 +195,7 @@ export function subscriptionsPage({ subs, emails, aiEnabled: initialAi, forceFil
     letters: {},
     drafts: {}, // id -> { email, username, phone, password, showPw, loadedPw }
     manageDrafts: {}, // id -> { amount, category, paymentDay, cycle, note }
+    depotChoice: {}, // id -> "ja" | "nein" (guided savings-plan flow)
   };
 
   let etfs = [];
@@ -239,6 +242,93 @@ export function subscriptionsPage({ subs, emails, aiEnabled: initialAi, forceFil
     onSubsChanged?.(currentSubs);
     renderList();
   };
+
+  const saveConversion = async (sub, patch) => {
+    const conversion = { cancelled: false, planCreated: false, confirmed: false, ...(sub.conversion || {}), ...patch };
+    currentSubs = currentSubs.map((s) => (s.id === sub.id ? { ...s, conversion } : s));
+    renderList();
+    const updated = await api.subscriptions.update(sub.id, { conversion });
+    currentSubs = currentSubs.map((s) => (s.id === sub.id ? { ...s, ...updated } : s));
+    onSubsChanged?.(currentSubs);
+    renderList();
+  };
+
+  // Guided conversion: prognosis → depot question → broker deeplink/affiliate
+  // → 3-point checklist the app remembers (PDF-Konzept, Abschnitt 4B/4C).
+  function conversionFlow(sub) {
+    const conv = sub.conversion || {};
+    const popular = etfs.find((e) => e.tags?.includes("Beliebtester")) || etfs[0];
+    const isin = conv.etfIsin || popular?.isin || "IE00B4L5Y983";
+    const etfName = conv.etfName || popular?.name || "MSCI World";
+    const depotChoice = uiState.depotChoice[sub.id] || null;
+
+    const jaBtn = h("button", { style: { ...S.btnGhost, padding: "8px 18px", fontSize: 13, fontWeight: depotChoice === "ja" ? 650 : 450, background: depotChoice === "ja" ? "#eef4fc" : "transparent" } }, "Ja, habe ein Depot");
+    jaBtn.addEventListener("click", () => { uiState.depotChoice[sub.id] = "ja"; renderList(); });
+    const neinBtn = h("button", { style: { ...S.btnGhost, padding: "8px 18px", fontSize: 13, fontWeight: depotChoice === "nein" ? 650 : 450, background: depotChoice === "nein" ? "#eef4fc" : "transparent" } }, "Nein, noch nicht");
+    neinBtn.addEventListener("click", () => { uiState.depotChoice[sub.id] = "nein"; renderList(); });
+
+    let depotPanel = null;
+    if (depotChoice === "ja") {
+      depotPanel = h("div", { style: { background: "#fff", borderRadius: 12, padding: 14, marginTop: 10 } },
+        h("div", { style: { fontSize: 13, fontWeight: 600, marginBottom: 8 } }, `Sparplan über ${fmt(sub.amount)}/Monat anlegen — direkt bei deinem Broker:`),
+        h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+          ...brokers.map((b) => {
+            const url = b.etfUrlPattern ? b.etfUrlPattern.replace("{ISIN}", isin) : `https://www.justetf.com/de/etf-profile.html?isin=${isin}`;
+            return h("a", { href: url, target: "_blank", rel: "noopener", title: b.sparplanHint, style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 } },
+              h("span", { style: { width: 18, height: 18, borderRadius: 5, background: b.color, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 10 } }, b.letter),
+              `${b.name} öffnen`
+            );
+          })
+        ),
+        h("div", { style: { fontSize: 12, color: T.textFaint, marginTop: 8 } }, `ISIN kopieren: ${isin} (${etfName}) — im Broker suchen → „Sparplan anlegen" → ${fmt(sub.amount)} monatlich.`)
+      );
+    } else if (depotChoice === "nein") {
+      depotPanel = h("div", { style: { background: "#fff", borderRadius: 12, padding: 14, marginTop: 10 } },
+        h("div", { style: { fontSize: 13, fontWeight: 600, marginBottom: 8 } }, "Depot in ~10 Minuten eröffnen (kostenlos) — danach hierher zurückkommen:"),
+        h("div", { style: { display: "grid", gap: 8 } },
+          ...brokers.map((b) =>
+            h("a", { href: b.affiliateUrl || b.url, target: "_blank", rel: "noopener", style: { display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: T.bgAlt, borderRadius: 10, textDecoration: "none", color: T.text, fontSize: 13.5 } },
+              h("span", { style: { width: 26, height: 26, borderRadius: 8, background: b.color, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 } }, b.letter),
+              h("span", { style: { fontWeight: 600 } }, b.name),
+              h("span", { style: { marginLeft: "auto", color: T.blue, fontSize: 12.5 } }, "Depot eröffnen →")
+            )
+          )
+        ),
+        h("div", { style: { fontSize: 11, color: T.textFaint, marginTop: 8 } }, "Hinweis: Links können Partner-/Affiliate-Links sein (Admin → brokers.json pflegen). Keine Anlageberatung.")
+      );
+    }
+
+    const checklistItems = [
+      ["cancelled", "Abo gekündigt", sub.cancelLink ? `→ ${sub.cancelLink.label}: direkt über „Jetzt kündigen"` : "Kündigungsseite des Anbieters nutzen"],
+      ["planCreated", "Sparplan angelegt", `${etfName} · ${fmt(sub.amount)}/Monat beim Broker`],
+      ["confirmed", "Betrag bestätigt — zählt ab jetzt als umgewandelt", "Erscheint dann im Dashboard als aktiver Sparplan"],
+    ];
+    const checklist = h("div", { style: { background: "#fff", borderRadius: 12, padding: 14, marginTop: 12 } },
+      h("div", { style: { fontSize: 13, fontWeight: 600, marginBottom: 8 } }, "Deine Umwandlungs-Checkliste (wird gespeichert):"),
+      ...checklistItems.map(([key, label, hint]) => {
+        const done = Boolean(conv[key]);
+        const row = h("button", { style: { display: "flex", alignItems: "flex-start", gap: 10, width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: "7px 0" } },
+          h("span", { style: { width: 22, height: 22, borderRadius: "50%", flexShrink: 0, border: done ? "none" : "2px solid rgba(0,0,0,0.25)", background: done ? T.green : "transparent", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 } }, done ? "✓" : ""),
+          h("span", {},
+            h("span", { style: { fontSize: 13.5, fontWeight: 600, color: T.text, textDecoration: done ? "line-through" : "none" } }, label),
+            h("div", { style: { fontSize: 12, color: T.textFaint } }, hint)
+          )
+        );
+        row.addEventListener("click", () => saveConversion(sub, { [key]: !done, etfIsin: isin, etfName }));
+        return row;
+      })
+    );
+
+    return h("div", {},
+      swapSuggestion(sub, etfs),
+      h("div", { style: { marginTop: 12, padding: 16, background: "rgba(0,113,227,0.05)", border: "1px solid rgba(0,113,227,0.2)", borderRadius: 14 } },
+        h("div", { style: { fontWeight: 650, fontSize: 14, marginBottom: 8 } }, "Hast du schon ein Depot?"),
+        h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } }, jaBtn, neinBtn),
+        depotPanel,
+        checklist
+      )
+    );
+  }
 
   const setStatus = async (id, status) => {
     currentSubs = currentSubs.map((s) => (s.id === id ? { ...s, status } : s));
@@ -352,8 +442,19 @@ export function subscriptionsPage({ subs, emails, aiEnabled: initialAi, forceFil
         })()
       : null;
 
-    const swapBtn = h("button", { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.green, borderColor: T.green + "55" } }, "↗ ETF-Tausch");
+    const swapBtn = h("button", { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.green, borderColor: T.green + "55" } }, "↗ Sparplan einrichten");
     swapBtn.addEventListener("click", () => { uiState.openSwapId = uiState.openSwapId === sub.id ? null : sub.id; renderList(); });
+
+    const cancelBtn = sub.cancelLink
+      ? (() => {
+          const b = h("a", {
+            href: sub.cancelLink.url, target: "_blank", rel: "noopener",
+            style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.red, borderColor: T.red + "66", textDecoration: "none", display: "inline-flex", alignItems: "center" },
+            title: sub.cancelLink.label,
+          }, "Jetzt kündigen →");
+          return b;
+        })()
+      : null;
 
     const credsBtn = h("button", { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5 } }, "🔑 Zugangsdaten");
     credsBtn.addEventListener("click", () => { uiState.openCredsId = uiState.openCredsId === sub.id ? null : sub.id; renderList(); });
@@ -387,6 +488,7 @@ export function subscriptionsPage({ subs, emails, aiEnabled: initialAi, forceFil
             { style: { display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" } },
             h("span", { style: { fontWeight: 650, fontSize: 17 } }, sub.name),
             h("span", { style: S.tag(cfg.color) }, `${cfg.icon} ${cfg.label}`),
+            sub.conversion?.confirmed ? h("span", { style: S.tag(T.green) }, "✓ Sparplan aktiv") : null,
             sub.paused ? h("span", { style: S.tag(T.orange) }, "⏸ Pausiert") : null
           ),
           h("div", { style: { fontSize: 13.5, color: T.textDim, marginTop: 4 } },
@@ -407,8 +509,8 @@ export function subscriptionsPage({ subs, emails, aiEnabled: initialAi, forceFil
           h("div", { style: { fontSize: 12, color: T.textFaint } }, `= ${fmt(sub.amount * 12)}/Jahr`)
         )
       ),
-      h("div", { style: { display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" } }, ...statusButtons, reportBtn, letterBtn, swapBtn, credsBtn, pauseBtn, manageBtn, removeBtn),
-      uiState.openSwapId === sub.id && etfs.length > 0 ? swapSuggestion(sub, etfs) : null,
+      h("div", { style: { display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" } }, ...statusButtons, cancelBtn, reportBtn, letterBtn, swapBtn, credsBtn, pauseBtn, manageBtn, removeBtn),
+      uiState.openSwapId === sub.id && etfs.length > 0 ? conversionFlow(sub) : null,
       uiState.openManageId === sub.id ? manageForm(sub, manageDraftFor(sub), (draft) => saveManage(sub.id, draft)) : null,
       uiState.openCredsId === sub.id ? credentialForm(sub, currentEmails, draftFor(sub), (body) => saveCreds(sub.id, body)) : null,
       uiState.reports[sub.id]

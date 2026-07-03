@@ -1,0 +1,57 @@
+[
+  {
+    "id": "trade-republic",
+    "name": "Trade Republic",
+    "color": "#111111",
+    "letter": "T",
+    "url": "https://traderepublic.com/de-de",
+    "affiliateUrl": "https://traderepublic.com/de-de",
+    "affiliateNote": "Affiliate-/Empfehlungslink hier eintragen, sobald beim Partnerprogramm angemeldet.",
+    "sparplanHint": "In der Trade-Republic-App: Suche → ISIN eingeben → „Sparplan erstellen“ → Betrag & Ausführungstag wählen.",
+    "etfUrlPattern": null
+  },
+  {
+    "id": "scalable",
+    "name": "Scalable Capital",
+    "color": "#1B4DFF",
+    "letter": "S",
+    "url": "https://de.scalable.capital",
+    "affiliateUrl": "https://de.scalable.capital",
+    "affiliateNote": "Affiliate-Link hier eintragen.",
+    "sparplanHint": "Broker öffnen → Suche → ISIN eingeben → „Sparplan anlegen“ → Betrag festlegen.",
+    "etfUrlPattern": "https://de.scalable.capital/broker/security?isin={ISIN}"
+  },
+  {
+    "id": "ing",
+    "name": "ING",
+    "color": "#FF6200",
+    "letter": "I",
+    "url": "https://www.ing.de/wertpapiere/",
+    "affiliateUrl": "https://www.ing.de/wertpapiere/",
+    "affiliateNote": "Affiliate-Link hier eintragen.",
+    "sparplanHint": "Banking + Brokerage → Wertpapiersuche → ISIN → „Sparplan einrichten“.",
+    "etfUrlPattern": "https://wertpapiere.ing.de/Investieren/Suche/{ISIN}"
+  },
+  {
+    "id": "comdirect",
+    "name": "comdirect",
+    "color": "#FFF04B",
+    "letter": "c",
+    "url": "https://www.comdirect.de",
+    "affiliateUrl": "https://www.comdirect.de",
+    "affiliateNote": "Affiliate-Link hier eintragen.",
+    "sparplanHint": "Depot → Wertpapiersparplan → Neuer Sparplan → ISIN eingeben.",
+    "etfUrlPattern": "https://www.comdirect.de/inf/search/all.html?SEARCH_VALUE={ISIN}"
+  },
+  {
+    "id": "zero",
+    "name": "finanzen.net zero",
+    "color": "#00C805",
+    "letter": "Z",
+    "url": "https://www.finanzen.net/zero/",
+    "affiliateUrl": "https://www.finanzen.net/zero/",
+    "affiliateNote": "Affiliate-Link hier eintragen.",
+    "sparplanHint": "App öffnen → Suche → ISIN → „Sparplan“ → Betrag wählen.",
+    "etfUrlPattern": null
+  }
+]
