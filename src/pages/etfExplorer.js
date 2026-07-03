@@ -11,6 +11,21 @@ const requiredMonthly = (targetFv, annualPct, years) => {
   return targetFv / ((Math.pow(1 + r, n) - 1) / r);
 };
 
+const CLASS_META = {
+  alle: { label: "Alle", icon: "✦" },
+  etf: { label: "ETFs", icon: "🌐" },
+  aktie: { label: "Aktien", icon: "📈" },
+  anleihe: { label: "Anleihen", icon: "🏛" },
+  rohstoff: { label: "Rohstoffe", icon: "⛏" },
+  portfolio: { label: "Zusammenstellungen", icon: "🧺" },
+};
+
+const SIGNAL_META = {
+  "kauf-signal": { label: "Kauf-Signal", color: T.green },
+  beobachten: { label: "Beobachten", color: T.orange },
+  defensiv: { label: "Defensiv", color: T.teal },
+};
+
 export function etfExplorerPage({ subs, switchedSum }) {
   let allEtfs = [];
   let etfs = [];
@@ -19,6 +34,8 @@ export function etfExplorerPage({ subs, switchedSum }) {
   let pensionGoal = 200;
   let gapEtfId = null;
   let gapYears = 20;
+  let currentClass = "alle";
+  let aiRisk = "ausgewogen";
 
   const bestCardsSlot = h("div", {});
   const etfListSlot = h("div", { style: { display: "grid", gap: 8 } });
@@ -27,6 +44,102 @@ export function etfExplorerPage({ subs, switchedSum }) {
   const gapSelect = h("select", { style: { ...S.input, marginTop: 16, maxWidth: 320 } });
   const gapResultSlot = h("div", {});
   const quickAmountRow = h("div", { style: { display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" } });
+  const classChipRow = h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 } });
+  const aiResultSlot = h("div", {});
+
+  function fetchList() {
+    api.invest.list({ q: searchInput.value, cls: currentClass }).then((list) => { etfs = list; renderEtfList(); });
+  }
+
+  function renderClassChips() {
+    mount(
+      classChipRow,
+      ...Object.entries(CLASS_META).map(([cls, meta]) => {
+        const active = currentClass === cls;
+        const chip = h(
+          "button",
+          {
+            style: {
+              ...S.btnGhost, padding: "8px 16px", fontSize: 13, fontWeight: active ? 650 : 450,
+              borderColor: active ? T.green : T.border, color: active ? T.green : T.textDim,
+              background: active ? "rgba(48,209,88,0.08)" : "transparent",
+            },
+          },
+          `${meta.icon} ${meta.label}`
+        );
+        chip.addEventListener("click", () => { currentClass = cls; renderClassChips(); fetchList(); });
+        return chip;
+      })
+    );
+  }
+
+  // --- KI-Marktanalyse: picks across all asset classes as subscription alternative ---
+  const riskSelect = h(
+    "select",
+    { style: { ...S.input, maxWidth: 220 } },
+    h("option", { value: "sicher" }, "🛡 Sicherheit zuerst"),
+    h("option", { value: "ausgewogen", selected: true }, "⚖️ Ausgewogen"),
+    h("option", { value: "wachstum" }, "🚀 Wachstum / risikofreudig")
+  );
+  riskSelect.addEventListener("change", () => { aiRisk = riskSelect.value; });
+
+  const aiBtn = h("button", { style: { ...S.btn, whiteSpace: "nowrap" } }, "✦ KI-Marktanalyse starten");
+  aiBtn.addEventListener("click", async () => {
+    aiBtn.disabled = true;
+    aiBtn.style.opacity = "0.6";
+    aiBtn.textContent = "⏳ KI analysiert Märkte & Nachrichten…";
+    mount(aiResultSlot);
+    try {
+      const res = await api.ai.investPicks({ monthly: calc.monthly, years: calc.years, risk: aiRisk });
+      renderAiPicks(res);
+    } catch (e) {
+      mount(aiResultSlot, h("div", { style: { color: T.red, fontSize: 13.5, marginTop: 12 } }, e.message));
+    }
+    aiBtn.disabled = false;
+    aiBtn.style.opacity = "1";
+    aiBtn.textContent = "✦ KI-Marktanalyse starten";
+  });
+
+  function renderAiPicks(res) {
+    const isKi = res.engine === "ki";
+    mount(
+      aiResultSlot,
+      h("div", { style: { marginTop: 16 } },
+        h("div", { style: { ...S.tag(isKi ? T.purple : T.teal), marginBottom: 10 } }, isKi ? "✦ Live-KI-Analyse (Nachrichten & Märkte)" : "🛡 Basis-Auswahl (ohne KI)"),
+        h("p", { style: { fontSize: 14, color: T.textDim, lineHeight: 1.55, margin: "0 0 14px" } }, res.marktlage),
+        h("div", { style: { display: "grid", gap: 10 } },
+          ...(res.picks || []).map((p) => {
+            const asset = allEtfs.find((a) => a.id === p.id);
+            if (!asset) return null;
+            const meta = CLASS_META[asset.class] || CLASS_META.etf;
+            const sig = SIGNAL_META[p.signal] || SIGNAL_META.beobachten;
+            const useBtn = h("button", { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, alignSelf: "flex-start" } }, "→ Im Rechner durchrechnen");
+            useBtn.addEventListener("click", () => {
+              calc.etfId = asset.id;
+              renderEtfList();
+              renderResults();
+              resultsSlot.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+            return h(
+              "div",
+              { style: { padding: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`, borderRadius: 14, display: "grid", gap: 8 } },
+              h("div", { style: { display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" } },
+                h("span", { style: { fontWeight: 650 } }, `${meta.icon} ${asset.name}`),
+                h("span", { style: { display: "flex", gap: 8, alignItems: "center" } },
+                  h("span", { style: S.tag(sig.color) }, sig.label),
+                  h("span", { style: { color: T.green, fontWeight: 700, fontSize: 13.5 } }, `${asset.ret}% p.a.*`)
+                )
+              ),
+              asset.mix ? h("div", { style: { fontSize: 12.5, color: T.textFaint } }, `Mix: ${asset.mix}`) : null,
+              h("p", { style: { fontSize: 13.5, color: T.textDim, margin: 0, lineHeight: 1.5 } }, p.warum),
+              useBtn
+            );
+          })
+        ),
+        res.risikohinweis ? h("p", { style: { fontSize: 11.5, color: T.textFaint, marginTop: 12 } }, `*${res.risikohinweis}`) : null
+      )
+    );
+  }
 
   function renderBestCards() {
     if (allEtfs.length === 0) { mount(bestCardsSlot); return; }
@@ -106,9 +219,10 @@ export function etfExplorerPage({ subs, switchedSum }) {
             },
           },
           h("span", {},
-            h("span", { style: { fontWeight: 600, fontSize: 14.5 } }, e.name),
+            h("span", { style: { fontWeight: 600, fontSize: 14.5 } }, `${(CLASS_META[e.class] || CLASS_META.etf).icon} ${e.name}`),
             ...e.tags.map((t) => h("span", { style: { ...S.tag(T.teal), marginLeft: 8, fontSize: 11 } }, t)),
-            h("div", { style: { fontSize: 12.5, color: T.textDim, marginTop: 3 } }, `${e.desc} · Risiko: ${e.risk} · TER ${e.ter}%`)
+            h("div", { style: { fontSize: 12.5, color: T.textDim, marginTop: 3 } }, `${e.desc} · Risiko: ${e.risk}${e.ter ? ` · TER ${e.ter}%` : ""}`),
+            e.mix ? h("div", { style: { fontSize: 12, color: T.textFaint, marginTop: 2 } }, `Mix: ${e.mix}`) : null
           ),
           h("span", { style: { display: "flex", alignItems: "center", gap: 10 } },
             h("span", { style: { fontWeight: 700, color: T.green } }, `${e.ret}% p.a.*`),
@@ -159,7 +273,7 @@ export function etfExplorerPage({ subs, switchedSum }) {
       h(
         "div",
         { style: S.card },
-        h("div", { style: { fontWeight: 650, marginBottom: 14 } }, `ETF-Vergleich (${fmt(calc.monthly)}/Monat, ${calc.years} Jahre)`),
+        h("div", { style: { fontWeight: 650, marginBottom: 14 } }, `Anlagen-Vergleich (${fmt(calc.monthly)}/Monat, ${calc.years} Jahre)`),
         compareChart({ years: calc.years, series }),
         h(
           "div",
@@ -209,10 +323,8 @@ export function etfExplorerPage({ subs, switchedSum }) {
   const yearsRange = h("input", { type: "range", min: "1", max: "50", value: String(calc.years), style: { width: "100%", accentColor: T.teal, marginTop: 8 } });
   yearsRange.addEventListener("input", () => { calc.years = +yearsRange.value; yearsLabelEl.textContent = String(calc.years); renderResults(); renderCompare(); });
 
-  const searchInput = h("input", { style: { ...S.input, maxWidth: 320, marginBottom: 16 }, placeholder: "🔍 ETF suchen (z.B. World, Tech, Dividende)…" });
-  searchInput.addEventListener("input", () => {
-    api.etfs.list(searchInput.value).then((list) => { etfs = list; renderEtfList(); });
-  });
+  const searchInput = h("input", { style: { ...S.input, maxWidth: 320, marginBottom: 16 }, placeholder: "🔍 Suchen (z.B. World, Gold, NVIDIA, Dividende)…" });
+  searchInput.addEventListener("input", fetchList);
 
   const pensionGoalLabel = h("b", { style: { color: T.text } }, fmt(pensionGoal));
   const pensionGoalRange = h("input", { type: "range", min: "10", max: "2000", step: "10", value: String(pensionGoal), style: { width: "100%", accentColor: T.purple, marginTop: 8 } });
@@ -224,8 +336,9 @@ export function etfExplorerPage({ subs, switchedSum }) {
 
   gapSelect.addEventListener("change", () => { gapEtfId = gapSelect.value; renderGapResult(); });
 
-  api.etfs.list().then((list) => {
+  api.invest.list().then((list) => {
     allEtfs = list;
+    etfs = list;
     calc.etfId = calc.etfId || list[0]?.id;
     gapEtfId = gapEtfId || list[0]?.id;
     renderBestCards();
@@ -233,17 +346,29 @@ export function etfExplorerPage({ subs, switchedSum }) {
     renderGapResult();
     renderResults();
     renderCompare();
+    renderEtfList();
   });
-  api.etfs.list().then((list) => { etfs = list; renderEtfList(); });
 
   renderQuickAmounts();
+  renderClassChips();
 
   const el = h(
     "div",
     {},
-    h("h1", { style: { fontSize: 34, fontWeight: 700, letterSpacing: "-1px", margin: "0 0 6px" } }, "↗ ETF-Explorer & Rechner"),
-    h("p", { style: { color: T.textDim, margin: "0 0 24px" } }, "Was könnte aus deinem gekündigten Abo werden?"),
+    h("h1", { style: { fontSize: 34, fontWeight: 700, letterSpacing: "-1px", margin: "0 0 6px" } }, "↗ Investieren statt abonnieren"),
+    h("p", { style: { color: T.textDim, margin: "0 0 24px" } }, "ETFs, Aktien, Anleihen, Rohstoffe und fertige Zusammenstellungen — was könnte aus deinem gekündigten Abo werden?"),
     bestCardsSlot,
+    h(
+      "div",
+      { style: { ...S.card, marginBottom: 24, borderColor: "rgba(191,90,242,0.3)", background: "linear-gradient(135deg, rgba(191,90,242,0.08), rgba(100,210,255,0.04))" } },
+      h("div", { style: { fontWeight: 650, fontSize: 16, marginBottom: 6 } }, "✦ KI-Anlage-Finder"),
+      h("p", { style: { fontSize: 13.5, color: T.textDim, margin: "0 0 14px", lineHeight: 1.5 } },
+        "Die KI analysiert die aktuelle Marktlage: Nachrichten weltweit, Zinsentscheidungen, Branchen-Zusammenschlüsse und Kausalketten — und schlägt dir passende Anlagen als Alternative zu gekündigten Abos vor. Betrag & Laufzeit übernimmt sie aus dem Rechner unten."
+      ),
+      h("div", { style: { display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" } }, riskSelect, aiBtn),
+      aiResultSlot
+    ),
+    classChipRow,
     searchInput,
     h(
       "div",
@@ -256,7 +381,7 @@ export function etfExplorerPage({ subs, switchedSum }) {
         quickAmountRow,
         h("label", { style: { fontSize: 13.5, color: T.textDim, display: "block", marginTop: 22 } }, "Anlagedauer: ", yearsLabelEl, " Jahre"),
         yearsRange,
-        h("label", { style: { fontSize: 13.5, color: T.textDim, display: "block", marginTop: 22, marginBottom: 10 } }, "ETF wählen (Klick zum Vergleichen anhaken)"),
+        h("label", { style: { fontSize: 13.5, color: T.textDim, display: "block", marginTop: 22, marginBottom: 10 } }, "Anlage wählen (Klick zum Vergleichen anhaken)"),
         etfListSlot
       ),
       resultsSlot,

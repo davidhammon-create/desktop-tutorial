@@ -1,10 +1,18 @@
 import { Router } from "express";
 import multer from "multer";
+import fs from "node:fs";
+import path from "node:path";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
-import { analyzeStatement, companyReport, cancellationLetter, autoClassify, AnthropicNotConfigured } from "../lib/anthropic.js";
+import { analyzeStatement, companyReport, cancellationLetter, autoClassify, investAnalysis, financeRadar, AnthropicNotConfigured } from "../lib/anthropic.js";
 import { classifyAll } from "../lib/classify.js";
 import { store } from "../lib/store.js";
 import { hasApiKey } from "../lib/config.js";
+import { BUNDLED_DATA_DIR } from "../lib/paths.js";
+
+const investUniverse = [
+  ...JSON.parse(fs.readFileSync(path.join(BUNDLED_DATA_DIR, "etfs.json"), "utf8")).map((e) => ({ ...e, class: "etf" })),
+  ...JSON.parse(fs.readFileSync(path.join(BUNDLED_DATA_DIR, "invest.json"), "utf8")),
+];
 
 const router = Router();
 const upload = multer({ limits: { fileSize: 15 * 1024 * 1024 } });
@@ -119,6 +127,69 @@ router.post("/auto-classify", async (req, res) => {
   store.setCollection("subscriptions", updated);
 
   res.json({ results, summary, engine });
+});
+
+// Rule-based fallback when no AI key is configured: filters the universe by the
+// requested risk band and diversifies across asset classes, best return first.
+function fallbackInvestPicks({ years, risk }) {
+  const band = risk === "sicher" ? [1, 2] : risk === "wachstum" ? [4, 6] : [2, 4];
+  const candidates = investUniverse
+    .filter((a) => a.riskScore >= band[0] && a.riskScore <= band[1])
+    .sort((a, b) => b.ret - a.ret);
+  const picks = [];
+  const usedClasses = new Set();
+  for (const a of candidates) {
+    if (picks.length >= 4) break;
+    if (usedClasses.has(a.class) && picks.length < 3) continue;
+    usedClasses.add(a.class);
+    picks.push({
+      id: a.id,
+      warum: `${a.desc} Historische Rendite ${a.ret}% p.a. bei Risiko "${a.risk}" — passt zum Profil "${risk}" über ${years} Jahre.`,
+      signal: a.riskScore <= 2 ? "defensiv" : a.riskScore >= 5 ? "beobachten" : "kauf-signal",
+    });
+  }
+  return {
+    picks,
+    marktlage: `Basis-Auswahl (ohne KI) nach historischer Rendite und Risikoprofil "${risk}". Mit hinterlegtem KI-Zugang (Konto → KI-Zugang) analysiert die KI zusätzlich aktuelle Nachrichten, Zinsentscheidungen und Kausalketten weltweit.`,
+    risikohinweis: "Historische Renditen sind keine Garantie für die Zukunft; Verluste sind möglich.",
+    engine: "basis",
+  };
+}
+
+// AI investment picks across all asset classes — the "alternative to your cancelled subscription".
+router.post("/invest-picks", async (req, res) => {
+  const monthly = Number(req.body?.monthly) || 50;
+  const years = Number(req.body?.years) || 15;
+  const risk = ["sicher", "ausgewogen", "wachstum"].includes(req.body?.risk) ? req.body.risk : "ausgewogen";
+
+  if (hasApiKey()) {
+    try {
+      const raw = await investAnalysis({ monthly, years, risk, universe: investUniverse });
+      const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
+      const known = new Set(investUniverse.map((a) => a.id));
+      parsed.picks = (parsed.picks || []).filter((p) => known.has(p.id));
+      if (parsed.picks.length > 0) return res.json({ ...parsed, engine: "ki" });
+    } catch (err) {
+      console.error("KI-Invest-Analyse fehlgeschlagen, nutze Basis-Auswahl:", err.message);
+    }
+  }
+  res.json(fallbackInvestPicks({ years, risk }));
+});
+
+// Live AI research per Finanz-Radar topic. No fallback content here — the
+// curated tips from /api/tips are already the offline baseline.
+router.post("/finance-radar", async (req, res) => {
+  try {
+    const { topicId, topicTitle } = req.body || {};
+    const raw = await financeRadar({ topicId, topicTitle });
+    const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
+    res.json(parsed);
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      return res.status(502).json({ error: "KI-Antwort konnte nicht gelesen werden." });
+    }
+    handleAiError(res, err);
+  }
 });
 
 export default router;

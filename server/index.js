@@ -6,6 +6,8 @@ import aiRouter from "./routes/ai.js";
 import subscriptionsRouter from "./routes/subscriptions.js";
 import accountsRouter from "./routes/accounts.js";
 import etfsRouter from "./routes/etfs.js";
+import investRouter from "./routes/invest.js";
+import tipsRouter from "./routes/tips.js";
 import userRouter from "./routes/user.js";
 import configRouter from "./routes/config.js";
 import { getLanIp } from "./lib/network.js";
@@ -18,6 +20,8 @@ app.use("/api/ai", aiRouter);
 app.use("/api/subscriptions", subscriptionsRouter);
 app.use("/api/accounts", accountsRouter);
 app.use("/api/etfs", etfsRouter);
+app.use("/api/invest", investRouter);
+app.use("/api/tips", tipsRouter);
 app.use("/api/user", userRouter);
 app.use("/api/config", configRouter);
 

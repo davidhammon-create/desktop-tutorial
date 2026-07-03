@@ -1,8 +1,12 @@
 # AboWandler
 
-KI-Finanz & Abo-Check App. Findet wiederkehrende und verdächtige Zahlungen, klassifiziert alle Abos auf Knopfdruck, recherchiert Firmen im Web, schreibt Kündigungsbriefe und rechnet vor, was aus einem gekündigten Abo in einem ETF-Sparplan werden könnte.
+KI-Finanz & Abo-Check App — regelt das Finanzielle im Alltag:
 
-**Alle Daten bleiben auf deinem Gerät** — es gibt keinen zentralen Cloud-Server. Dein PC ist der Host: er startet lokal einen kleinen Server (Frontend: React + Vite, Backend: Express) und ist damit auch von deinem Handy im selben WLAN aus erreichbar — wie eine eigene kleine Web-App, aber ohne Cloud. `HOST`/`PORT` sind bewusst als Umgebungsvariablen gehalten, falls du später auf einen echten Server/eine echte Domain umziehen willst (siehe unten).
+- **Abos & wiederkehrende Zahlungen**: automatisch erkennen, klassifizieren (KI-Auto-Check), verwalten — mit Zahlungsplan (nächste Abbuchungen, Kategorien-Auswertung), Pausieren, Abbuchungstag/Kategorie/Notizen, Zugangsdaten-Tresor (verschlüsselt), KI-Firmenberichten und fertigen Kündigungsbriefen.
+- **Investieren statt abonnieren**: ETFs, Einzelaktien, Anleihen, Rohstoffe und fertige Themen-Zusammenstellungen. Der **KI-Anlage-Finder** analysiert per Websuche die aktuelle Marktlage (Nachrichten weltweit, Zinsen, Zusammenschlüsse und Kausalketten) und schlägt passende Anlagen als Alternative zu gekündigten Abos vor — inklusive Rechner, Vergleich und Renten-Lücken-Rechner.
+- **Finanz-Radar**: Alltags-Taktiken zu Krediten & Zinsen, Währungen (z.B. Euro/Dollar, Auslandszahlungen), Immobilienkauf, Steuern/Schenken/Erben (z.B. Freibeträge, Ehegattenschaukel — Info, keine Beratung), Versicherungen — plus Live-KI-Recherche zur aktuellen Lage pro Thema.
+
+**Alle Daten bleiben auf deinem Gerät** — es gibt keinen zentralen Cloud-Server. Dein PC ist der Host: er startet lokal einen kleinen Server (Frontend: Vanilla JS + Vite, Backend: Express) und ist damit auch von deinem Handy im selben WLAN aus erreichbar — wie eine eigene kleine Web-App, aber ohne Cloud. `HOST`/`PORT` sind bewusst als Umgebungsvariablen gehalten, falls du später auf einen echten Server/eine echte Domain umziehen willst (siehe unten).
 
 ---
 

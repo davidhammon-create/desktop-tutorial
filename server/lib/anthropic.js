@@ -96,6 +96,57 @@ ${JSON.stringify(compact)}`,
   });
 }
 
+export function investAnalysis({ monthly, years, risk, universe }) {
+  const compact = universe.map((a) => ({ id: a.id, class: a.class, name: a.name, ret: a.ret, risk: a.risk, riskScore: a.riskScore, desc: a.desc }));
+  return callMessages({
+    maxTokens: 2500,
+    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 6 }],
+    messages: [
+      {
+        role: "user",
+        content: `Du bist ein erfahrener Marktanalyst. Ein Nutzer will ${monthly}€/Monat (frei geworden durch gekündigte Abos) über ${years} Jahre investieren. Risikoprofil: ${risk}.
+
+Analysiere den AKTUELLEN Markt mit Websuche: aktuelle Nachrichten weltweit, Zinsentscheidungen, geopolitische Lage, Branchentrends, angekündigte Fusionen/Zusammenschlüsse und deren Kausalketten (z.B. "Chip-Nachfrage durch KI-Rechenzentren → Energiebedarf → Uran/Versorger"). Berücksichtige auch vergangene Entwicklungen der Anlageklassen.
+
+Wähle aus diesem Universum die 3-5 passendsten Anlagen (ETFs, Aktien, Anleihen, Rohstoffe oder Themen-Portfolios) und begründe jede Wahl mit deiner Analyse inkl. erkannter Kausalitäten und Nachrichtenlage:
+${JSON.stringify(compact)}
+
+Antworte NUR mit validem JSON ohne Markdown:
+{"picks":[{"id":"...","warum":"2-3 Sätze: Marktlage, Nachrichten, Kausalkette","signal":"kauf-signal|beobachten|defensiv"}],"marktlage":"3-4 Sätze aktuelle Gesamtmarkt-Einschätzung auf Deutsch","risikohinweis":"1 Satz"}
+
+Wichtig: Formuliere als Einschätzung/Wahrscheinlichkeit, nie als Garantie.`,
+      },
+    ],
+  });
+}
+
+export function financeRadar({ topicId, topicTitle }) {
+  const focus = {
+    kredite: "Wo sind Ratenkredit- und Baufinanzierungszinsen in Deutschland aktuell am günstigsten (konkrete aktuelle Zinsspannen nennen)? Welche Banken/Portale haben gerade Aktionen?",
+    waehrungen: "Wie steht der Euro-Dollar-Kurs aktuell und wie ist die Tendenz laut Nachrichtenlage? Wo tauscht man gerade am günstigsten (Anbieter-Vergleich)? Lohnen sich Fremdwährungs-Strategien aktuell?",
+    immobilien: "Wie entwickeln sich Immobilienpreise und Bauzinsen in Deutschland gerade? Welche konkreten Spar-Taktiken sind in der aktuellen Marktlage am wirksamsten (Verhandlungsspielraum, Förderprogramme mit Fristen)?",
+    "steuern-erbe": "Welche steuerlichen Freibeträge, Fristen oder Gesetzesänderungen (Erbschaft/Schenkung/Kapitalerträge) sind aktuell relevant oder ändern sich bald? Gibt es neue Urteile zu Gestaltungen wie der Ehegattenschaukel?",
+    alltag: "Welche konkreten Spar-Aktionen laufen gerade in Deutschland (Strom/Gas-Wechselboni, Bank-Neukundenprämien, Cashback-Aktionen)? Mit Beträgen.",
+    versicherungen: "Was ändert sich gerade am deutschen Versicherungsmarkt (KFZ-Beiträge, Prämienentwicklung)? Wo lohnt der Wechsel aktuell besonders?",
+  }[topicId] || `Aktuelle Spartipps und Marktlage zum Thema ${topicTitle}.`;
+
+  return callMessages({
+    maxTokens: 1800,
+    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }],
+    messages: [
+      {
+        role: "user",
+        content: `Du bist ein unabhängiger Finanz-Rechercheur. Recherchiere mit Websuche AKTUELL: ${focus}
+
+Antworte NUR mit validem JSON ohne Markdown:
+{"stand":"kurzes Datum/Aktualität","lage":"3-4 Sätze aktuelle Lage auf Deutsch","tipps":[{"titel":"...","text":"2-3 konkrete Sätze","ersparnis":"grobe Größenordnung oder null"}]}
+
+3-5 Tipps. Konkret und aktuell, keine Allgemeinplätze. Formuliere als Information, nicht als Rechts-/Steuer-/Anlageberatung.`,
+      },
+    ],
+  });
+}
+
 export function cancellationLetter({ name, since, note }) {
   return callMessages({
     maxTokens: 500,

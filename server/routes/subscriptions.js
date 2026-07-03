@@ -35,6 +35,8 @@ router.post("/", (req, res) => {
     phone: body.phone || "",
     lastCharge: body.lastCharge || null,
     note: body.note || "",
+    paused: Boolean(body.paused),
+    paymentDay: body.paymentDay ? Number(body.paymentDay) : null,
     priceHistory: body.priceHistory || [{ date: body.since || new Date().toISOString().slice(0, 7), amount: Number(body.amount) || 0 }],
   };
   subs.push(sub);
@@ -55,6 +57,8 @@ router.patch("/:id", (req, res) => {
   for (const field of ["name", "domain", "cycle", "since", "category", "status", "color", "iban", "email", "username", "phone", "note", "lastCharge"]) {
     if (body[field] !== undefined) updated[field] = body[field];
   }
+  if (body.paused !== undefined) updated.paused = Boolean(body.paused);
+  if (body.paymentDay !== undefined) updated.paymentDay = body.paymentDay === null ? null : Math.min(28, Math.max(1, Number(body.paymentDay) || 1));
   if (body.amount !== undefined) {
     const newAmount = Number(body.amount);
     if (newAmount !== current.amount) {

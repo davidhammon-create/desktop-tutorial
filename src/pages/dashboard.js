@@ -71,7 +71,7 @@ export function dashboardPage({ subs: initialSubs, onFilterWarning, onRefresh })
 
   function renderBody() {
   const switchedSum = subs.filter((s) => s.status === "switch").reduce((a, s) => a + s.amount, 0);
-  const totalMonthly = subs.reduce((a, s) => a + s.amount, 0);
+  const totalMonthly = subs.filter((s) => !s.paused).reduce((a, s) => a + s.amount, 0);
   const warnings = subs.filter((s) => s.status === "warning");
   const score = healthScore(subs);
   const scoreColor = score >= 75 ? T.green : score >= 45 ? T.orange : T.red;

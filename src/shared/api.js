@@ -27,6 +27,18 @@ export const api = {
   etfs: {
     list: (q) => req(`/etfs${q ? `?q=${encodeURIComponent(q)}` : ""}`),
   },
+  invest: {
+    list: ({ q, cls } = {}) => {
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (cls) params.set("class", cls);
+      const qs = params.toString();
+      return req(`/invest${qs ? `?${qs}` : ""}`);
+    },
+  },
+  tips: {
+    list: () => req("/tips"),
+  },
   user: {
     get: () => req("/user"),
     save: (body) => req("/user", { method: "PUT", body: JSON.stringify(body) }),
@@ -45,5 +57,7 @@ export const api = {
     companyReport: (subscriptionId) => req("/ai/company-report", { method: "POST", body: JSON.stringify({ subscriptionId }) }),
     cancellationLetter: (subscriptionId) => req("/ai/cancellation-letter", { method: "POST", body: JSON.stringify({ subscriptionId }) }),
     autoClassify: () => req("/ai/auto-classify", { method: "POST", body: JSON.stringify({}) }),
+    investPicks: ({ monthly, years, risk }) => req("/ai/invest-picks", { method: "POST", body: JSON.stringify({ monthly, years, risk }) }),
+    financeRadar: ({ topicId, topicTitle }) => req("/ai/finance-radar", { method: "POST", body: JSON.stringify({ topicId, topicTitle }) }),
   },
 };

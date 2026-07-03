@@ -7,13 +7,15 @@ import { dashboardPage } from "./pages/dashboard.js";
 import { subscriptionsPage } from "./pages/subscriptions.js";
 import { accountsConnectPage } from "./pages/accountsConnect.js";
 import { etfExplorerPage } from "./pages/etfExplorer.js";
+import { financeRadarPage } from "./pages/financeRadar.js";
 import { settingsPage } from "./pages/settings.js";
 
 const TABS = [
   { id: "dashboard", label: "Übersicht", icon: "◉" },
   { id: "abos", label: "Abos", icon: "☰" },
   { id: "konten", label: "Konten", icon: "🔗" },
-  { id: "etf", label: "ETF-Rechner", icon: "↗" },
+  { id: "etf", label: "Investieren", icon: "↗" },
+  { id: "radar", label: "Finanz-Radar", icon: "🧭" },
   { id: "settings", label: "Konto", icon: "⚙" },
 ];
 
@@ -72,6 +74,7 @@ export class AboWandlerApp {
     this.pageInstances.abos?.update({ subs, emails: this.emails });
     this.pageInstances.konten?.update({ accounts });
     this.pageInstances.etf?.update({ subs, switchedSum: this.switchedSum });
+    this.pageInstances.radar?.update({});
     this.pageInstances.settings?.update({ user, aiUsageCount });
   }
 
@@ -177,6 +180,8 @@ export class AboWandlerApp {
       });
     } else if (tab === "etf") {
       instance = etfExplorerPage({ subs, switchedSum: this.switchedSum });
+    } else if (tab === "radar") {
+      instance = financeRadarPage();
     } else if (tab === "settings") {
       instance = settingsPage({
         user,
