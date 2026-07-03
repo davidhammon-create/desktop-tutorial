@@ -12,7 +12,6 @@ import userRouter from "./routes/user.js";
 import usersRouter from "./routes/users.js";
 import adminRouter from "./routes/admin.js";
 import scanRouter from "./routes/scan.js";
-import configRouter from "./routes/config.js";
 import { getLanIp } from "./lib/network.js";
 
 const app = express();
@@ -29,7 +28,6 @@ app.use("/api/user", userRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/scan", scanRouter);
-app.use("/api/config", configRouter);
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
