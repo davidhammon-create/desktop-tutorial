@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { store } from "../lib/store.js";
 import { requireAdmin } from "../lib/currentUser.js";
-import { listApis, setNamedApi, API_SLOTS } from "../lib/config.js";
+import { listApis, setNamedApi, API_SLOTS, listCustomApis, setCustomApi, deleteCustomApi } from "../lib/config.js";
 import { DATA_DIR, BUNDLED_DATA_DIR } from "../lib/paths.js";
 import { getLanIp } from "./../lib/network.js";
 
@@ -30,6 +30,7 @@ router.get("/overview", (req, res) => {
       subscriptions: subs.filter((s) => s.userId === u.id).length,
     })),
     apis: listApis(),
+    customApis: listCustomApis(),
     stats: { users: users.length, accounts: accounts.length, transactions: txs.length, subscriptions: subs.length },
     system: {
       dataDir: DATA_DIR,
@@ -86,6 +87,23 @@ router.delete("/apis/:name", (req, res) => {
   if (!API_SLOTS.some((s) => s.name === req.params.name)) return res.status(404).json({ error: "Unbekannter API-Slot." });
   setNamedApi(req.params.name, "");
   res.json({ ok: true, apis: listApis() });
+});
+
+// Free-form provider slots (Grok, DeepSeek, Base44, or anything else) —
+// unlike /apis this isn't a fixed list, the admin names the provider.
+router.post("/custom-apis", (req, res) => {
+  const { name, key, baseUrl } = req.body || {};
+  const id = String(name || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  if (!id) return res.status(400).json({ error: "Name fehlt." });
+  if (API_SLOTS.some((s) => s.name === id)) return res.status(400).json({ error: "Dieser Name ist bereits durch einen festen API-Slot belegt." });
+  if (!String(key || "").trim()) return res.status(400).json({ error: "Kein Schlüssel übergeben." });
+  setCustomApi(id, { label: String(name).trim(), key: String(key).trim(), baseUrl: baseUrl ? String(baseUrl).trim() : null });
+  res.status(201).json({ ok: true, customApis: listCustomApis() });
+});
+
+router.delete("/custom-apis/:id", (req, res) => {
+  deleteCustomApi(req.params.id);
+  res.json({ ok: true, customApis: listCustomApis() });
 });
 
 // Resets the database back to the shipped demo dataset.

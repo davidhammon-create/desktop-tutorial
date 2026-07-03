@@ -68,3 +68,32 @@ export function setNamedApi(name, key) {
   else delete cfg.apis[name];
   writeConfig(cfg);
 }
+
+// Freely-named API keys for any provider (Grok, DeepSeek, Base44, ...),
+// added ad-hoc from the admin area — unlike API_SLOTS this isn't a fixed
+// list. Stored as a secure credential store; nothing in the app calls
+// these out automatically yet, but the key is captured and ready for
+// whichever provider gets wired in next.
+export function listCustomApis() {
+  const cfg = readConfig();
+  return Object.entries(cfg.customApis || {}).map(([id, v]) => ({
+    id, label: v.label || id, baseUrl: v.baseUrl || null, masked: mask(v.key),
+  }));
+}
+
+export function setCustomApi(id, { label, key, baseUrl }) {
+  const cfg = readConfig();
+  cfg.customApis = cfg.customApis || {};
+  cfg.customApis[id] = { label: label || id, key, baseUrl: baseUrl || null };
+  writeConfig(cfg);
+}
+
+export function deleteCustomApi(id) {
+  const cfg = readConfig();
+  if (cfg.customApis) delete cfg.customApis[id];
+  writeConfig(cfg);
+}
+
+export function getCustomApiKey(id) {
+  return readConfig().customApis?.[id]?.key || "";
+}

@@ -75,6 +75,8 @@ export const api = {
     deleteUser: (id) => req(`/admin/users/${id}`, { method: "DELETE" }),
     setApi: (name, key) => req(`/admin/apis/${name}`, { method: "PUT", body: JSON.stringify({ key }) }),
     deleteApi: (name) => req(`/admin/apis/${name}`, { method: "DELETE" }),
+    addCustomApi: (name, key, baseUrl) => req("/admin/custom-apis", { method: "POST", body: JSON.stringify({ name, key, baseUrl }) }),
+    deleteCustomApi: (id) => req(`/admin/custom-apis/${id}`, { method: "DELETE" }),
     reset: () => req("/admin/reset", { method: "POST", body: JSON.stringify({}) }),
   },
   ai: {

@@ -9,6 +9,7 @@ export function adminPage() {
 
   const usersSlot = h("div", {});
   const apisSlot = h("div", {});
+  const customApisSlot = h("div", {});
   const systemSlot = h("div", {});
   const msgSlot = h("div", { style: { minHeight: 20, fontSize: 13, marginBottom: 8 } });
 
@@ -23,10 +24,12 @@ export function adminPage() {
       data = await api.admin.overview();
       renderUsers();
       renderApis();
+      renderCustomApis();
       renderSystem();
     } catch (e) {
       mount(usersSlot, h("div", { style: { ...S.card, color: T.red } }, e.message));
       mount(apisSlot);
+      mount(customApisSlot);
       mount(systemSlot);
     }
   }
@@ -131,6 +134,53 @@ export function adminPage() {
     );
   }
 
+  function renderCustomApis() {
+    const rows = (data.customApis || []).map((a) =>
+      h("div", { style: { display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderTop: "1px solid rgba(0,0,0,0.06)", flexWrap: "wrap" } },
+        h("div", { style: { flex: 1, minWidth: 140 } },
+          h("div", { style: { fontWeight: 600, fontSize: 14 } }, a.label),
+          h("div", { style: { fontSize: 11.5, color: T.textFaint } }, a.baseUrl ? `${a.baseUrl} · ${a.masked}` : a.masked)
+        ),
+        (() => {
+          const b = h("button", { style: { ...S.btnGhost, padding: "6px 12px", fontSize: 12, color: T.red, borderColor: T.red + "66" } }, "Entfernen");
+          b.addEventListener("click", async () => {
+            try {
+              await api.admin.deleteCustomApi(a.id);
+              flash(`${a.label}: entfernt.`);
+              reload();
+            } catch (e) { flash(e.message, false); }
+          });
+          return b;
+        })()
+      )
+    );
+
+    const nameInput = h("input", { style: { ...S.input, flex: 1, minWidth: 140, padding: "8px 12px", fontSize: 13 }, placeholder: "Name (z.B. Grok, DeepSeek, Base44 …)" });
+    const keyInput = h("input", { style: { ...S.input, flex: 1, minWidth: 160, padding: "8px 12px", fontSize: 13 }, placeholder: "API-Schlüssel", type: "password" });
+    const urlInput = h("input", { style: { ...S.input, flex: 1, minWidth: 160, padding: "8px 12px", fontSize: 13 }, placeholder: "Basis-URL (optional)" });
+    const addBtn = h("button", { style: { ...S.btnGhost, padding: "8px 16px", fontSize: 13 } }, "＋ Hinzufügen");
+    addBtn.addEventListener("click", async () => {
+      if (!nameInput.value.trim() || !keyInput.value.trim()) { flash("Name und Schlüssel angeben.", false); return; }
+      try {
+        await api.admin.addCustomApi(nameInput.value.trim(), keyInput.value.trim(), urlInput.value.trim());
+        flash(`${nameInput.value.trim()}: Schlüssel gespeichert.`);
+        nameInput.value = ""; keyInput.value = ""; urlInput.value = "";
+        reload();
+      } catch (e) { flash(e.message, false); }
+    });
+
+    mount(customApisSlot,
+      h("div", { style: { ...S.card, marginTop: 20 } },
+        h("div", { style: { fontWeight: 600, fontSize: 17, marginBottom: 6 } }, "Weitere APIs"),
+        h("p", { style: { fontSize: 12.5, color: T.textDim, margin: "0 0 4px", lineHeight: 1.5 } },
+          "Beliebige weitere Anbieter hinterlegen (z.B. Grok, DeepSeek, Base44 …) — frei benannt, nur lokal gespeichert. Aktuell treibt ausschließlich Anthropic die KI-Funktionen der App an; hier hinterlegte Schlüssel liegen bereit, falls weitere Anbieter angebunden werden."
+        ),
+        ...rows,
+        h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 } }, nameInput, keyInput, urlInput, addBtn)
+      )
+    );
+  }
+
   function renderSystem() {
     const resetBtn = h("button", { style: { ...S.btnGhost, padding: "9px 18px", fontSize: 13, color: T.red, borderColor: T.red + "66" } }, "Alle Daten auf Demo-Stand zurücksetzen");
     resetBtn.addEventListener("click", async () => {
@@ -175,6 +225,7 @@ export function adminPage() {
     msgSlot,
     usersSlot,
     apisSlot,
+    customApisSlot,
     systemSlot
   );
 
