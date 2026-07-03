@@ -18,17 +18,36 @@ function healthScore(subs) {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-export function dashboardPage({ subs: initialSubs, onFilterWarning, onRefresh }) {
+export function dashboardPage({ subs: initialSubs, aiEnabled: initialAi, onFilterWarning, onRefresh, onGoTo }) {
   let subs = initialSubs;
+  let aiEnabled = initialAi;
 
-  const autoCheckBtn = h("button", { style: S.btn }, "✦ KI-Auto-Check starten");
+  const scanBtn = h("button", { style: S.btn }, "◎ Konten scannen — ohne KI");
+  const autoCheckBtn = h("button", { style: { ...S.btnGhost, display: aiEnabled ? "inline-block" : "none" } }, "✦ KI-Feinanalyse");
   const resultSlot = h("div", {});
   const el = h("div", {});
+
+  scanBtn.addEventListener("click", async () => {
+    scanBtn.disabled = true;
+    scanBtn.style.opacity = "0.6";
+    scanBtn.textContent = "⏳ Algorithmus scannt…";
+    mount(resultSlot);
+    try {
+      const res = await api.scan.run();
+      renderResult({ summary: res.summary, engine: "algorithmus", results: [] });
+      onRefresh?.();
+    } catch (e) {
+      renderResult({ summary: e.message, engine: "fehler", results: [] });
+    }
+    scanBtn.disabled = false;
+    scanBtn.style.opacity = "1";
+    scanBtn.textContent = "◎ Konten scannen — ohne KI";
+  });
 
   autoCheckBtn.addEventListener("click", async () => {
     autoCheckBtn.disabled = true;
     autoCheckBtn.style.opacity = "0.6";
-    autoCheckBtn.textContent = "⏳ Prüft alle Abos…";
+    autoCheckBtn.textContent = "⏳ KI prüft alle Abos…";
     mount(resultSlot);
     try {
       const res = await api.ai.autoClassify();
@@ -39,13 +58,14 @@ export function dashboardPage({ subs: initialSubs, onFilterWarning, onRefresh })
     }
     autoCheckBtn.disabled = false;
     autoCheckBtn.style.opacity = "1";
-    autoCheckBtn.textContent = "✦ KI-Auto-Check starten";
+    autoCheckBtn.textContent = "✦ KI-Feinanalyse";
   });
 
   function renderResult(checkResult) {
-    const badgeColor = checkResult.engine === "ki" ? T.purple : T.teal;
+    const badgeColor = checkResult.engine === "ki" ? T.purple : checkResult.engine === "fehler" ? T.red : T.blue;
     const title =
       checkResult.engine === "ki" ? "✦ KI-Analyse abgeschlossen" :
+      checkResult.engine === "algorithmus" ? "◎ Algorithmus-Scan abgeschlossen" :
       checkResult.engine === "basis" ? "🛡 Basis-Check abgeschlossen" : "Fehler";
     const tags = (checkResult.results || [])
       .map((r) => {
@@ -60,7 +80,7 @@ export function dashboardPage({ subs: initialSubs, onFilterWarning, onRefresh })
     mount(
       resultSlot,
       reveal(
-        h("div", { style: { ...S.card, marginBottom: 32, borderColor: checkResult.engine === "ki" ? "rgba(191,90,242,0.35)" : "rgba(100,210,255,0.3)" } },
+        h("div", { style: { ...S.card, marginBottom: 32 } },
           h("div", { style: { fontWeight: 650, marginBottom: 8, color: badgeColor } }, title),
           h("p", { style: { fontSize: 14, color: T.textDim, margin: "0 0 12px", lineHeight: 1.5 } }, checkResult.summary),
           tags.length > 0 ? h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } }, ...tags) : null
@@ -95,17 +115,32 @@ export function dashboardPage({ subs: initialSubs, onFilterWarning, onRefresh })
     scoreCircle
   );
 
+  const emptyState =
+    subs.length === 0
+      ? h("div", { style: { ...S.card, marginBottom: 28, textAlign: "center", padding: 40 } },
+          h("div", { style: { fontSize: 40, marginBottom: 10 } }, "◎"),
+          h("div", { style: { fontWeight: 600, fontSize: 18, marginBottom: 6 } }, "Noch keine wiederkehrenden Zahlungen erkannt"),
+          h("p", { style: { color: T.textDim, fontSize: 14, margin: "0 0 16px" } }, "Starte den Scan — der Algorithmus prüft alle Umsätze deiner verbundenen Konten. Ganz ohne KI."),
+          (() => {
+            const b = h("button", { style: { ...S.btnGhost, padding: "9px 18px", fontSize: 13.5 } }, "Zu Konten & Umsätze →");
+            b.addEventListener("click", () => onGoTo?.("konten"));
+            return b;
+          })()
+        )
+      : null;
+
   const root = h(
     "div",
     {},
     h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 } },
       h("div", {},
-        reveal(h("h1", { style: { fontSize: 34, fontWeight: 700, letterSpacing: "-1px", margin: "0 0 6px" } }, "Deine Finanz-Übersicht")),
+        reveal(h("h1", { style: { fontSize: 34, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 6px" } }, "Übersicht")),
         reveal(h("p", { style: { color: T.textDim, margin: "0 0 32px" } }, `${subs.length} erkannte wiederkehrende Zahlungen`), { delay: 0.05 })
       ),
-      reveal(autoCheckBtn, { delay: 0.1 })
+      reveal(h("div", { style: { display: "flex", gap: 10, flexWrap: "wrap" } }, scanBtn, autoCheckBtn), { delay: 0.1 })
     ),
     resultSlot,
+    emptyState,
     h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 16, marginBottom: 32 } },
       ...statCards.map(([l, v, c], i) =>
         reveal(
@@ -172,8 +207,12 @@ export function dashboardPage({ subs: initialSubs, onFilterWarning, onRefresh })
 
   return {
     el,
-    update({ subs: newSubs } = {}) {
+    update({ subs: newSubs, aiEnabled: newAi } = {}) {
       if (newSubs) subs = newSubs;
+      if (newAi !== undefined) {
+        aiEnabled = newAi;
+        autoCheckBtn.style.display = aiEnabled ? "inline-block" : "none";
+      }
       mount(el, renderBody());
     },
   };

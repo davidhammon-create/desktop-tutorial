@@ -1,9 +1,23 @@
 const BASE = "/api";
 
+// Device-local profile selection: the chosen profile id travels as a header.
+export function getCurrentUserId() {
+  return Number(localStorage.getItem("abw_user") || 0) || null;
+}
+export function setCurrentUserId(id) {
+  if (id) localStorage.setItem("abw_user", String(id));
+  else localStorage.removeItem("abw_user");
+}
+
 async function req(path, options = {}) {
+  const userId = getCurrentUserId();
   const res = await fetch(`${BASE}${path}`, {
-    headers: options.body && !(options.body instanceof FormData) ? { "Content-Type": "application/json" } : undefined,
     ...options,
+    headers: {
+      ...(options.body && !(options.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
+      ...(userId ? { "x-user-id": String(userId) } : {}),
+      ...(options.headers || {}),
+    },
   });
   if (res.status === 204) return null;
   const data = await res.json().catch(() => ({}));
@@ -12,6 +26,10 @@ async function req(path, options = {}) {
 }
 
 export const api = {
+  users: {
+    list: () => req("/users"),
+    create: (name) => req("/users", { method: "POST", body: JSON.stringify({ name }) }),
+  },
   subscriptions: {
     list: () => req("/subscriptions"),
     create: (body) => req("/subscriptions", { method: "POST", body: JSON.stringify(body) }),
@@ -21,8 +39,15 @@ export const api = {
   },
   accounts: {
     list: () => req("/accounts"),
-    connect: (id) => req(`/accounts/${id}/connect`, { method: "POST" }),
+    providers: () => req("/accounts/providers"),
+    connect: (body) => req("/accounts/connect", { method: "POST", body: JSON.stringify(body) }),
     disconnect: (id) => req(`/accounts/${id}/disconnect`, { method: "POST" }),
+    remove: (id) => req(`/accounts/${id}`, { method: "DELETE" }),
+    transactions: (accountId) => req(`/accounts/transactions${accountId ? `?accountId=${encodeURIComponent(accountId)}` : ""}`),
+    import: (id, text) => req(`/accounts/${id}/import`, { method: "POST", body: JSON.stringify({ text }) }),
+  },
+  scan: {
+    run: () => req("/scan", { method: "POST", body: JSON.stringify({}) }),
   },
   etfs: {
     list: (q) => req(`/etfs${q ? `?q=${encodeURIComponent(q)}` : ""}`),
@@ -42,10 +67,15 @@ export const api = {
   user: {
     get: () => req("/user"),
     save: (body) => req("/user", { method: "PUT", body: JSON.stringify(body) }),
+    saveSettings: (settings) => req("/user/settings", { method: "PATCH", body: JSON.stringify(settings) }),
   },
-  config: {
-    get: () => req("/config"),
-    saveApiKey: (apiKey) => req("/config", { method: "PUT", body: JSON.stringify({ apiKey }) }),
+  admin: {
+    overview: () => req("/admin/overview"),
+    updateUser: (id, body) => req(`/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+    deleteUser: (id) => req(`/admin/users/${id}`, { method: "DELETE" }),
+    setApi: (name, key) => req(`/admin/apis/${name}`, { method: "PUT", body: JSON.stringify({ key }) }),
+    deleteApi: (name) => req(`/admin/apis/${name}`, { method: "DELETE" }),
+    reset: () => req("/admin/reset", { method: "POST", body: JSON.stringify({}) }),
   },
   ai: {
     analyzeStatement: (text, file) => {

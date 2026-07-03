@@ -5,7 +5,8 @@ import { api } from "../shared/api.js";
 
 // Finanz-Radar: curated everyday-finance tactics per topic, plus optional
 // live AI research (web search) that layers the current market situation on top.
-export function financeRadarPage() {
+export function financeRadarPage({ aiEnabled: initialAi } = {}) {
+  let aiEnabled = Boolean(initialAi);
   let topics = [];
   let openTopicId = null;
   const aiResults = {}; // topicId -> parsed result
@@ -61,13 +62,18 @@ export function financeRadarPage() {
     if (!topic) { mount(detailSlot); return; }
 
     const ai = aiResults[topic.id];
-    const aiBtn = h(
-      "button",
-      { style: { ...S.btn, padding: "11px 22px", fontSize: 14 } },
-      aiLoadingId === topic.id ? "⏳ KI recherchiert aktuelle Lage…" : "✦ Aktuelle Lage per KI recherchieren"
-    );
-    aiBtn.disabled = aiLoadingId === topic.id;
-    aiBtn.addEventListener("click", () => runAiResearch(topic));
+    let aiBtn;
+    if (aiEnabled) {
+      aiBtn = h(
+        "button",
+        { style: { ...S.btn, padding: "11px 22px", fontSize: 14 } },
+        aiLoadingId === topic.id ? "⏳ KI recherchiert aktuelle Lage…" : "✦ Aktuelle Lage per KI recherchieren"
+      );
+      aiBtn.disabled = aiLoadingId === topic.id;
+      aiBtn.addEventListener("click", () => runAiResearch(topic));
+    } else {
+      aiBtn = h("div", { style: { fontSize: 12.5, color: T.textFaint } }, "✦ Live-KI-Recherche ausgeschaltet — aktivierbar unter Einstellungen → KI-Funktionen.");
+    }
 
     mount(
       detailSlot,
@@ -82,7 +88,7 @@ export function financeRadarPage() {
           ...topic.tips.map((tip) =>
             h(
               "div",
-              { style: { padding: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`, borderRadius: 14 } },
+              { style: { padding: 16, background: "rgba(0,0,0,0.04)", border: `1px solid ${T.border}`, borderRadius: 14 } },
               h("div", { style: { display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 6 } },
                 h("span", { style: { fontWeight: 650, fontSize: 14.5 } }, tip.title),
                 tip.saving ? h("span", { style: S.tag(T.green) }, `💰 ${tip.saving}`) : null
@@ -105,7 +111,7 @@ export function financeRadarPage() {
                 h("p", { style: { fontSize: 14, color: T.textDim, lineHeight: 1.55, margin: "0 0 12px" } }, ai.lage),
                 h("div", { style: { display: "grid", gap: 10 } },
                   ...(ai.tipps || []).map((tip) =>
-                    h("div", { style: { padding: 14, background: "rgba(255,255,255,0.04)", borderRadius: 12 } },
+                    h("div", { style: { padding: 14, background: "rgba(0,0,0,0.04)", borderRadius: 12 } },
                       h("div", { style: { display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 4 } },
                         h("span", { style: { fontWeight: 650, fontSize: 13.5 } }, tip.titel),
                         tip.ersparnis ? h("span", { style: S.tag(T.green) }, `💰 ${tip.ersparnis}`) : null
@@ -128,7 +134,7 @@ export function financeRadarPage() {
   const el = h(
     "div",
     {},
-    h("h1", { style: { fontSize: 34, fontWeight: 700, letterSpacing: "-1px", margin: "0 0 6px" } }, "🧭 Finanz-Radar"),
+    h("h1", { style: { fontSize: 34, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 6px" } }, "🧭 Finanz-Radar"),
     h("p", { style: { color: T.textDim, margin: "0 0 24px", maxWidth: 640, lineHeight: 1.55 } },
       "Alltags-Taktiken, mit denen du bei Krediten, Währungen, Immobilien, Steuern und Versicherungen Geld liegen lässt — plus KI-Recherche zur aktuellen Marktlage pro Thema."
     ),
@@ -141,6 +147,11 @@ export function financeRadarPage() {
 
   return {
     el,
-    update() {},
+    update({ aiEnabled: newAi } = {}) {
+      if (newAi !== undefined && newAi !== aiEnabled) {
+        aiEnabled = newAi;
+        renderDetail();
+      }
+    },
   };
 }

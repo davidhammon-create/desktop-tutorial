@@ -7,6 +7,7 @@ import { analyzeStatement, companyReport, cancellationLetter, autoClassify, inve
 import { classifyAll } from "../lib/classify.js";
 import { store } from "../lib/store.js";
 import { hasApiKey } from "../lib/config.js";
+import { requireUser } from "../lib/currentUser.js";
 import { BUNDLED_DATA_DIR } from "../lib/paths.js";
 
 const investUniverse = [
@@ -16,6 +17,17 @@ const investUniverse = [
 
 const router = Router();
 const upload = multer({ limits: { fileSize: 15 * 1024 * 1024 } });
+
+// KI is strictly opt-in: every /api/ai route requires the current user to
+// have flipped the switch in Einstellungen. The default analysis path is
+// the pure-algorithm scanner under /api/scan.
+router.use(requireUser);
+router.use((req, res, next) => {
+  if (!req.user.settings?.aiEnabled) {
+    return res.status(403).json({ error: "KI ist deaktiviert. Aktiviere sie unter Einstellungen → KI-Funktionen, um Recherchen und Analysen per KI zu nutzen." });
+  }
+  next();
+});
 
 function handleAiError(res, err) {
   if (err instanceof AnthropicNotConfigured) {
@@ -56,7 +68,7 @@ router.post("/analyze-statement", upload.single("file"), async (req, res) => {
 router.post("/company-report", async (req, res) => {
   try {
     const { subscriptionId } = req.body;
-    const subs = store.collection("subscriptions");
+    const subs = store.collection("subscriptions").filter((s) => s.userId === req.user.id);
     const sub = subs.find((s) => s.id === subscriptionId);
     if (!sub) return res.status(404).json({ error: "Abo nicht gefunden." });
     const report = await companyReport({
@@ -73,7 +85,7 @@ router.post("/company-report", async (req, res) => {
 router.post("/cancellation-letter", async (req, res) => {
   try {
     const { subscriptionId } = req.body;
-    const subs = store.collection("subscriptions");
+    const subs = store.collection("subscriptions").filter((s) => s.userId === req.user.id);
     const sub = subs.find((s) => s.id === subscriptionId);
     if (!sub) return res.status(404).json({ error: "Abo nicht gefunden." });
     const raw = await cancellationLetter({ name: sub.name, since: sub.since, note: sub.note });
@@ -93,7 +105,7 @@ router.post("/cancellation-letter", async (req, res) => {
 // Classifies every subscription at once. Uses Claude when a key is configured;
 // otherwise falls back to the built-in rule engine so the feature works out of the box.
 router.post("/auto-classify", async (req, res) => {
-  const subs = store.collection("subscriptions");
+  const subs = store.collection("subscriptions").filter((s) => s.userId === req.user.id);
   if (subs.length === 0) return res.json({ results: [], summary: "Keine Abos vorhanden.", engine: "none" });
 
   let results;
@@ -120,11 +132,12 @@ router.post("/auto-classify", async (req, res) => {
   }
 
   const byId = new Map(results.map((r) => [r.id, r]));
-  const updated = subs.map((s) => {
-    const r = byId.get(s.id);
+  // Write back into the FULL collection — only this user's rows change.
+  const all = store.collection("subscriptions").map((s) => {
+    const r = s.userId === req.user.id ? byId.get(s.id) : null;
     return r ? { ...s, status: r.status, note: r.reason || s.note } : s;
   });
-  store.setCollection("subscriptions", updated);
+  store.setCollection("subscriptions", all);
 
   res.json({ results, summary, engine });
 });

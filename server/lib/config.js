@@ -35,3 +35,36 @@ export function setApiKey(key) {
 export function hasApiKey() {
   return Boolean(getApiKey());
 }
+
+// Named third-party API slots managed from the admin area. "anthropic" is
+// live (powers the KI features); the bank aggregator slots are stored for
+// the future real-PSD2 connection and surfaced in the admin UI.
+export const API_SLOTS = [
+  { name: "anthropic", label: "Anthropic (KI-Analysen)", live: true },
+  { name: "finapi", label: "FinAPI (Bank-Aggregator, PSD2)", live: false },
+  { name: "tink", label: "Tink (Bank-Aggregator, PSD2)", live: false },
+  { name: "gocardless", label: "GoCardless Bank Account Data", live: false },
+  { name: "paypal", label: "PayPal Developer (echte PayPal-Anbindung)", live: false },
+];
+
+function mask(key) {
+  if (!key) return null;
+  return key.length <= 10 ? "••••" : `${key.slice(0, 6)}…${key.slice(-4)}`;
+}
+
+export function listApis() {
+  const cfg = readConfig();
+  return API_SLOTS.map((slot) => {
+    const value = slot.name === "anthropic" ? getApiKey() : cfg.apis?.[slot.name] || "";
+    return { ...slot, configured: Boolean(value), masked: mask(value) };
+  });
+}
+
+export function setNamedApi(name, key) {
+  if (name === "anthropic") return setApiKey(key);
+  const cfg = readConfig();
+  cfg.apis = cfg.apis || {};
+  if (key) cfg.apis[name] = key;
+  else delete cfg.apis[name];
+  writeConfig(cfg);
+}

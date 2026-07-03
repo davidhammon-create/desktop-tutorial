@@ -14,7 +14,27 @@ function load() {
     fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
     fs.writeFileSync(DB_FILE, seed, "utf8");
   }
-  return JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+  const db = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+  return migrate(db);
+}
+
+// Upgrades databases written by older app versions (single-profile era)
+// to the multi-user layout: adds users/transactions collections and stamps
+// existing rows with userId 1 so nothing the user saved gets lost.
+function migrate(db) {
+  if (db.users?.length) return db;
+  const seed = fs.existsSync(SEED_FILE) ? JSON.parse(fs.readFileSync(SEED_FILE, "utf8")) : {};
+  db.users = seed.users || [
+    { id: 1, name: db.user?.name || "Admin", role: "admin", createdAt: new Date().toISOString().slice(0, 10), emails: db.user?.emails || [""], settings: { aiEnabled: false } },
+  ];
+  if (db.user?.name) db.users[0].name = db.user.name;
+  if (db.user?.emails?.some(Boolean)) db.users[0].emails = db.user.emails;
+  delete db.user;
+  db.transactions = db.transactions || seed.transactions || [];
+  db.accounts = (db.accounts || []).map((a) => ({ userId: 1, provider: a.provider || a.id, ...a }));
+  db.subscriptions = (db.subscriptions || []).map((s) => ({ userId: 1, ...s }));
+  save(db);
+  return db;
 }
 
 function save(db) {

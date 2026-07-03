@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { store } from "../lib/store.js";
 import { encrypt, decrypt } from "../lib/crypto.js";
+import { requireUser } from "../lib/currentUser.js";
 
 const router = Router();
+router.use(requireUser);
 
 function toPublic(sub) {
   const { passwordEnc, ...rest } = sub;
@@ -10,7 +12,7 @@ function toPublic(sub) {
 }
 
 router.get("/", (req, res) => {
-  res.json(store.collection("subscriptions").map(toPublic));
+  res.json(store.collection("subscriptions").filter((s) => s.userId === req.user.id).map(toPublic));
 });
 
 router.post("/", (req, res) => {
@@ -19,6 +21,7 @@ router.post("/", (req, res) => {
   const body = req.body || {};
   const sub = {
     id: maxId + 1,
+    userId: req.user.id,
     name: body.name || "Unbenannt",
     domain: body.domain || null,
     amount: Number(body.amount) || 0,
@@ -47,7 +50,7 @@ router.post("/", (req, res) => {
 router.patch("/:id", (req, res) => {
   const id = Number(req.params.id);
   const subs = store.collection("subscriptions");
-  const idx = subs.findIndex((s) => s.id === id);
+  const idx = subs.findIndex((s) => s.id === id && s.userId === req.user.id);
   if (idx === -1) return res.status(404).json({ error: "Abo nicht gefunden." });
 
   const body = req.body || {};
@@ -78,7 +81,7 @@ router.patch("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
   const id = Number(req.params.id);
   const subs = store.collection("subscriptions");
-  const next = subs.filter((s) => s.id !== id);
+  const next = subs.filter((s) => !(s.id === id && s.userId === req.user.id));
   store.setCollection("subscriptions", next);
   res.status(204).end();
 });
@@ -86,7 +89,7 @@ router.delete("/:id", (req, res) => {
 // Reveals the decrypted password for one subscription — a separate opt-in call so list responses never carry secrets.
 router.get("/:id/password", (req, res) => {
   const id = Number(req.params.id);
-  const sub = store.collection("subscriptions").find((s) => s.id === id);
+  const sub = store.collection("subscriptions").find((s) => s.id === id && s.userId === req.user.id);
   if (!sub) return res.status(404).json({ error: "Abo nicht gefunden." });
   res.json({ password: sub.passwordEnc ? decrypt(sub.passwordEnc) : "" });
 });

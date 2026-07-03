@@ -9,6 +9,9 @@ import etfsRouter from "./routes/etfs.js";
 import investRouter from "./routes/invest.js";
 import tipsRouter from "./routes/tips.js";
 import userRouter from "./routes/user.js";
+import usersRouter from "./routes/users.js";
+import adminRouter from "./routes/admin.js";
+import scanRouter from "./routes/scan.js";
 import configRouter from "./routes/config.js";
 import { getLanIp } from "./lib/network.js";
 
@@ -23,6 +26,9 @@ app.use("/api/etfs", etfsRouter);
 app.use("/api/invest", investRouter);
 app.use("/api/tips", tipsRouter);
 app.use("/api/user", userRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/scan", scanRouter);
 app.use("/api/config", configRouter);
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));

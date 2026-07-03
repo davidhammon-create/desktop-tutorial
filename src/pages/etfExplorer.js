@@ -26,7 +26,8 @@ const SIGNAL_META = {
   defensiv: { label: "Defensiv", color: T.teal },
 };
 
-export function etfExplorerPage({ subs, switchedSum }) {
+export function etfExplorerPage({ subs, switchedSum, aiEnabled: initialAi }) {
+  let aiEnabled = Boolean(initialAi);
   let allEtfs = [];
   let etfs = [];
   const calc = { monthly: 59.99, etfId: null, years: 10 };
@@ -122,7 +123,7 @@ export function etfExplorerPage({ subs, switchedSum }) {
             });
             return h(
               "div",
-              { style: { padding: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`, borderRadius: 14, display: "grid", gap: 8 } },
+              { style: { padding: 16, background: "rgba(0,0,0,0.04)", border: `1px solid ${T.border}`, borderRadius: 14, display: "grid", gap: 8 } },
               h("div", { style: { display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" } },
                 h("span", { style: { fontWeight: 650 } }, `${meta.icon} ${asset.name}`),
                 h("span", { style: { display: "flex", gap: 8, alignItems: "center" } },
@@ -282,7 +283,7 @@ export function etfExplorerPage({ subs, switchedSum }) {
             const e = allEtfs.find((x) => x.id === id) || etfs.find((x) => x.id === id);
             return h(
               "div",
-              { style: { padding: 12, background: "rgba(255,255,255,0.03)", borderRadius: 12 } },
+              { style: { padding: 12, background: "rgba(0,0,0,0.04)", borderRadius: 12 } },
               h("div", { style: { fontWeight: 600, fontSize: 13.5 } }, e.name),
               h("div", { style: { fontSize: 18, fontWeight: 700, color: T.green, marginTop: 4 } }, fmt(futureValue(calc.monthly, e.ret, calc.years))),
               h("div", { style: { fontSize: 11.5, color: T.textFaint } }, `${e.ret}% p.a. · TER ${e.ter}%`)
@@ -349,25 +350,46 @@ export function etfExplorerPage({ subs, switchedSum }) {
     renderEtfList();
   });
 
+  // KI-Anlage-Finder appears only when KI is enabled; otherwise a quiet hint.
+  const aiPanelSlot = h("div", {});
+  function renderAiPanel() {
+    if (!aiEnabled) {
+      mount(
+        aiPanelSlot,
+        h("div", { style: { ...S.card, marginBottom: 24, padding: 16 } },
+          h("span", { style: { fontSize: 13, color: T.textDim } },
+            "✦ Der KI-Anlage-Finder (Marktlage, Nachrichten, Kausalketten, Prognosen zu ETFs & Aktien) ist ausgeschaltet. Aktivieren unter Einstellungen → KI-Funktionen."
+          )
+        )
+      );
+      return;
+    }
+    mount(
+      aiPanelSlot,
+      h(
+        "div",
+        { style: { ...S.card, marginBottom: 24, background: "linear-gradient(135deg, rgba(137,68,171,0.07), rgba(0,113,227,0.05))" } },
+        h("div", { style: { fontWeight: 650, fontSize: 16, marginBottom: 6 } }, "✦ KI-Anlage-Finder"),
+        h("p", { style: { fontSize: 13.5, color: T.textDim, margin: "0 0 14px", lineHeight: 1.5 } },
+          "Die KI analysiert die aktuelle Marktlage: Nachrichten weltweit, Zinsentscheidungen, Branchen-Zusammenschlüsse und Kausalketten — vergangene, aktuelle und mögliche künftige Entwicklungen. Sie schlägt passende ETFs, Aktien, Anleihen oder Rohstoffe als Alternative zu gekündigten Abos vor. Betrag & Laufzeit übernimmt sie aus dem Rechner unten."
+        ),
+        h("div", { style: { display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" } }, riskSelect, aiBtn),
+        aiResultSlot
+      )
+    );
+  }
+
   renderQuickAmounts();
   renderClassChips();
+  renderAiPanel();
 
   const el = h(
     "div",
     {},
-    h("h1", { style: { fontSize: 34, fontWeight: 700, letterSpacing: "-1px", margin: "0 0 6px" } }, "↗ Investieren statt abonnieren"),
+    h("h1", { style: { fontSize: 34, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 6px" } }, "↗ Investieren statt abonnieren"),
     h("p", { style: { color: T.textDim, margin: "0 0 24px" } }, "ETFs, Aktien, Anleihen, Rohstoffe und fertige Zusammenstellungen — was könnte aus deinem gekündigten Abo werden?"),
     bestCardsSlot,
-    h(
-      "div",
-      { style: { ...S.card, marginBottom: 24, borderColor: "rgba(191,90,242,0.3)", background: "linear-gradient(135deg, rgba(191,90,242,0.08), rgba(100,210,255,0.04))" } },
-      h("div", { style: { fontWeight: 650, fontSize: 16, marginBottom: 6 } }, "✦ KI-Anlage-Finder"),
-      h("p", { style: { fontSize: 13.5, color: T.textDim, margin: "0 0 14px", lineHeight: 1.5 } },
-        "Die KI analysiert die aktuelle Marktlage: Nachrichten weltweit, Zinsentscheidungen, Branchen-Zusammenschlüsse und Kausalketten — und schlägt dir passende Anlagen als Alternative zu gekündigten Abos vor. Betrag & Laufzeit übernimmt sie aus dem Rechner unten."
-      ),
-      h("div", { style: { display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" } }, riskSelect, aiBtn),
-      aiResultSlot
-    ),
+    aiPanelSlot,
     classChipRow,
     searchInput,
     h(
@@ -405,9 +427,10 @@ export function etfExplorerPage({ subs, switchedSum }) {
 
   return {
     el,
-    update({ subs: newSubs, switchedSum: newSum } = {}) {
+    update({ subs: newSubs, switchedSum: newSum, aiEnabled: newAi } = {}) {
       if (newSubs) subs = newSubs;
       if (newSum !== undefined) switchedSum = newSum;
+      if (newAi !== undefined && newAi !== aiEnabled) { aiEnabled = newAi; renderAiPanel(); }
       renderQuickAmounts();
     },
   };

@@ -1,10 +1,14 @@
 # AboWandler
 
-KI-Finanz & Abo-Check App — regelt das Finanzielle im Alltag:
+Finanz- & Abo-App im hellen, minimalistischen Design — regelt das Finanzielle im Alltag. **Standardmäßig ganz ohne KI**: Die Erkennung wiederkehrender Zahlungen läuft rein algorithmisch; KI-Funktionen sind pro Nutzer zuschaltbar.
 
-- **Abos & wiederkehrende Zahlungen**: automatisch erkennen, klassifizieren (KI-Auto-Check), verwalten — mit Zahlungsplan (nächste Abbuchungen, Kategorien-Auswertung), Pausieren, Abbuchungstag/Kategorie/Notizen, Zugangsdaten-Tresor (verschlüsselt), KI-Firmenberichten und fertigen Kündigungsbriefen.
-- **Investieren statt abonnieren**: ETFs, Einzelaktien, Anleihen, Rohstoffe und fertige Themen-Zusammenstellungen. Der **KI-Anlage-Finder** analysiert per Websuche die aktuelle Marktlage (Nachrichten weltweit, Zinsen, Zusammenschlüsse und Kausalketten) und schlägt passende Anlagen als Alternative zu gekündigten Abos vor — inklusive Rechner, Vergleich und Renten-Lücken-Rechner.
-- **Finanz-Radar**: Alltags-Taktiken zu Krediten & Zinsen, Währungen (z.B. Euro/Dollar, Auslandszahlungen), Immobilienkauf, Steuern/Schenken/Erben (z.B. Freibeträge, Ehegattenschaukel — Info, keine Beratung), Versicherungen — plus Live-KI-Recherche zur aktuellen Lage pro Thema.
+- **Profile & Admin**: Mehrere Nutzerprofile auf einem Gerät (Netflix-Style-Auswahl beim Start). Das Admin-Konto sichtet und verwaltet Nutzer (Rollen, KI-Freischaltung, Löschen), stellt API-Schlüssel ein/um/ab (Anthropic für KI; FinAPI/Tink/GoCardless/PayPal-Slots für echte Bankanbindung) und sieht Systemzustand + Demo-Reset.
+- **Konten & Umsätze**: Konten aus einem Katalog verbinden (Sparkasse, Volksbank, Deutsche Bank, Commerzbank, ING, DKB, N26, Revolut, PayPal, Klarna, Amex, Visa, Mastercard, Trade Republic u.v.m. — ohne Bank-API im Demo-Modus, Umsätze per Text/CSV-Import). Umsatzliste pro Konto oder gesamt.
+- **Algorithmus-Scanner (ohne KI)**: erkennt wiederkehrende Zahlungen über wiederholte IBANs, Namen/Wörter, Betreffe, regelmäßige Intervalle (wöchentlich/monatlich/quartalsweise/jährlich) und konsistente Beträge; erkennt Preiserhöhungen und markiert Verdächtiges regelbasiert (unbekannter Anbieter + ausländische IBAN + generischer Name + neue Abbuchung).
+- **Abos & Zahlungen verwalten**: Zahlungsplan (nächste Abbuchungen, Monats-/Jahressummen, Kategorien), Pausieren, Betrag/Kategorie/Abbuchungstag/Notizen, Zugangsdaten-Tresor (AES-256-verschlüsselt), CSV-Export.
+- **KI zuschaltbar (Einstellungen → KI-Funktionen)**: recherchiert Firmen & IBANs auf Seriosität (Websuche), schreibt Kündigungsbriefe, klassifiziert Abos feiner — und der **KI-Anlage-Finder** analysiert Marktlage, Nachrichten, Zusammenschlüsse und Kausalketten und schlägt ETFs, Aktien, Anleihen, Rohstoffe oder fertige Mixe vor (vergangene, aktuelle und mögliche künftige Entwicklungen, als Einschätzung).
+- **Investieren-Studio**: Anlage-Universum über alle Klassen mit Rechner, Vergleich und Renten-Lücken-Rechner.
+- **Finanz-Radar**: Alltags-Taktiken zu Krediten & Zinsen, Währungen, Immobilienkauf, Steuern/Schenken/Erben, Versicherungen — plus optionale Live-KI-Recherche pro Thema.
 
 **Alle Daten bleiben auf deinem Gerät** — es gibt keinen zentralen Cloud-Server. Dein PC ist der Host: er startet lokal einen kleinen Server (Frontend: Vanilla JS + Vite, Backend: Express) und ist damit auch von deinem Handy im selben WLAN aus erreichbar — wie eine eigene kleine Web-App, aber ohne Cloud. `HOST`/`PORT` sind bewusst als Umgebungsvariablen gehalten, falls du später auf einen echten Server/eine echte Domain umziehen willst (siehe unten).
 

@@ -20,7 +20,7 @@ function swapSuggestion(sub, etfs) {
       ...rows.map((e) =>
         h(
           "div",
-          { style: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 10 } },
+          { style: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, padding: "10px 12px", background: "rgba(0,0,0,0.04)", borderRadius: 10 } },
           h("div", {},
             h("div", { style: { fontWeight: 600, fontSize: 13.5 } }, `${e.name} `, h("span", { style: { color: T.green } }, `(${e.ret}% p.a.*)`)),
             h("div", { style: { fontSize: 12, color: T.textFaint } }, `Risiko: ${e.risk} · TER ${e.ter}%`)
@@ -100,7 +100,7 @@ function credentialForm(sub, emails, draft, onSave) {
 
   return h(
     "div",
-    { style: { marginTop: 14, padding: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`, borderRadius: 14 } },
+    { style: { marginTop: 14, padding: 16, background: "rgba(0,0,0,0.04)", border: `1px solid ${T.border}`, borderRadius: 14 } },
     h("div", { style: { fontSize: 13, color: T.textDim, marginBottom: 10 } }, "✉ Zugangsdaten (verschlüsselt gespeichert)"),
     h(
       "div",
@@ -150,7 +150,7 @@ function manageForm(sub, draft, onSave) {
 
   return h(
     "div",
-    { style: { marginTop: 14, padding: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`, borderRadius: 14 } },
+    { style: { marginTop: 14, padding: 16, background: "rgba(0,0,0,0.04)", border: `1px solid ${T.border}`, borderRadius: 14 } },
     h("div", { style: { fontSize: 13, color: T.textDim, marginBottom: 10 } }, "⚙ Zahlung verwalten"),
     h(
       "div",
@@ -174,9 +174,10 @@ function nextPaymentDate(paymentDay) {
   return d;
 }
 
-export function subscriptionsPage({ subs, emails, forceFilter, onForceFilterApplied, onSubsChanged }) {
+export function subscriptionsPage({ subs, emails, aiEnabled: initialAi, forceFilter, onForceFilterApplied, onSubsChanged }) {
   let currentSubs = subs;
   let currentEmails = emails;
+  let aiEnabled = Boolean(initialAi);
 
   let search = "";
   let sortBy = "amount";
@@ -324,21 +325,32 @@ export function subscriptionsPage({ subs, emails, forceFilter, onForceFilterAppl
       return btn;
     });
 
-    const reportBtn = h(
-      "button",
-      { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.purple, borderColor: T.purple + "55" } },
-      uiState.reportLoadingId === sub.id ? "⏳ KI recherchiert…" : "📄 KI-Firmenbericht"
-    );
-    reportBtn.disabled = uiState.reportLoadingId === sub.id;
-    reportBtn.addEventListener("click", () => generateReport(sub));
+    // KI actions only exist when the user has enabled KI in Einstellungen.
+    const reportBtn = aiEnabled
+      ? (() => {
+          const b = h(
+            "button",
+            { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.purple, borderColor: T.purple + "55" } },
+            uiState.reportLoadingId === sub.id ? "⏳ KI recherchiert…" : "📄 KI-Firmenbericht"
+          );
+          b.disabled = uiState.reportLoadingId === sub.id;
+          b.addEventListener("click", () => generateReport(sub));
+          return b;
+        })()
+      : null;
 
-    const letterBtn = h(
-      "button",
-      { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.teal, borderColor: T.teal + "55" } },
-      uiState.letterLoadingId === sub.id ? "⏳ KI schreibt…" : "✉ Kündigungsbrief"
-    );
-    letterBtn.disabled = uiState.letterLoadingId === sub.id;
-    letterBtn.addEventListener("click", () => generateLetter(sub));
+    const letterBtn = aiEnabled
+      ? (() => {
+          const b = h(
+            "button",
+            { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.teal, borderColor: T.teal + "55" } },
+            uiState.letterLoadingId === sub.id ? "⏳ KI schreibt…" : "✉ Kündigungsbrief"
+          );
+          b.disabled = uiState.letterLoadingId === sub.id;
+          b.addEventListener("click", () => generateLetter(sub));
+          return b;
+        })()
+      : null;
 
     const swapBtn = h("button", { style: { ...S.btnGhost, padding: "7px 14px", fontSize: 12.5, color: T.green, borderColor: T.green + "55" } }, "↗ ETF-Tausch");
     swapBtn.addEventListener("click", () => { uiState.openSwapId = uiState.openSwapId === sub.id ? null : sub.id; renderList(); });
@@ -469,7 +481,7 @@ export function subscriptionsPage({ subs, emails, forceFilter, onForceFilterAppl
               h("div", { style: { fontSize: 12.5, color: T.textDim, marginBottom: 8 } }, "Nächste Abbuchungen"),
               h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
                 ...upcoming.map(({ sub, date }) =>
-                  h("div", { style: { padding: "8px 14px", background: "rgba(255,255,255,0.04)", border: `1px solid ${T.border}`, borderRadius: 12, fontSize: 12.5 } },
+                  h("div", { style: { padding: "8px 14px", background: "rgba(0,0,0,0.04)", border: `1px solid ${T.border}`, borderRadius: 12, fontSize: 12.5 } },
                     h("span", { style: { color: T.teal, fontWeight: 650 } }, date.toLocaleDateString("de-DE", { day: "numeric", month: "short" })),
                     ` ${sub.name} `,
                     h("b", {}, fmt(sub.amount))
@@ -485,7 +497,7 @@ export function subscriptionsPage({ subs, emails, forceFilter, onForceFilterAppl
                 ...categories.map(([cat, sum]) =>
                   h("div", { style: { display: "flex", alignItems: "center", gap: 10, fontSize: 12.5 } },
                     h("div", { style: { minWidth: 110, color: T.textDim } }, cat),
-                    h("div", { style: { flex: 1, height: 8, background: "rgba(255,255,255,0.05)", borderRadius: 99 } },
+                    h("div", { style: { flex: 1, height: 8, background: "rgba(0,0,0,0.04)", borderRadius: 99 } },
                       h("div", { style: { width: `${Math.round((sum / maxCat) * 100)}%`, height: 8, background: `linear-gradient(90deg, ${T.teal}, ${T.green})`, borderRadius: 99 } })
                     ),
                     h("div", { style: { minWidth: 80, textAlign: "right", fontWeight: 650 } }, fmt(sum))
@@ -543,7 +555,7 @@ export function subscriptionsPage({ subs, emails, forceFilter, onForceFilterAppl
     "div",
     {},
     h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 24 } },
-      h("h1", { style: { fontSize: 34, fontWeight: 700, letterSpacing: "-1px", margin: 0 } }, "Deine Abos & Zahlungen"),
+      h("h1", { style: { fontSize: 34, fontWeight: 600, letterSpacing: "-0.02em", margin: 0 } }, "Deine Abos & Zahlungen"),
       exportBtn
     ),
     planSlot,
@@ -563,7 +575,8 @@ export function subscriptionsPage({ subs, emails, forceFilter, onForceFilterAppl
 
   return {
     el,
-    update({ subs: newSubs, emails: newEmails, forceFilter: ff } = {}) {
+    update({ subs: newSubs, emails: newEmails, aiEnabled: newAi, forceFilter: ff } = {}) {
+      if (newAi !== undefined) aiEnabled = newAi;
       if (newSubs) currentSubs = newSubs;
       if (newEmails) currentEmails = newEmails;
       applyForceFilter(ff);
