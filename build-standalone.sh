@@ -51,7 +51,9 @@ echo "6/6 Frontend + Referenzdaten daneben ablegen..."
 rm -rf "$OUT_DIR/dist"
 cp -r dist "$OUT_DIR/dist"
 mkdir -p "$OUT_DIR/data"
-cp server/data/db.seed.json server/data/etfs.json "$OUT_DIR/data/"
+# Alle Referenzdaten (Seed, ETF-/Invest-Universum, Finanz-Radar-Tipps) —
+# aber niemals Laufzeitdaten wie db.json oder Schlüssel.
+cp server/data/db.seed.json server/data/etfs.json server/data/invest.json server/data/tips.json "$OUT_DIR/data/"
 rm -f "$OUT_DIR/server-bundle.cjs" "$OUT_DIR/sea-prep.blob" "$OUT_DIR/sea-config.json"
 
 echo ""
