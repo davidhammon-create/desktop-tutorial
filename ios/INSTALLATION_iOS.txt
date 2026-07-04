@@ -1,0 +1,38 @@
+AboWandler — Installation auf iPhone/iPad (und Mac)
+=====================================================
+
+Das hier ist die Installations-Datei der iOS-Version: das komplette,
+fertige Swift-Projekt. Warum kein .ipa zum Direkt-Installieren dabei
+ist: iOS-Apps kann AUSSCHLIESSLICH Xcode auf einem Mac kompilieren und
+signieren — das lässt Apple auf keinem anderen System zu (diese Datei
+wurde in einer Linux-Cloud gebaut). Die Installation dauert mit einem
+Mac trotzdem nur wenige Minuten:
+
+INSTALLATION AUFS IPHONE (einmalig ~10 Minuten):
+1. Auf einem Mac: Xcode installieren (kostenlos, Mac App Store).
+2. Ordner "AboWandler" entpacken → AboWandler.xcodeproj doppelklicken.
+3. Xcode → Settings → Accounts → mit deiner (kostenlosen) Apple-ID anmelden.
+4. Projekt anklicken → Target "AboWandler" → Signing & Capabilities →
+   Team: deine Apple-ID wählen.
+5. iPhone per Kabel anschließen (am iPhone "Diesem Computer vertrauen").
+6. Oben in Xcode dein iPhone als Ziel wählen → ▶ drücken.
+   → Die App installiert sich direkt auf dein iPhone.
+7. Beim ersten Start am iPhone: Einstellungen → Allgemein →
+   VPN & Geräteverwaltung → deinem Entwicklerprofil vertrauen.
+
+Hinweis: Mit kostenloser Apple-ID läuft die App 7 Tage, dann einmal
+neu aus Xcode installieren (▶). Mit Apple-Developer-Konto (99 €/Jahr)
+entfällt das und TestFlight/App Store werden möglich.
+
+FÜR DEN MAC: Gleiches Projekt, Ziel "My Mac" wählen, ▶ — fertig.
+
+WAS DIE APP KANN (alles in Swift, Frontend + Backend):
+- Profile mit eigener Datenwelt und eigenem Kosten-Ledger
+- Abo-Modell: Free (Algorithmus kostenlos) / Pro 4,99 €/Monat (KI)
+- Scan wählbar: Algorithmus / KI (0,10 €) / Beide
+- KI = Apple Intelligence, on-device (iOS 26+, iPhone 15 Pro oder neuer)
+- Stripe-Abrechnung: ohne verknüpftes Stripe-Konto sind kostenpflichtige
+  Services gesperrt; Kosten werden je Profil erfasst und als
+  Stripe-Rechnung abgerechnet (sk_test_-Schlüssel = Testmodus)
+- Konten-Katalog, CSV-Import, Kündigungs-Links, Sparplan-Checkliste,
+  Invest-Rechner mit Chart, Finanz-Radar
