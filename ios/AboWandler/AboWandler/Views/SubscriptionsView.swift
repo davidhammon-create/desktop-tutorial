@@ -188,9 +188,13 @@ struct SubscriptionDetailView: View {
         store.update(s)
     }
 
-    /// Kostenpflichtige KI-Aktion: erst dem Profil-Ledger zuweisen (scheitert
-    /// ohne Stripe-Konto/Pro-Plan), dann ausführen.
+    /// Kostenpflichtige KI-Aktion: erst KI-Verfügbarkeit prüfen (nie fürs
+    /// Scheitern kassieren), dann dem Profil-Ledger zuweisen, dann ausführen.
     private func runPaidAI(action: String, cost: Double, _ work: @escaping () async throws -> String) {
+        guard AppleAI.isAvailable else {
+            aiText = AppleAI.availabilityText
+            return
+        }
         guard store.charge(action: action, cost: cost) else {
             aiText = store.paidServicesHint
             return

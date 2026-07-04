@@ -105,6 +105,10 @@ struct InvestView: View {
                 if store.aiEnabled {
                     Section {
                         Button(aiRunning ? "Analysiert on-device…" : "Vergangenheit, Trends & Kausalketten einordnen (\(Pricing.kiInvest.euro))") {
+                            guard AppleAI.isAvailable else {
+                                aiNote = AppleAI.availabilityText
+                                return
+                            }
                             guard store.charge(action: "KI-Anlage-Einordnung: \(selected.name)", cost: Pricing.kiInvest) else {
                                 aiNote = store.paidServicesHint
                                 return

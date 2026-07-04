@@ -209,8 +209,14 @@ final class AppStore: ObservableObject {
     }
 
     /// KI-Scan: verfeinert die Erkennung per Apple Intelligence.
-    /// Kostenpflichtig (\(Pricing.kiScan)) — wird dem Profil zugewiesen.
+    /// Kostenpflichtig — wird dem Profil zugewiesen. Wichtig: erst die
+    /// KI-Verfügbarkeit prüfen, DANN belasten — nie fürs Scheitern kassieren.
     func scanWithAI() async {
+        guard AppleAI.isAvailable else {
+            scanAlgorithm()
+            lastScanSummary = (lastScanSummary ?? "") + " KI übersprungen (nicht berechnet): \(AppleAI.availabilityText)"
+            return
+        }
         guard charge(action: "KI-Scan der Umsätze", cost: Pricing.kiScan) else {
             lastScanSummary = paidServicesHint
             return
