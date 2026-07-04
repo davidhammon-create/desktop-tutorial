@@ -126,12 +126,16 @@ struct SubscriptionDetailView: View {
                 }
 
                 if store.aiEnabled {
-                    Section("Apple Intelligence (on-device)") {
-                        Button(aiRunning ? "Analysiert…" : "Seriosität einschätzen") {
-                            runAI { try await AppleAI.companyAssessment(for: sub) }
+                    Section {
+                        Button(aiRunning ? "Analysiert…" : "Seriosität einschätzen (\(Pricing.kiAssessment.euro))") {
+                            runPaidAI(action: "KI-Seriositäts-Check: \(sub.name)", cost: Pricing.kiAssessment) {
+                                try await AppleAI.companyAssessment(for: sub)
+                            }
                         }
-                        Button("Kündigungsschreiben erstellen") {
-                            runAI { try await AppleAI.cancellationLetter(for: sub) }
+                        Button("Kündigungsschreiben erstellen (\(Pricing.kiLetter.euro))") {
+                            runPaidAI(action: "KI-Kündigungsschreiben: \(sub.name)", cost: Pricing.kiLetter) {
+                                try await AppleAI.cancellationLetter(for: sub)
+                            }
                         }
                         if let aiText {
                             Text(aiText).font(.callout).textSelection(.enabled)
@@ -139,6 +143,10 @@ struct SubscriptionDetailView: View {
                         if !AppleAI.isAvailable {
                             Text(AppleAI.availabilityText).font(.caption).foregroundStyle(.secondary)
                         }
+                    } header: {
+                        Text("Apple Intelligence (on-device)")
+                    } footer: {
+                        Text("Kostenpflichtig — wird deinem Profil zugewiesen und über Stripe abgerechnet.")
                     }
                 }
 
@@ -180,7 +188,13 @@ struct SubscriptionDetailView: View {
         store.update(s)
     }
 
-    private func runAI(_ work: @escaping () async throws -> String) {
+    /// Kostenpflichtige KI-Aktion: erst dem Profil-Ledger zuweisen (scheitert
+    /// ohne Stripe-Konto/Pro-Plan), dann ausführen.
+    private func runPaidAI(action: String, cost: Double, _ work: @escaping () async throws -> String) {
+        guard store.charge(action: action, cost: cost) else {
+            aiText = store.paidServicesHint
+            return
+        }
         aiRunning = true
         Task {
             do { aiText = try await work() }

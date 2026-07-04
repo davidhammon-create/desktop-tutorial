@@ -271,6 +271,68 @@ struct RadarTopic: Identifiable, Hashable {
     ]
 }
 
+// MARK: - Profile, Abo-Modell & Abrechnung
+
+enum Plan: String, Codable, CaseIterable {
+    case free, pro
+
+    var label: String { self == .free ? "Free" : "Pro" }
+    var priceLabel: String { self == .free ? "0 €" : "\(Pricing.proMonthly.euro)/Monat" }
+}
+
+enum ScanMethod: String, Codable, CaseIterable {
+    case algorithmus, ki, beide
+
+    var label: String {
+        switch self {
+        case .algorithmus: return "Algorithmus (kostenlos)"
+        case .ki: return "KI-Scan (kostenpflichtig)"
+        case .beide: return "Beide (Algorithmus + KI)"
+        }
+    }
+}
+
+/// Preisliste des Zahlungsmodells. Die KI-Nutzung wird pro Aktion dem
+/// jeweiligen Profil zugewiesen und über Stripe abgerechnet.
+enum Pricing {
+    static let proMonthly = 4.99
+    static let kiScan = 0.10        // KI-Analyse aller Umsätze
+    static let kiAssessment = 0.05  // Seriositäts-Einschätzung pro Abo
+    static let kiLetter = 0.05      // Kündigungsschreiben
+    static let kiInvest = 0.05      // Anlage-Einordnung
+}
+
+struct UsageEntry: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var date = Date()
+    var action: String
+    var cost: Double
+    var billed = false
+}
+
+struct Profile: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var name: String
+    var isAdmin = false
+    var plan: Plan = .free
+    var aiEnabled = false
+    var scanMethod: ScanMethod = .algorithmus
+    var stripeCustomerId: String?
+    var usage: [UsageEntry] = []
+
+    var openUsageTotal: Double { usage.filter { !$0.billed }.reduce(0) { $0 + $1.cost } }
+    var usageTotal: Double { usage.reduce(0) { $0 + $1.cost } }
+    var hasStripe: Bool { !(stripeCustomerId ?? "").isEmpty }
+}
+
+/// Daten je Profil — jedes Konto/Profil hat seine eigenen Umsätze, Abos
+/// und damit auch seine eigene Kosten-Zuordnung.
+struct ProfileData: Codable {
+    var accounts: [Account] = []
+    var transactions: [Txn] = []
+    var subscriptions: [Subscription] = []
+}
+
 // MARK: - Finanzmathematik
 
 enum FinMath {

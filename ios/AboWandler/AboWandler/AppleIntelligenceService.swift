@@ -84,6 +84,44 @@ enum AppleAI {
         return try await respond(to: prompt, instructions: "Du schreibst präzise deutsche Geschäftsbriefe.")
     }
 
+    struct Refinement {
+        let id: UUID
+        let status: SubStatus
+        let reason: String
+    }
+
+    /// KI-Scan-Verfeinerung: bewertet die algorithmisch erkannten Abos neu
+    /// (behalten / umwandeln / Warnung / prüfen) — on-device.
+    static func refineSubscriptions(_ subs: [Subscription]) async throws -> [Refinement] {
+        guard !subs.isEmpty else { return [] }
+        let listing = subs.enumerated().map { index, sub in
+            let country = String(RecurrenceScanner.ibanKey(sub.iban).prefix(2))
+            return "\(index)|\(sub.name)|\(sub.amount.euro) \(sub.cycle)|IBAN-Land:\(country.isEmpty ? "-" : country)|\(sub.category)|\(sub.note)"
+        }.joined(separator: "\n")
+
+        let prompt = """
+        Bewerte jede dieser wiederkehrenden Zahlungen. Antworte mit GENAU einer Zeile pro Eintrag im Format
+        INDEX|STATUS|GRUND
+        STATUS ist exakt eines von: keep, convert, warning, pending.
+        keep = bekannter seriöser Anbieter, Betrag plausibel. convert = läuft, aber Kündigung/Umwandlung lohnt (teuer, selten genutzt, Preiserhöhung). warning = verdächtig (unbekannte Firma, ausländische IBAN ohne Grund, generischer Name). pending = unklar.
+        GRUND: kurze deutsche Begründung.
+
+        \(listing)
+        """
+        let raw = try await respond(to: prompt, instructions: "Du bist ein präziser Finanz-Sicherheits-Analyst. Halte dich strikt an das Zeilenformat.")
+
+        var result: [Refinement] = []
+        for line in raw.split(whereSeparator: \.isNewline) {
+            let parts = line.split(separator: "|", maxSplits: 2).map { $0.trimmingCharacters(in: .whitespaces) }
+            guard parts.count >= 2,
+                  let index = Int(parts[0]),
+                  index >= 0 && index < subs.count,
+                  let status = SubStatus(rawValue: parts[1].lowercased()) else { continue }
+            result.append(Refinement(id: subs[index].id, status: status, reason: parts.count > 2 ? parts[2] : ""))
+        }
+        return result
+    }
+
     /// Markt-Einschätzung zu einer Anlage (on-device, ohne Live-Daten).
     static func investNote(for asset: InvestAsset, monthly: Double, years: Int) async throws -> String {
         let prompt = """

@@ -1,7 +1,27 @@
 # AboWandler für iOS & macOS (Swift/SwiftUI)
 
-Native Portierung der AboWandler-App — komplett in **Swift** (SwiftUI), lauffähig auf
-**iPhone, iPad und Mac** aus einem einzigen Projekt.
+Die Haupt-Version von AboWandler — **Frontend UND Backend komplett in Swift**:
+SwiftUI-Oberfläche im nativen Apple-Design, Datenhaltung/Scanner/Abrechnung als
+Swift-Logik direkt in der App (kein separater Server nötig), Stripe-Anbindung in
+reinem Swift (URLSession). Lauffähig auf **iPhone, iPad und Mac** aus einem Projekt.
+Einzige Nicht-Swift-Berührungspunkte: die externe Stripe-REST-API (unvermeidbar)
+und die optionale Web-App für PC/Android.
+
+## Neu in Version 2: Profile, Abo-Modell & Stripe
+
+- **Profile (Accounts)**: Auswahl beim Start; jedes Profil hat eigene Konten,
+  Umsätze, Abos — und ein **eigenes Kosten-Ledger**.
+- **Abo-Modell**: Free (nur Algorithmus, kostenlos) vs. **Pro (4,99 €/Monat)**,
+  schaltet die KI-Funktionen frei. Plan-Seite im App-Store-Karten-Stil.
+- **KI kostet — transparent**: Jede KI-Aktion zeigt ihren Preis am Button
+  (KI-Scan 0,10 €, Seriositäts-Check 0,05 €, Kündigungsschreiben 0,05 €,
+  Anlage-Einordnung 0,05 €) und landet als Einzelposten im Ledger des Profils.
+- **Stripe-Pflicht**: Ohne verknüpftes Stripe-Kundenkonto (und hinterlegten
+  Stripe-Schlüssel, Admin → Einstellungen) sind **alle kostenpflichtigen
+  Services gesperrt**. „Jetzt abrechnen“ erzeugt eine echte Stripe-Rechnung
+  (Testmodus mit sk_test_-Schlüssel empfohlen — keine echten Abbuchungen).
+- **Scan-Methode wählbar**: Algorithmus (kostenlos) / KI / Beide — direkt auf
+  der Übersicht umschaltbar.
 
 ## Was drin ist
 

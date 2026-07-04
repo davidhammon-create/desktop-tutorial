@@ -4,22 +4,49 @@ struct DashboardView: View {
     @EnvironmentObject var store: AppStore
     @State private var aiResult: String?
     @State private var aiRunning = false
+    @State private var scanning = false
+
+    private var scanButtonLabel: String {
+        switch store.scanMethod {
+        case .algorithmus: return "Scannen — Algorithmus (kostenlos)"
+        case .ki: return "Scannen — KI (\(Pricing.kiScan.euro))"
+        case .beide: return "Scannen — Algorithmus + KI (\(Pricing.kiScan.euro))"
+        }
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Button {
-                        store.scan()
-                    } label: {
-                        Label("Konten scannen — ohne KI", systemImage: "wand.and.rays")
-                            .frame(maxWidth: .infinity)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Picker("Scan-Methode", selection: Binding(
+                            get: { store.scanMethod },
+                            set: { newValue in store.mutateProfile { $0.scanMethod = newValue } }
+                        )) {
+                            Text("Algorithmus").tag(ScanMethod.algorithmus)
+                            Text("KI").tag(ScanMethod.ki)
+                            Text("Beide").tag(ScanMethod.beide)
+                        }
+                        .pickerStyle(.segmented)
+
+                        Button {
+                            runScan()
+                        } label: {
+                            Label(scanning ? "Scan läuft…" : scanButtonLabel, systemImage: "wand.and.rays")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                        .disabled(scanning)
+
+                        if store.scanMethod != .algorithmus {
+                            Text("KI-Scan ist kostenpflichtig (\(Pricing.kiScan.euro)/Durchlauf), läuft on-device und wird deinem Profil-Ledger zugewiesen — ohne verknüpftes Stripe-Konto gesperrt.")
+                                .font(.caption2).foregroundStyle(.secondary)
+                        }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
 
                     if let summary = store.lastScanSummary {
-                        InfoCard(icon: "checkmark.circle.fill", tint: .green, title: "Algorithmus-Scan abgeschlossen", text: summary)
+                        InfoCard(icon: "checkmark.circle.fill", tint: .green, title: "Scan abgeschlossen", text: summary)
                     }
 
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 12) {
@@ -78,7 +105,11 @@ struct DashboardView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             if AppleAI.isAvailable, let worst = store.subscriptions.first(where: { $0.status == .warning }) {
-                                Button(aiRunning ? "Analysiert on-device…" : "Verdächtigstes Abo per Apple Intelligence prüfen") {
+                                Button(aiRunning ? "Analysiert on-device…" : "Verdächtigstes Abo per KI prüfen (\(Pricing.kiAssessment.euro))") {
+                                    guard store.charge(action: "KI-Seriositäts-Check: \(worst.name)", cost: Pricing.kiAssessment) else {
+                                        aiResult = store.paidServicesHint
+                                        return
+                                    }
                                     aiRunning = true
                                     Task {
                                         aiResult = (try? await AppleAI.companyAssessment(for: worst)) ?? "Analyse fehlgeschlagen."
@@ -104,6 +135,19 @@ struct DashboardView: View {
                 .padding()
             }
             .navigationTitle("Übersicht")
+        }
+    }
+
+    private func runScan() {
+        switch store.scanMethod {
+        case .algorithmus:
+            store.scanAlgorithm()
+        case .ki, .beide:
+            scanning = true
+            Task {
+                await store.scanWithAI()
+                scanning = false
+            }
         }
     }
 }

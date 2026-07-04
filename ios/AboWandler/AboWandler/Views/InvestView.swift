@@ -103,8 +103,12 @@ struct InvestView: View {
                 }
 
                 if store.aiEnabled {
-                    Section("Apple Intelligence: Einordnung") {
-                        Button(aiRunning ? "Analysiert on-device…" : "Vergangenheit, Trends & Kausalketten einordnen") {
+                    Section {
+                        Button(aiRunning ? "Analysiert on-device…" : "Vergangenheit, Trends & Kausalketten einordnen (\(Pricing.kiInvest.euro))") {
+                            guard store.charge(action: "KI-Anlage-Einordnung: \(selected.name)", cost: Pricing.kiInvest) else {
+                                aiNote = store.paidServicesHint
+                                return
+                            }
                             aiRunning = true
                             Task {
                                 do { aiNote = try await AppleAI.investNote(for: selected, monthly: monthly, years: Int(years)) }
@@ -116,6 +120,10 @@ struct InvestView: View {
                         if let aiNote {
                             Text(aiNote).font(.callout).textSelection(.enabled)
                         }
+                    } header: {
+                        Text("Apple Intelligence: Einordnung")
+                    } footer: {
+                        Text("Kostenpflichtig — wird deinem Profil zugewiesen.")
                     }
                 }
 

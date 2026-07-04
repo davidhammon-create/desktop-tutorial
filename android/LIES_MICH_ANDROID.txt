@@ -1,0 +1,31 @@
+AboWandler auf Android
+=======================
+
+Ehrliche Vorab-Info: Swift (die Sprache der iOS/macOS-Version) läuft
+nicht auf Android — Android-Apps brauchen Kotlin/Java. Da der Fokus
+laut Wunsch auf der Apple-Version liegt, bekommt Android den Weg, der
+ohne zweite Codebasis sofort funktioniert:
+
+SO NUTZT DU ABOWANDLER AUF ANDROID (2 Minuten):
+
+1. Auf dem PC die Web-App starten
+   (AboWandler.exe unter Windows, ./AboWandler unter Linux, oder
+   start-windows.bat / start-mac.command mit Node.js).
+
+2. Im schwarzen Fenster steht die WLAN-Adresse,
+   z.B.  http://192.168.1.23:8787
+
+3. Diese Adresse am Android-Handy in CHROME öffnen
+   (Handy muss im selben WLAN sein).
+
+4. Chrome-Menü (⋮) → "App installieren" bzw.
+   "Zum Startbildschirm hinzufügen".
+
+Ergebnis: AboWandler liegt als App-Icon auf dem Homescreen, öffnet im
+Vollbild und fühlt sich wie eine native App an (PWA). Alle Funktionen
+der Web-App sind nutzbar; die Daten liegen auf deinem PC (der Host).
+
+Falls später eine ECHTE native Android-App gewünscht ist: Das wäre eine
+eigene Kotlin-Portierung (wie die Swift-Portierung für iOS) — sag
+einfach Bescheid, der Algorithmus-Scanner und die Datenmodelle sind
+1:1 übertragbar.
