@@ -21,11 +21,35 @@ var id: String { rawValue }
 var titel: String {
   switch self {
   case .vorgaenge: return "Vorgänge"
-  case .lage: return "Lage"
-  case .organon: return "Organon"
-  case .werkzeuge: return "Werkzeuge"
+  case .lage: return "Lagezentrale"
+  case .organon: return "Team & Netzwerk"
+  case .werkzeuge: return "Alle Module"
   case .wissen: return "Rechtswissen"
+  case .einstellungen: return "Einstellungen"
+  }
+}
+
+/// Kurzes Label unter dem Icon in der Hauptleiste -- jede Zone ist ohne Hovern erkennbar.
+var railLabel: String {
+  switch self {
+  case .vorgaenge: return "Vorgänge"
+  case .lage: return "Lage"
+  case .organon: return "Team"
+  case .werkzeuge: return "Module"
+  case .wissen: return "Wissen"
   case .einstellungen: return "System"
+  }
+}
+
+/// Ein Satz für Tooltip/Hilfe: Was finde ich in dieser Zone?
+var railHilfe: String {
+  switch self {
+  case .vorgaenge: return "Vorgänge -- der Startpunkt: Akten anlegen, bewerten, entscheiden"
+  case .lage: return "Lagezentrale -- Mandate, Konflikte, Pipeline und Fristen in einem Blick"
+  case .organon: return "Team & Netzwerk (Organon) -- wer macht was"
+  case .werkzeuge: return "Alle Module -- jede Funktion der Suite, durchsuchbar an einem Ort"
+  case .wissen: return "Rechtswissen -- lokaler Wissenskorpus des Rechtsradars"
+  case .einstellungen: return "Einstellungen -- Konto, Design, KI, Daten und System"
   }
 }
 
@@ -191,45 +215,59 @@ private var studioRail: some View {
        zone = z
        if z == .vorgaenge { offenerVorgangId = nil }
      } label: {
-       Image(systemName: z.symbol)
-         .font(.system(size: 14, weight: .semibold))
-         .foregroundStyle(zone == z ? (appearance.istAtelier ? Premium.action : .white) : Premium.textSoft)
-         .frame(width: 40, height: 36)
-         .background(
-           RoundedRectangle(cornerRadius: 9, style: .continuous)
-             .fill(zone == z ? Premium.action.opacity(appearance.istAtelier ? 0.12 : 0.28) : Color.clear)
-         )
-         .overlay(
-           RoundedRectangle(cornerRadius: 9, style: .continuous)
-             .stroke(zone == z ? Premium.action.opacity(0.45) : Color.clear, lineWidth: 1)
-         )
+       VStack(spacing: 3) {
+         Image(systemName: z.symbol)
+           .font(.system(size: 14, weight: .semibold))
+         Text(z.railLabel)
+           .font(.system(size: 8.5, weight: .semibold))
+           .lineLimit(1)
+           .minimumScaleFactor(0.8)
+       }
+       .foregroundStyle(zone == z ? (appearance.istAtelier ? Premium.action : .white) : Premium.textSoft)
+       .frame(width: 60, height: 46)
+       .background(
+         RoundedRectangle(cornerRadius: 9, style: .continuous)
+           .fill(zone == z ? Premium.action.opacity(appearance.istAtelier ? 0.12 : 0.28) : Color.clear)
+       )
+       .overlay(
+         RoundedRectangle(cornerRadius: 9, style: .continuous)
+           .stroke(zone == z ? Premium.action.opacity(0.45) : Color.clear, lineWidth: 1)
+       )
      }
      .buttonStyle(.plain)
-     .help(z.titel)
+     .help(z.railHilfe)
    }
 
    Spacer()
 
    Button { zeigeTutorial = true } label: {
-     Image(systemName: "questionmark.circle")
-       .font(.system(size: 14, weight: .semibold))
-       .foregroundStyle(Premium.textSoft)
-       .frame(width: 40, height: 36)
+     VStack(spacing: 3) {
+       Image(systemName: "questionmark.circle")
+         .font(.system(size: 14, weight: .semibold))
+       Text("Hilfe")
+         .font(.system(size: 8.5, weight: .semibold))
+     }
+     .foregroundStyle(Premium.textSoft)
+     .frame(width: 60, height: 44)
    }
    .buttonStyle(.plain)
-   .help("Tutorial")
+   .help("Tutorial -- Bedienung Schritt für Schritt")
 
    Button { kommandofeldOffen = true } label: {
-     Image(systemName: "magnifyingglass")
-       .font(.system(size: 13, weight: .semibold))
-       .foregroundStyle(Premium.textSoft)
-       .frame(width: 40, height: 36)
+     VStack(spacing: 3) {
+       Image(systemName: "magnifyingglass")
+         .font(.system(size: 13, weight: .semibold))
+       Text("Suchen")
+         .font(.system(size: 8.5, weight: .semibold))
+     }
+     .foregroundStyle(Premium.textSoft)
+     .frame(width: 60, height: 44)
    }
    .buttonStyle(.plain)
-   .help("nK Kommandofeld")
+   .help("Alles finden: Vorgänge und Module -- nK Kommandofeld")
    .padding(.bottom, 10)
  }
- .frame(width: 52)
+ .frame(width: 68)
  .padding(.vertical, 6)
  .premiumGlasLeiste()
  .overlay(alignment: .trailing) {
