@@ -9,22 +9,31 @@ struct EinstellungenView: View {
 
 var body: some View {
   HStack(spacing: 0) {
+    // Vier klare Gruppen statt 13 flacher Reiter -- Tags und Inhalte unverändert.
     List(selection: $selectedTab) {
-      Label("Konto & Abo", systemImage: "person.crop.circle.badge.checkmark").tag("konto")
-      Label("Design & Erscheinungsbild", systemImage: "paintpalette.fill").tag("design")
-      Label("KI-Konfiguration", systemImage: "brain").tag("ki")
-      Label("Rechtsordnungen", systemImage: "globe.europe.africa.fill").tag("recht")
-      Label("Daten-Souveränität", systemImage: "checkmark.shield.fill").tag("souveraen")
-      Label("Marktvergleich", systemImage: "chart.bar.xaxis").tag("markt")
-      Label("Verbindung (Base44)", systemImage: "server.rack").tag("api")
-      Label("Benachrichtigungen", systemImage: "bell").tag("notifications")
-      Label("Kalender", systemImage: "calendar").tag("calendar")
-      Label("Datenschutz", systemImage: "lock.shield").tag("datenschutz")
-      Label("Updates", systemImage: "arrow.triangle.2.circlepath").tag("updates")
-      Label("Über FenlynineOS", systemImage: "info.circle").tag("ueber")
-      // ADDITIV -- nur für Administrator sichtbar
-      if KontoStore.shared.istAdmin {
-        Label("Quellcode (Admin)", systemImage: "chevron.left.forwardslash.chevron.right").tag("admincode")
+      Section("Persönlich") {
+        Label("Konto & Abo", systemImage: "person.crop.circle.badge.checkmark").tag("konto")
+        Label("Design & Erscheinungsbild", systemImage: "paintpalette.fill").tag("design")
+        Label("Benachrichtigungen", systemImage: "bell").tag("notifications")
+        Label("Kalender", systemImage: "calendar").tag("calendar")
+      }
+      Section("KI & Daten") {
+        Label("KI-Konfiguration", systemImage: "brain").tag("ki")
+        Label("Verbindung (Base44)", systemImage: "server.rack").tag("api")
+        Label("Daten-Souveränität", systemImage: "checkmark.shield.fill").tag("souveraen")
+        Label("Datenschutz", systemImage: "lock.shield").tag("datenschutz")
+      }
+      Section("Recht & Markt") {
+        Label("Rechtsordnungen", systemImage: "globe.europe.africa.fill").tag("recht")
+        Label("Marktvergleich", systemImage: "chart.bar.xaxis").tag("markt")
+      }
+      Section("System") {
+        Label("Updates", systemImage: "arrow.triangle.2.circlepath").tag("updates")
+        Label("Über FenlynineOS", systemImage: "info.circle").tag("ueber")
+        // ADDITIV -- nur für Administrator sichtbar
+        if KontoStore.shared.istAdmin {
+          Label("Quellcode (Admin)", systemImage: "chevron.left.forwardslash.chevron.right").tag("admincode")
+        }
       }
     }
     .listStyle(.sidebar)
