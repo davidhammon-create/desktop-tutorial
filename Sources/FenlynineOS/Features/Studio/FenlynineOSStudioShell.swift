@@ -461,13 +461,22 @@ private var werkzeugPanel: some View {
                  Button {
                    werkzeug = e
                  } label: {
-                   HStack(spacing: 8) {
+                   HStack(alignment: .top, spacing: 8) {
                      Image(systemName: e.symbol)
                        .font(.system(size: 11))
                        .frame(width: 16)
-                     Text(e.bezeichnung)
-                       .font(.system(size: 12, weight: .medium))
-                       .lineLimit(1)
+                       .padding(.top, 1)
+                     VStack(alignment: .leading, spacing: 1) {
+                       Text(e.bezeichnung)
+                         .font(.system(size: 12, weight: .medium))
+                         .lineLimit(1)
+                       if let sub = e.commandSubtitle {
+                         Text(sub)
+                           .font(.system(size: 9.5))
+                           .foregroundStyle(werkzeug == e ? (appearance.istAtelier ? Premium.action.opacity(0.75) : Premium.onAction.opacity(0.75)) : Premium.textFaint)
+                           .lineLimit(1)
+                       }
+                     }
                      Spacer()
                      if !kontoStore.darf(e) {
                        AboFensterSperrBadge(eintrag: e)
@@ -475,7 +484,7 @@ private var werkzeugPanel: some View {
                    }
                    .foregroundStyle(werkzeug == e ? (appearance.istAtelier ? Premium.action : Premium.onAction) : Premium.textSoft)
                    .padding(.horizontal, 10)
-                   .padding(.vertical, 7)
+                   .padding(.vertical, 6)
                    .background(
                      RoundedRectangle(cornerRadius: 8)
                        .fill(werkzeug == e ? Premium.action.opacity(appearance.istAtelier ? 0.12 : 0.22) : Color.clear)
@@ -507,7 +516,7 @@ private var werkzeugPanel: some View {
        .padding(.bottom, 20)
      }
    }
-   .frame(width: 248)
+   .frame(width: 292)
    .premiumGlasLeiste()
    .overlay(alignment: .trailing) {
      Rectangle().fill(Premium.hairline).frame(width: 1)
@@ -523,14 +532,17 @@ private struct WerkzeugSektion {
  let items: [SeitenleistenEintrag]
 }
 
+/// Rubriken nach Tätigkeit sortiert -- Alltagssprache zuerst, Markenname dahinter.
+/// Häufigste Arbeit oben. `lageZentrale` hat eine eigene Zone in der Hauptleiste
+/// und wird hier nicht doppelt gelistet (Funktion unverändert erreichbar).
 private var werkzeugSektionen: [WerkzeugSektion] {
  var sektionen: [WerkzeugSektion] = [
-   .init(titel: "Imperium", items: [.lageZentrale, .berufspflicht, .praxisProfil, .konfliktRadar, .mandatsPipeline, .honorare, .entscheidungsjournal, .beaCheck]),
-   .init(titel: "Lexara", items: [.lexara, .richterprofile, .jurisdiktionen, .zeitleiste, .dokumente]),
-   .init(titel: "Strategos", items: [.strategos, .opportunisma, .sunTzu, .analytik]),
-   .init(titel: "Übersicht", items: [.dashboard, .schreibtisch, .cockpit]),
-   .init(titel: "Organisation", items: [.aufgaben, .mandanten]),
-   .init(titel: "Arbeit & KI", items: [.kiChat, .compliance])
+   .init(titel: "Fälle & Recht · Lexara", items: [.lexara, .richterprofile, .zeitleiste, .dokumente, .jurisdiktionen]),
+   .init(titel: "Strategie & Zukunft · Strategos", items: [.strategos, .opportunisma, .sunTzu, .analytik]),
+   .init(titel: "Übersicht & Cockpits", items: [.dashboard, .schreibtisch, .cockpit]),
+   .init(titel: "Kanzlei-Verwaltung · Imperium", items: [.mandatsPipeline, .honorare, .konfliktRadar, .berufspflicht, .beaCheck, .entscheidungsjournal, .praxisProfil]),
+   .init(titel: "Zusammenarbeit", items: [.aufgaben, .mandanten]),
+   .init(titel: "KI & Compliance", items: [.kiChat, .compliance])
  ]
  sektionen.append(.init(titel: "System", items: [.selbstreparatur]))
  if kontoStore.istAdmin {
