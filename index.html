@@ -1,31 +1,25 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive 3D Models - Für Studenten</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            min-height: 100vh;
-        }
-
-        html, body, #root {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interaktive 3D-Modelle auf Universitätsniveau für Physik, Chemie, Biologie und Medizin."
+    />
+    <title>Modellsammlung – Interaktive 3D-Modelle für das Studium</title>
+    <!--
+      Bewusst ohne Web-Font von einem CDN: Die Seite soll auch offline und hinter
+      restriktiven Netzwerken vollständig funktionieren. Die Schriftauswahl in
+      styles.css nutzt die Systemschriften.
+    -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1120'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%235b8def'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='5.2' fill='none' stroke='%239775fa' stroke-width='1.6'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='5.2' fill='none' stroke='%2351cf66' stroke-width='1.6' transform='rotate(60 16 16)'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='5.2' fill='none' stroke='%23ff6b6b' stroke-width='1.6' transform='rotate(120 16 16)'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-</body>
+  </body>
 </html>

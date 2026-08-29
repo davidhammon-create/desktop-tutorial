@@ -1,12 +1,13 @@
 {
-  "name": "interactive-3d-models-website",
-  "version": "1.0.0",
-  "description": "Interactive 3D models website for students",
+  "name": "modellsammlung",
+  "version": "2.0.0",
+  "description": "Interaktive 3D-Modelle auf Universitätsniveau für Physik, Chemie, Biologie und Medizin",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
+    "playwright": "^1.62.1",
     "vite": "^4.4.0"
   }
 }
