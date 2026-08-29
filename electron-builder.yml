@@ -1,0 +1,47 @@
+appId: de.modellsammlung.app
+productName: Modellsammlung
+copyright: MIT
+
+directories:
+  output: release
+  buildResources: build
+
+# Nur das Nötige einpacken: der gebaute Web-Stand und der Electron-Prozess.
+# node_modules werden nicht gebraucht, weil der Renderer den gebündelten
+# Vite-Build lädt und der Hauptprozess ohne externe Pakete auskommt.
+files:
+  - dist-electron-web/**/*
+  - electron/**/*
+  - build/icon.png # Fenster-Icon unter Linux; ohne diesen Eintrag zur Laufzeit nicht auffindbar
+  - package.json
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.png
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Modellsammlung
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: build/icon.png
+  category: public.app-category.education
+
+linux:
+  target:
+    - AppImage
+    - deb
+  icon: build/icon.png
+  category: Education
+  synopsis: Interaktive 3D-Modelle für das Studium
+  description: >-
+    Interaktive 3D-Modelle auf Universitätsniveau für Physik, Chemie,
+    Biologie und Medizin – mit Fachtexten, Kennzahlen und Prüfungsfragen.

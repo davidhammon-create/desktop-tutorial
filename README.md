@@ -76,13 +76,63 @@ Jedes Modell besitzt vier Textbereiche:
 - **Kennzahlen** – Tabelle mit den prüfungsrelevanten Zahlenwerten
 - **Prüfung** – typische Klausur- und Physikumsfragen zum Modell
 
+## Als App nutzen
+
+Das Projekt läuft auf drei Wegen aus demselben Quellcode:
+
+| Weg | Wie | Wofür |
+|---|---|---|
+| **Im Browser** | `npm run dev` | Entwicklung |
+| **Als installierte PWA** | Im Browser öffnen → „App installieren" | Handy, Tablet, Desktop – offline nutzbar |
+| **Als Desktop-App** | `npm run electron:build` | Windows, macOS, Linux mit Installer |
+
+### PWA (installierbare Web-App)
+
+Nach `npm run build` enthält der Build ein Web-App-Manifest und einen Service
+Worker, der alle Dateien vorab zwischenspeichert. Ergebnis:
+
+- Ein Knopf **„App installieren"** erscheint oben rechts, sobald der Browser
+  die Installation anbietet.
+- Nach der Installation startet sie mit eigenem Icon ohne Browserleiste.
+- Sie funktioniert **vollständig offline** – alle 16 Modelle sind lokal.
+- Bei einer neuen Version erscheint unten rechts ein Hinweis mit
+  „Jetzt aktualisieren".
+
+Auf dem iPhone gibt es kein Installationsangebot durch den Browser; dort läuft
+es über Teilen → „Zum Home-Bildschirm". Die dafür nötigen Angaben stehen in
+`index.html`.
+
+Wichtig: Ein Service Worker braucht HTTPS (Ausnahme: `localhost`). Auf einem
+Webserver muss die Seite also über HTTPS ausgeliefert werden, sonst bleibt es
+bei einer normalen Website ohne Installation und ohne Offline-Betrieb.
+
+### Desktop-App
+
+```bash
+npm run electron:dev            # Entwicklung: startet Vite und Electron zusammen
+npm run electron:pack           # Ungepackter Testlauf in release/
+npm run electron:build          # Installer für das aktuelle System
+npm run electron:build:win      # .exe  (NSIS)
+npm run electron:build:mac      # .dmg  (x64 und Apple Silicon)
+npm run electron:build:linux    # AppImage und .deb
+```
+
+Die Installer landen in `release/`.
+
+Zu beachten: Ein Installer lässt sich nur auf dem jeweiligen Betriebssystem
+zuverlässig erzeugen – ein `.dmg` also auf einem Mac, eine signierte `.exe` unter
+Windows. Für alle drei Plattformen aus einem Lauf heraus braucht es eine CI mit
+entsprechenden Runnern.
+
 ## Installation
 
 ```bash
 npm install
 npm run dev      # Entwicklungsserver auf http://localhost:5173
-npm run build    # Produktions-Build nach dist/
+npm run build    # Produktions-Build (Web/PWA) nach dist/
 npm run preview  # Build lokal testen auf http://localhost:4173
+npm run icons    # App-Icons neu erzeugen (benötigt Python mit Pillow)
+npm run pdf      # Quellcode-PDF erzeugen (benötigt Python mit reportlab)
 ```
 
 ### Smoke-Test
@@ -102,11 +152,20 @@ so fällt ein kaputtes Modell sofort auf, statt erst beim Anklicken.
 ## Projektstruktur
 
 ```
+electron/
+├── main.cjs             Hauptprozess: Fenster, Menü, Sicherheitsregeln
+└── preload.cjs          Isolierte Brücke zum Renderer
 scripts/
-└── smoke.mjs            Browser-Test über alle Modelle
+├── smoke.mjs            Browser-Test über alle Modelle
+├── electron-dev.mjs     Startet Vite und Electron gemeinsam
+├── icons.py             Erzeugt die App-Icons
+└── code2pdf.py          Erzeugt die Quellcode-PDF
 src/
 ├── App.jsx              Oberfläche: Navigation, Werkzeuge, Infopanel
 ├── styles.css           Gestaltung
+├── pwa/
+│   ├── PwaLeiste.jsx    Installations-Knopf und Update-Hinweis
+│   └── register-stub.js Ersatzmodul für den Electron-Build
 ├── three/
 │   ├── Viewer.jsx       Renderer, OrbitControls, HTML-Beschriftungen,
 │   │                    Aufbau und Freigabe beim Modellwechsel
@@ -170,7 +229,21 @@ Modellwechsel alle Geometrien, Materialien und Beschriftungen wieder frei.
 - **Three.js 0.160** mit `OrbitControls` und `CSS2DRenderer` für Beschriftungen,
   die als HTML über der Szene liegen und mit dem Modell mitdrehen
 - **Vite** als Build-Tool; Three.js wird in einen eigenen Chunk ausgelagert
+- **vite-plugin-pwa** (Workbox) für Manifest, Service Worker und Offline-Betrieb
+- **Electron** samt electron-builder für die Desktop-Installer
 - **Playwright** für den Smoke-Test
+
+Ein Quellcode, zwei Build-Ziele – gesteuert über den Vite-Modus:
+
+| | `npm run build` | `npm run build:electron` |
+|---|---|---|
+| Ausgabe | `dist/` | `dist-electron-web/` |
+| Pfade | absolut (`/`) | relativ (`./`) für `file://` |
+| Service Worker | ja | nein (Dateien liegen ohnehin lokal) |
+
+Damit der Electron-Build nicht am fehlenden PWA-Modul scheitert, bildet
+`vite.config.js` in diesem Modus `virtual:pwa-register/react` auf
+`src/pwa/register-stub.js` ab – gleiche Signatur, ohne Funktion.
 
 Einige Details, die für flüssige Darstellung sorgen:
 

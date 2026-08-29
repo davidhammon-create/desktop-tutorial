@@ -38,6 +38,10 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  /* Im installierten Vollbildmodus liegen Kerbe und Home-Indikator über der
+     Seite – diese Abstände halten die Oberfläche frei davon. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* ------------------------------------------------------------------ Topbar */
@@ -115,6 +119,84 @@ body {
   background: var(--panel-2);
   padding: 2px 8px;
   border-radius: 999px;
+}
+
+/* Installations-Knopf: erscheint nur, wenn der Browser die App anbietet */
+.install-knopf {
+  background: color-mix(in srgb, var(--akzent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--akzent) 50%, transparent);
+  color: #bcd4ff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.install-knopf:hover {
+  background: color-mix(in srgb, var(--akzent) 30%, transparent);
+}
+
+/* Hinweis zu Offline-Bereitschaft und Updates */
+.pwa-hinweis {
+  position: fixed;
+  right: 18px;
+  bottom: 56px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(420px, calc(100vw - 36px));
+  padding: 12px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--linie);
+  border-left: 3px solid var(--akzent);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+  font-size: 12.5px;
+  color: var(--text);
+  animation: pwa-auf 0.25s ease;
+}
+
+@keyframes pwa-auf {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pwa-hinweis button {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pwa-primaer {
+  background: var(--akzent);
+  border: 1px solid var(--akzent);
+  color: #06101f;
+  font-weight: 600;
+}
+
+.pwa-sekundaer {
+  background: transparent;
+  border: 1px solid var(--linie);
+  color: var(--text-2);
+}
+
+.pwa-sekundaer:hover {
+  color: var(--text);
 }
 
 .burger {

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Viewer from './three/Viewer'
 import { FACHBEREICHE, MODELLE, sucheModelle } from './models'
+import { InstallKnopf, PwaLeiste } from './pwa/PwaLeiste'
 import './styles.css'
 
 export default function App() {
@@ -78,6 +79,8 @@ export default function App() {
           />
           {suche && <span className="treffer-zahl">{treffer.length}</span>}
         </div>
+
+        <InstallKnopf />
 
         <button className="burger" onClick={() => setSidebarOffen((v) => !v)} aria-label="Modellliste">
           ☰
@@ -271,6 +274,8 @@ export default function App() {
           <kbd>I</kbd> Infopanel · <kbd>↑↓</kbd> Modell
         </span>
       </footer>
+
+      <PwaLeiste />
     </div>
   )
 }

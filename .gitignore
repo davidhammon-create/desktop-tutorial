@@ -1,5 +1,7 @@
 node_modules/
 dist/
+dist-electron-web/
+release/
 .env
 .env.local
 .DS_Store
@@ -9,3 +11,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 shot.png
+
+# Bewusst NICHT ignoriert: die App-Icons (public/icon-*.png, build/icon.png) und
+# die Quellcode-PDF. Beide sind zwar erzeugbar (npm run icons / npm run pdf),
+# aber ohne die Icons fehlt einem frischen Clone das Manifest-Bild, und die PDF
+# ist ein Ergebnis, das weitergegeben werden soll.

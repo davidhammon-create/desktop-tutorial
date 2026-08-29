@@ -2,12 +2,26 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+    />
     <meta
       name="description"
       content="Interaktive 3D-Modelle auf Universitätsniveau für Physik, Chemie, Biologie und Medizin."
     />
     <title>Modellsammlung – Interaktive 3D-Modelle für das Studium</title>
+
+    <!-- Farbe der Browser- bzw. Systemleiste im installierten Zustand -->
+    <meta name="theme-color" content="#0d1120" />
+
+    <!-- iOS kennt kein Web-App-Manifest für den Vollbildstart; dort steuern
+         diese Angaben das Verhalten nach "Zum Home-Bildschirm hinzufügen". -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Modellsammlung" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
     <!--
       Bewusst ohne Web-Font von einem CDN: Die Seite soll auch offline und hinter
       restriktiven Netzwerken vollständig funktionieren. Die Schriftauswahl in
