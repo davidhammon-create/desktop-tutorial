@@ -135,6 +135,25 @@ npm run icons    # App-Icons neu erzeugen (benötigt Python mit Pillow)
 npm run pdf      # Quellcode-PDF erzeugen (benötigt Python mit reportlab)
 ```
 
+### Dokumente erzeugen
+
+Das Projekt kann sich selbst dokumentieren – als Bild-PDF der Oberfläche, als
+Quellcode-PDF und als beides in einem Dokument:
+
+```bash
+npm run build && npm run preview   # Server, in einem Terminal
+
+npm run shots         # Bildschirmfotos aller Modelle nach screenshots/
+npm run pdf:bilder    # daraus Modellsammlung-Website.pdf  (24 Seiten)
+npm run pdf           # Modellsammlung-Quellcode.pdf       (107 Seiten)
+npm run pdf:komplett  # beides zusammen als Modellsammlung-Komplett.pdf
+```
+
+`npm run shots` steuert einen echten Browser, wählt jedes Modell an, wartet bis
+die Szene aufgebaut ist und legt neben den Bildern eine `verzeichnis.json` mit
+Titel, Fachbereich und Beschreibungstext an – daraus entstehen die
+Bildunterschriften.
+
 ### Smoke-Test
 
 `scripts/smoke.mjs` öffnet jedes der 16 Modelle in einem echten Browser,
@@ -158,8 +177,11 @@ electron/
 scripts/
 ├── smoke.mjs            Browser-Test über alle Modelle
 ├── electron-dev.mjs     Startet Vite und Electron gemeinsam
+├── screenshots.mjs      Nimmt die Bildschirmfotos auf
 ├── icons.py             Erzeugt die App-Icons
-└── code2pdf.py          Erzeugt die Quellcode-PDF
+├── code2pdf.py          Erzeugt die Quellcode-PDF
+├── shots2pdf.py         Baut die Bild-PDF der Website
+└── merge_pdf.py         Fügt beide PDFs zusammen
 src/
 ├── App.jsx              Oberfläche: Navigation, Werkzeuge, Infopanel
 ├── styles.css           Gestaltung

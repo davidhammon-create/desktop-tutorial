@@ -12,7 +12,11 @@ yarn-error.log*
 pnpm-debug.log*
 shot.png
 
+# Rohaufnahmen: erzeugbar über npm run shots, zusammen rund 12 MB.
+# Die daraus gebauten PDFs liegen dagegen im Repository.
+screenshots/
+
 # Bewusst NICHT ignoriert: die App-Icons (public/icon-*.png, build/icon.png) und
-# die Quellcode-PDF. Beide sind zwar erzeugbar (npm run icons / npm run pdf),
-# aber ohne die Icons fehlt einem frischen Clone das Manifest-Bild, und die PDF
-# ist ein Ergebnis, das weitergegeben werden soll.
+# die drei PDFs. Alle sind zwar erzeugbar (npm run icons / pdf / pdf:bilder),
+# aber ohne die Icons fehlt einem frischen Clone das Manifest-Bild, und die PDFs
+# sind Ergebnisse, die weitergegeben werden sollen.

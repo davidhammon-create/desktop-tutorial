@@ -19,7 +19,10 @@
     "electron:build:win": "npm run build:electron && electron-builder --win",
     "electron:build:mac": "npm run build:electron && electron-builder --mac",
     "electron:build:linux": "npm run build:electron && electron-builder --linux",
-    "pdf": "python3 scripts/code2pdf.py"
+    "pdf": "python3 scripts/code2pdf.py",
+    "shots": "node scripts/screenshots.mjs",
+    "pdf:bilder": "python3 scripts/shots2pdf.py",
+    "pdf:komplett": "python3 scripts/merge_pdf.py"
   },
   "dependencies": {
     "react": "^18.2.0",
