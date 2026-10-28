@@ -232,9 +232,9 @@ def uebersichtsseite(c, modelle: list[dict], seite: int, gesamt: int) -> None:
 
 
 # Die Aufnahmen entstehen mit 1,5-facher Pixeldichte (2400 px breit). Auf der
-# Seite werden sie rund 26 cm breit dargestellt – 1800 px reichen dafür für gut
-# 175 dpi und sparen etwa die Hälfte der Dateigröße.
-MAX_PIXEL = 1800
+# Seite werden sie rund 26 cm breit dargestellt – 1200 px reichen dafür für gut
+# 120 dpi und sparen etwa 2/3 der Dateigröße.
+MAX_PIXEL = 1200
 
 
 def bild_laden(pfad: Path) -> tuple[ImageReader, int, int]:
@@ -257,9 +257,10 @@ def bild_laden(pfad: Path) -> tuple[ImageReader, int, int]:
 
     # JPEG statt PNG: reportlab bettet JPEG unverändert ein (DCTDecode), während
     # es PNG dekodiert und neu komprimiert – bei diesen Aufnahmen wird die PDF
-    # dadurch etwa dreimal so groß. Qualität 92 hält die Oberflächentexte scharf.
+    # dadurch etwa dreimal so groß. Qualität 75 reduziert die Dateigröße deutlich
+    # bei minimalen Sichtbarkeitsverlust für Oberflächentexte.
     puffer = BytesIO()
-    bild.convert("RGB").save(puffer, format="JPEG", quality=92, subsampling=0)
+    bild.convert("RGB").save(puffer, format="JPEG", quality=75, subsampling=0)
     puffer.seek(0)
     return ImageReader(puffer), bild.width, bild.height
 
