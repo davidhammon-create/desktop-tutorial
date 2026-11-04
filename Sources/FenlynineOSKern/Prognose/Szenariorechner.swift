@@ -4,9 +4,17 @@ import Foundation
 /// `Kostenrisiko` o. Ä. kann das Protokoll per Extension erfüllen.
 public protocol KostenBasis {
     /// Alle Kosten, die bei vollständigem Unterliegen anfallen (eigene + gegnerische + Gericht).
-    var gesamtkostenBeiNiederlage: Double { get }
+    var gesamtkostenBeiNiederlage: Decimal { get }
     /// Eigene nicht erstattete Kosten bei vollständigem Obsiegen.
-    var eigeneKostenBeiSieg: Double { get }
+    var eigeneKostenBeiSieg: Decimal { get }
+}
+
+/// Geldbeträge werden als `Decimal` geführt (dezimal exakt), die Entscheidungs-
+/// rechnung arbeitet mit `Double`. Diese Brücke macht die Umwandlung an genau
+/// einer Stelle sichtbar, statt sie über den Code zu verstreuen.
+extension KostenBasis {
+    var niederlageWert: Double { NSDecimalNumber(decimal: gesamtkostenBeiNiederlage).doubleValue }
+    var siegWert: Double { NSDecimalNumber(decimal: eigeneKostenBeiSieg).doubleValue }
 }
 
 /// Alle Annahmen, die in eine Bewertung eingehen -- ausnahmslos vom Menschen gesetzt.
@@ -95,8 +103,8 @@ public enum Szenariorechner {
 
     /// Erwartungswert: rein arithmetisch, keine verborgenen Konstanten.
     public static func erwartungswert<K: KostenBasis>(_ a: Annahmen, kosten: K) -> Double {
-        a.erfolgswahrscheinlichkeit * (a.streitwert - kosten.eigeneKostenBeiSieg)
-            - (1 - a.erfolgswahrscheinlichkeit) * kosten.gesamtkostenBeiNiederlage
+        a.erfolgswahrscheinlichkeit * (a.streitwert - kosten.siegWert)
+            - (1 - a.erfolgswahrscheinlichkeit) * kosten.niederlageWert
     }
 
     /// Tornado-Analyse: welche Annahme bewegt das Ergebnis am stärksten?
@@ -133,8 +141,8 @@ public enum Szenariorechner {
     /// nennt, die der Anwalt selbst beurteilen kann. Nullstelle von
     /// p * gewinn - (1 - p) * verlust.
     public static func kipppunkt<K: KostenBasis>(streitwert: Double, kosten: K) -> Double {
-        let gewinn = streitwert - kosten.eigeneKostenBeiSieg
-        let verlust = kosten.gesamtkostenBeiNiederlage
+        let gewinn = streitwert - kosten.siegWert
+        let verlust = kosten.niederlageWert
         guard gewinn + verlust > 0 else { return 1 }
         return verlust / (gewinn + verlust)
     }

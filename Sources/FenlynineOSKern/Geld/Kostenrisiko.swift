@@ -48,3 +48,8 @@ public struct Kostenrisiko: Hashable, Sendable {
                             gerichtskosten: gericht)
     }
 }
+
+// Das Kostenrisiko ist die Grundlage jeder Entscheidungsrechnung im
+// Szenariorechner. Die Konformität steht hier und nicht dort, damit das
+// Geld-Modul die Schnittstelle erfüllt und nicht umgekehrt.
+extension Kostenrisiko: KostenBasis {}

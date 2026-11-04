@@ -100,4 +100,42 @@ final class FristenRechnerTests: XCTestCase {
         XCTAssertEqual(h.faelligkeit, datum(31, 12, 2027))
         XCTAssertNotEqual(h.faelligkeit, datum(15, 3, 2027))
     }
+
+    // 9. § 517 ZPO -- der Beginn ist gekappt, nicht das Ende.
+    // Ohne (oder mit sehr später) Zustellung beginnt die Berufungsfrist spätestens
+    // fünf Monate nach Verkündung und endet einen MONAT SPÄTER, also sechs Monate
+    // nach Verkündung. Würde der Rechner stattdessen das Ende kappen, verlöre der
+    // Mandant einen vollen Monat -- und die Berufung wäre als Notfrist unzulässig.
+    func testBerufungsfristBeginnWirdGekapptNichtDasEnde() {
+        let verkuendung = datum(10, 1, 2024)
+        let spaeteZustellung = datum(20, 9, 2024)   // viel später als 5 Monate
+        let berufung = Fristdefinition(
+            laenge: 1, einheit: .monate, anfang: .ereignis,
+            norm: "§ 517 ZPO", istNotfrist: true, verlaengerbar: false,
+            spaetesterBeginnMonateAbVerkuendung: 5)
+
+        let h = FristenRechner.berechne(
+            ereignis: spaeteZustellung,
+            ereignisBezeichnung: "Zustellung Urteil",
+            definition: berufung, land: .by, verkuendung: verkuendung)
+
+        // Spätester Beginn: 10.06.2024. Plus ein Monat: 10.07.2024 (Mittwoch).
+        XCTAssertEqual(h.faelligkeit, datum(10, 7, 2024))
+        // Und ausdrücklich NICHT der 10.06.2024 -- das wäre die gekappte Endfrist.
+        XCTAssertNotEqual(h.faelligkeit, datum(10, 6, 2024))
+        XCTAssertTrue(h.istNotfrist)
+    }
+
+    // 10. Liegt die Zustellung innerhalb der fünf Monate, bleibt sie maßgeblich.
+    func testFrueheZustellungBleibtMassgeblich() {
+        let berufung = Fristdefinition(
+            laenge: 1, einheit: .monate, anfang: .ereignis,
+            norm: "§ 517 ZPO", istNotfrist: true, verlaengerbar: false,
+            spaetesterBeginnMonateAbVerkuendung: 5)
+        let h = FristenRechner.berechne(
+            ereignis: datum(15, 2, 2024),
+            ereignisBezeichnung: "Zustellung Urteil",
+            definition: berufung, land: .by, verkuendung: datum(10, 1, 2024))
+        XCTAssertEqual(h.faelligkeit, datum(15, 3, 2024))
+    }
 }

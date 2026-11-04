@@ -38,9 +38,15 @@ public struct Fristdefinition: Codable, Hashable, Sendable {
     public let verlaengerbar: Bool
     public let hinweis: String?
 
-    /// Zusätzliche Höchstfrist, die unabhängig von der Zustellung läuft
-    /// (z. B. § 517 ZPO: fünf Monate ab Verkündung).
-    public let hoechstfristMonateAbVerkuendung: Int?
+    /// Spätester Fristbeginn, unabhängig von der Zustellung.
+    ///
+    /// § 517 ZPO: Die Berufungsfrist "beginnt mit der Zustellung des in vollständiger
+    /// Form abgefassten Urteils, spätestens aber mit dem Ablauf von fünf Monaten nach
+    /// der Verkündung". Die fünf Monate kappen also den BEGINN, nicht das Ende --
+    /// ohne Zustellung endet die Frist sechs Monate nach Verkündung, nicht fünf.
+    /// Eine Kappung des Endes würde die Frist um einen Monat verkürzen und bei dieser
+    /// Notfrist zur Unzulässigkeit des Rechtsmittels führen.
+    public let spaetesterBeginnMonateAbVerkuendung: Int?
 
     public init(laenge: Int,
                 einheit: Fristeinheit,
@@ -49,7 +55,7 @@ public struct Fristdefinition: Codable, Hashable, Sendable {
                 istNotfrist: Bool,
                 verlaengerbar: Bool,
                 hinweis: String? = nil,
-                hoechstfristMonateAbVerkuendung: Int? = nil) {
+                spaetesterBeginnMonateAbVerkuendung: Int? = nil) {
         self.laenge = laenge
         self.einheit = einheit
         self.anfang = anfang
@@ -57,6 +63,6 @@ public struct Fristdefinition: Codable, Hashable, Sendable {
         self.istNotfrist = istNotfrist
         self.verlaengerbar = verlaengerbar
         self.hinweis = hinweis
-        self.hoechstfristMonateAbVerkuendung = hoechstfristMonateAbVerkuendung
+        self.spaetesterBeginnMonateAbVerkuendung = spaetesterBeginnMonateAbVerkuendung
     }
 }

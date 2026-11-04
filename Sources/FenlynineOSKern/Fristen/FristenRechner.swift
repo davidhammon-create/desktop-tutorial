@@ -78,7 +78,22 @@ public enum FristenRechner {
                                 verkuendung: Date? = nil) -> Fristherleitung {
 
         let kal = Feiertagskalender.kalender
-        let start = kal.startOfDay(for: ereignis)
+        var start = kal.startOfDay(for: ereignis)
+        var beginnGekappt = false
+
+        // § 517 ZPO und Parallelnormen: Der Fristbeginn ist gekappt, nicht das Ende.
+        // Ohne Zustellung beginnt die Frist spätestens n Monate nach Verkündung und
+        // läuft von dort ihre volle Länge. Würde man stattdessen das Ende kappen,
+        // verkürzte sich die Frist um ihre gesamte Länge -- bei einer Notfrist wäre
+        // das Rechtsmittel dann unzulässig.
+        if let monate = d.spaetesterBeginnMonateAbVerkuendung, let v = verkuendung {
+            let spaetesterBeginn = kal.date(byAdding: .month, value: monate,
+                                            to: kal.startOfDay(for: v))!
+            if spaetesterBeginn < start {
+                start = spaetesterBeginn
+                beginnGekappt = true
+            }
+        }
 
         // §§ 187, 188 BGB
         let komponente: Calendar.Component
@@ -100,21 +115,19 @@ public enum FristenRechner {
         // § 188 Abs. 3 BGB (31.01. + 1 Monat = 28./29.02.) erledigt Foundation
         // durch Kappen des Monatstags.
 
-        // Höchstfrist, z. B. § 517 ZPO: fünf Monate ab Verkündung
-        if let monate = d.hoechstfristMonateAbVerkuendung, let v = verkuendung {
-            let grenze = kal.date(byAdding: .month, value: monate,
-                                  to: kal.startOfDay(for: v))!
-            if grenze < ende { ende = grenze }
-        }
-
         // § 193 BGB / § 222 Abs. 2 ZPO
         let (faellig, grund) = Feiertagskalender.naechsterWerktag(ende, land: land)
 
         let art = d.anfang == .ereignis ? "Ereignisfrist" : "Beginnfrist"
         let einheitText = d.einheit.bezeichnung(anzahl: d.laenge)
+        var bezeichnung = ereignisBezeichnung
+        if beginnGekappt {
+            bezeichnung += " (Fristbeginn gekappt: Zustellung lag später als der "
+                        + "gesetzlich spätestmögliche Beginn nach Verkündung)"
+        }
         return Fristherleitung(
             ereignis: start,
-            ereignisBezeichnung: ereignisBezeichnung,
+            ereignisBezeichnung: bezeichnung,
             definition: "\(d.laenge) \(einheitText), \(art)",
             norm: d.norm,
             rohesEnde: ende,

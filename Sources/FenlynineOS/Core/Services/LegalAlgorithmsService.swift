@@ -1,5 +1,6 @@
 import Foundation
 import Accelerate
+import FenlynineOSKern
 
 // nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
 // MARK: - Stochastisch-Juristische Berechnungsmaschine
@@ -32,13 +33,20 @@ static let rechtsgebietBaserates: [String: Double] = [
   "default": 0.50
 ]
 
-// RVG-Gebührentabelle (vereinfacht, Basis-Gebühr in €)
-static let rvgTabelle: [(maxStreitwert: Double, basisGebuehr: Double)] = [
-  (500, 49), (1000, 88), (1500, 127), (2000, 166), (3000, 222),
-  (4000, 278), (5000, 334), (13000, 590), (19000, 758), (25000, 986),
-  (50000, 1474), (100000, 1981), (200000, 2737), (500000, 3894),
-  (.infinity, 5000)
-]
+// RVG-Gebühren: Es gibt im Programm nur noch EINE Tabelle, und zwar
+// FenlynineOSKern.RVGTabelle (vollständige Anlage 2 RVG, 42 Stufen, Decimal).
+//
+// Vorher standen hier und in VorgangMotor.swift zwei verschiedene Tabellen mit
+// abweichenden Werten: bei 10.000 € Streitwert lieferte diese hier 590 €, die
+// andere 964 € -- je nach Bildschirm sah der Anwalt eine andere Gebühr.
+// Zusätzlich griff bei Streitwerten jenseits der Tabelle ein erfundener
+// Notwert von 5.000 €.
+static func einfacheGebuehr(streitwert: Double) -> Double? {
+  let gerundet = (max(0, streitwert) * 100).rounded() / 100
+  guard let d = Decimal(string: String(format: "%.2f", gerundet)),
+        let g = RVGTabelle.gebuehr(streitwert: d) else { return nil }
+  return NSDecimalNumber(decimal: g).doubleValue
+}
 }
 
 // MARK: - Ergebnis-Typen
@@ -600,7 +608,13 @@ static func computeBreakEven(caseData: LegalCase) -> BreakEvenErgebnis {
  }
 
  let gebuehr = caseData.gebuehrenstufe ?? 1.3
- let basisGebuehr = LegalKonstanten.rvgTabelle.first { sv <= $0.maxStreitwert }?.basisGebuehr ?? 5000
+ // Kein Notwert mehr: liegt der Streitwert jenseits der Tabelle, muss der
+ // Aufrufer das anzeigen statt mit einer erfundenen Gebuehr zu rechnen.
+ guard let basisGebuehr = LegalKonstanten.einfacheGebuehr(streitwert: sv) else {
+   return (5, "Streitwert ausserhalb der Gebuehrentabelle",
+           "Streitwert ueber 500.000 EUR -- Gebuehr nach § 13 Abs. 1 S. 3 RVG "
+           + "fortschreiben und manuell eintragen.")
+ }
  let eigeneKosten = basisGebuehr * gebuehr
  let gegnerKosten = basisGebuehr * gebuehr
  let svKosten = caseData.sv_kosten ?? 0
@@ -692,7 +706,11 @@ private static func computeKostenRisiko(caseData: LegalCase) -> (score: Double, 
    return (5, "Kein Streitwert angegeben", "Streitwert unbekannt - Standardrisiko")
  }
  let gebuehr = caseData.gebuehrenstufe ?? 1.3
- let basisGebuehr = LegalKonstanten.rvgTabelle.first { sv <= $0.maxStreitwert }?.basisGebuehr ?? 5000
+ guard let basisGebuehr = LegalKonstanten.einfacheGebuehr(streitwert: sv) else {
+   return (5, "Streitwert ausserhalb der Gebuehrentabelle",
+           "Streitwert ueber 500.000 EUR -- Gebuehr nach § 13 Abs. 1 S. 3 RVG "
+           + "fortschreiben und manuell eintragen.")
+ }
  let gesamtKosten = basisGebuehr * gebuehr * 2 + (caseData.sv_kosten ?? 0) + (caseData.reisekosten ?? 0)
  let ratio = gesamtKosten / sv
  let score = clamp(ratio * 2) * 10
