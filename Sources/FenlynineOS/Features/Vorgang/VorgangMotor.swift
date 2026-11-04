@@ -1,4 +1,5 @@
 import Foundation
+import FenlynineOSKern
 
 // nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
 // DER MOTOR -- EINER, NICHT FÜNF (Prozessarchitektur, Teil III · C)
@@ -258,31 +259,33 @@ struct RvgErgebnis {
  var gesamt: Double { verfahren + termin + auslagen + ust }
 }
 
-/// Sehr grobe RVG-Berechnung nach § 13 RVG (vereinfachte Tabelle).
+/// RVG-Berechnung nach Anlage 2 RVG (Tabelle im Kern: RVGTabelle).
+/// ACHTUNG: Bei Streitwert > 500.000 € (§ 13 Abs. 1 S. 3 RVG nicht implementiert)
+/// liefert die Funktion ein Ergebnis mit Nullen. Der Aufrufer MUSS diesen Fall
+/// anzeigen ("Streitwert außerhalb der Tabelle"), nicht als 0 € darstellen.
 static func rvg(streitwert: Double) -> RvgErgebnis {
- let sw = max(500, streitwert)
- // Grobe Näherung der Wertgebühr (§ 13 RVG)
- let einfach: Double
- switch sw {
- case ..<2_000: einfach = 149
- case ..<5_000: einfach = 334
- case ..<10_000: einfach = 614
- case ..<25_000: einfach = 964
- case ..<50_000: einfach = 1_534
- case ..<100_000: einfach = 2_197
- case ..<200_000: einfach = 3_167
- default: einfach = 4_137
+ // Über den String-Umweg nach Decimal: Decimal(Double) kann Binärartefakte
+ // erzeugen (25000.000000000004), und genau an den Stufengrenzen der Anlage 2
+ // würde das in die falsche Gebührenstufe springen.
+ let gerundet = (max(500, streitwert) * 100).rounded() / 100
+ let sw = Decimal(string: String(format: "%.2f", gerundet)) ?? Decimal(500)
+ guard let einfach = RVGTabelle.gebuehr(streitwert: sw) else {
+   return .init(verfahren: 0, termin: 0, auslagen: 0, ust: 0)
  }
- let verfahren = einfach * 1.3
- let termin = einfach * 1.2
- let auslagen = 20.0 + (verfahren + termin) * 0.03
- let ust = (verfahren + termin + auslagen) * 0.19
- return .init(verfahren: verfahren, termin: termin, auslagen: auslagen, ust: ust)
+ let verfahren = einfach * Decimal(string: "1.3")!   // Nr. 3100 VV RVG
+ let termin = einfach * Decimal(string: "1.2")!      // Nr. 3104 VV RVG
+ let auslagen = min((verfahren + termin) * Decimal(string: "0.20")!, Decimal(20))  // Nr. 7002 VV RVG: 20 %, höchstens 20 €
+ let ust = (verfahren + termin + auslagen) * Decimal(string: "0.19")!  // Nr. 7008 VV RVG
+ return .init(verfahren: NSDecimalNumber(decimal: verfahren).doubleValue,
+              termin: NSDecimalNumber(decimal: termin).doubleValue,
+              auslagen: NSDecimalNumber(decimal: auslagen).doubleValue,
+              ust: NSDecimalNumber(decimal: ust).doubleValue)
 }
 
 // MARK: - Fristen (100 % Formel)
 
 /// § 4 KSchG -- 3 Wochen ab Zugang.
+// TODO: § 193 BGB (Verschiebung auf nächsten Werktag) fehlt — über FenlynineOSKern.FristenRechner nachziehen, sobald das Bundesland des Erklärungsorts am Vorgang hängt.
 static func klageFristKSchG(zugang: Date) -> VorgangFrist {
  let datum = Calendar.current.date(byAdding: .day, value: 21, to: zugang) ?? zugang
  let tage = Calendar.current.dateComponents([.day], from: .init(), to: datum).day ?? 0
@@ -296,13 +299,17 @@ static func klageFristKSchG(zugang: Date) -> VorgangFrist {
 
 /// § 195 BGB -- Regelverjährung 3 Jahre.
 static func verjaehrungBGB(entstehung: Date) -> VorgangFrist {
- let datum = Calendar.current.date(byAdding: .year, value: 3, to: entstehung) ?? entstehung
+ // § 199 Abs. 1 BGB: Die Frist beginnt mit dem Schluss des Jahres der Entstehung.
+ // TODO: Höchstfristen des § 199 Abs. 2–4 BGB fehlen noch.
+ let jahr = Calendar.current.component(.year, from: entstehung)
+ let jahresende = Calendar.current.date(from: DateComponents(year: jahr, month: 12, day: 31)) ?? entstehung
+ let datum = Calendar.current.date(byAdding: .year, value: 3, to: jahresende) ?? jahresende
  let tage = Calendar.current.dateComponents([.day], from: .init(), to: datum).day ?? 0
  return .init(
    datum: datum,
    art: "Regelverjährung § 195 BGB",
    kritisch: tage < 60,
-   quelle: "§§ 195, 199 BGB"
+   quelle: "§§ 195, 199 Abs. 1 BGB (Beginn mit Schluss des Jahres)"
  )
 }
 

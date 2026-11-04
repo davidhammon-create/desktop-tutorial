@@ -3,6 +3,18 @@ import Foundation
 /// Einheit einer Frist (§ 188 BGB).
 public enum Fristeinheit: String, Codable, Hashable, Sendable {
     case tage, wochen, monate, jahre
+
+    /// Grammatisch richtige Bezeichnung. Der Klartext der Herleitung geht in die
+    /// Handakte und gegebenenfalls in einen Schriftsatz -- dort steht "1 Monat",
+    /// nicht "1 monate".
+    public func bezeichnung(anzahl: Int) -> String {
+        switch self {
+        case .tage:   return anzahl == 1 ? "Tag"   : "Tage"
+        case .wochen: return anzahl == 1 ? "Woche" : "Wochen"
+        case .monate: return anzahl == 1 ? "Monat" : "Monate"
+        case .jahre:  return anzahl == 1 ? "Jahr"  : "Jahre"
+        }
+    }
 }
 
 /// Anfangsregel einer Frist (§ 187 BGB).

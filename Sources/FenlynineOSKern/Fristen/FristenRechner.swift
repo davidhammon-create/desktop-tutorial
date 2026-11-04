@@ -5,7 +5,7 @@ public struct Fristherleitung: Codable, Hashable, Sendable {
     public var ereignis: Date
     /// z. B. "Zustellung Urteil LG München I"
     public var ereignisBezeichnung: String
-    /// z. B. "1 monate, Ereignisfrist"
+    /// z. B. "1 Monat, Ereignisfrist"
     public var definition: String
     public var norm: String
     /// Fristende vor Anwendung des § 193 BGB.
@@ -111,10 +111,11 @@ public enum FristenRechner {
         let (faellig, grund) = Feiertagskalender.naechsterWerktag(ende, land: land)
 
         let art = d.anfang == .ereignis ? "Ereignisfrist" : "Beginnfrist"
+        let einheitText = d.einheit.bezeichnung(anzahl: d.laenge)
         return Fristherleitung(
             ereignis: start,
             ereignisBezeichnung: ereignisBezeichnung,
-            definition: "\(d.laenge) \(d.einheit.rawValue), \(art)",
+            definition: "\(d.laenge) \(einheitText), \(art)",
             norm: d.norm,
             rohesEnde: ende,
             verschiebungsgrund: grund,
