@@ -60,8 +60,10 @@ public final class Waechter {
         var ausgefuehrt: [Korrektur] = []
         if autonomie == .selbstheilend, let ausfuehrer = ausfuehrer {
             for befund in sortiert {
-                guard let korrektur = befund.korrektur,
-                      korrektur.darfAutomatischLaufen,
+                // istAutomatischBehebbar schliesst KI-Befunde mit ein:
+                // ein Vorschlag aus einem Sprachmodell laeuft nie von selbst.
+                guard befund.istAutomatischBehebbar,
+                      let korrektur = befund.korrektur,
                       !ausgefuehrt.contains(korrektur) else { continue }
                 do {
                     try ausfuehrer.fuehreAus(korrektur)

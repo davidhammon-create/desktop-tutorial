@@ -48,6 +48,18 @@ public struct Befund: Identifiable, Codable, Hashable, Sendable {
     public let norm: String?
     public let gefundenAm: Date
 
+    /// Stammt dieser Befund aus der KI-Schicht statt aus dem deterministischen
+    /// Regelwerk?
+    ///
+    /// Das ist sicherheitsrelevant und nicht bloß eine Beschriftung: Ein
+    /// KI-Befund wird NIEMALS automatisch ausgeführt, auch nicht auf der Stufe
+    /// `selbstheilend` und auch dann nicht, wenn seine Korrektur für sich
+    /// genommen harmlos wäre. Sonst könnte ein Sprachmodell über den Umweg
+    /// einer scheinbar folgenlosen Korrektur Wirkung entfalten, ohne dass ein
+    /// Mensch zugestimmt hat -- genau das, was der ganze Entwurf ausschließen
+    /// soll. Die KI darf vorschlagen; drücken muss ein Mensch.
+    public let ausKI: Bool
+
     public init(id: UUID = UUID(),
                 regelId: String,
                 regelVersion: String,
@@ -58,7 +70,8 @@ public struct Befund: Identifiable, Codable, Hashable, Sendable {
                 belegstelle: String? = nil,
                 korrektur: Korrektur? = nil,
                 norm: String? = nil,
-                gefundenAm: Date = Date()) {
+                gefundenAm: Date = Date(),
+                ausKI: Bool = false) {
         self.id = id
         self.regelId = regelId
         self.regelVersion = regelVersion
@@ -70,11 +83,13 @@ public struct Befund: Identifiable, Codable, Hashable, Sendable {
         self.korrektur = korrektur
         self.norm = norm
         self.gefundenAm = gefundenAm
+        self.ausKI = ausKI
     }
 
     /// Kann der Wächter das ohne Rückfrage beheben? Nur wenn es eine Korrektur
-    /// gibt UND diese automatisch laufen darf.
+    /// gibt, diese automatisch laufen darf UND der Befund nicht aus der KI stammt.
     public var istAutomatischBehebbar: Bool {
-        korrektur?.darfAutomatischLaufen ?? false
+        guard !ausKI else { return false }
+        return korrektur?.darfAutomatischLaufen ?? false
     }
 }
