@@ -35,11 +35,11 @@ public struct BelegterWert<T: Codable>: Codable {
     /// Warnschwelle für die Oberfläche: Gebühren und Sätze ändern sich meist
     /// jährlich, nach 13 Monaten ist ein Abruf deshalb mindestens einmal überholt.
     public var istVeraltet: Bool {
-        istVeraltet(stand: Date())
+        veraltetZum(Date())
     }
 
     /// Mit festem Stichtag, damit Tests und Belege nicht von der Uhr abhängen.
-    public func istVeraltet(stand: Date) -> Bool {
+    public func veraltetZum(_ stand: Date) -> Bool {
         if let g = gueltigBis, g < stand { return true }
         return stand.timeIntervalSince(abgerufenAm) > 400 * 24 * 3600   // > 13 Monate
     }
