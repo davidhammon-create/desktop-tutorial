@@ -1,17 +1,10 @@
 import SwiftUI
-
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-// TUTORIAL -- geführte Tour durch die gesamte App
-// An/Aus: AppStorage fenlynineos_tutorial_aktiv
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-
 struct TutorialView: View {
 @Bindable private var appearance = AppearanceStore.shared
 @AppStorage("fenlynineos_tutorial_gesehen_v3") private var gesehen = false
 @AppStorage("fenlynineos_tutorial_aktiv") private var tutorialAktiv = true
 let onFertig: () -> Void
 @State private var schritt = 0
-
 private struct Schritt {
   let titel: String
   let symbol: String
@@ -19,7 +12,6 @@ private struct Schritt {
   let tipps: [String]
   let shortcut: String?
 }
-
 private let schritte: [Schritt] = [
   .init(titel: "Studio -- Ihr Arbeitsplatz",
      symbol: "scale.3d",
@@ -49,8 +41,8 @@ private let schritte: [Schritt] = [
   .init(titel: "Fenster & Vergleich",
      symbol: "macwindow.on.rectangle",
      text: "Module als eigene Fenster oder nebeneinander im Vergleich -- ohne doppelte Navigationstitel.",
-     tipps: ["Top-Bar „Fenster"", "nn1-3 · nnV Vergleich"],
-     shortcut: "nnV"),
+     tipps: ["Top-Bar \"Fenster\"", "⌘1-3 · ⌘V Vergleich"],
+     shortcut: "⌘V"),
   .init(titel: "Schreibtisch",
      symbol: "rectangle.3.group.fill",
      text: "Fenstermodus, Kausalgraph, Verknüpfen, Advocatus und Verbundnetz -- systemweite Multiview.",
@@ -60,9 +52,8 @@ private let schritte: [Schritt] = [
      symbol: "brain",
      text: "Globale oder modulweise KI-APIs. Diese Tour lässt sich dauerhaft abschalten und jederzeit erneut starten.",
      tipps: ["Einstellungen -> KI", "nnT öffnet die Tour"],
-     shortcut: "nnT")
+     shortcut: "⌘T")
 ]
-
 var body: some View {
   VStack(spacing: 0) {
     HStack {
@@ -77,9 +68,7 @@ var body: some View {
         .foregroundStyle(Premium.textFaint)
     }
     .padding(16)
-
     Divider().overlay(Premium.hairline)
-
     let s = schritte[schritt]
     ScrollView {
       VStack(alignment: .leading, spacing: 16) {
@@ -98,12 +87,10 @@ var body: some View {
               .foregroundStyle(Premium.text)
           }
        }
-
        Text(s.text)
          .font(.system(size: 14))
          .foregroundStyle(Premium.textSoft)
          .fixedSize(horizontal: false, vertical: true)
-
        VStack(alignment: .leading, spacing: 8) {
          ForEach(s.tipps, id: \.self) { tip in
            HStack(alignment: .top, spacing: 8) {
@@ -120,13 +107,11 @@ var body: some View {
        .frame(maxWidth: .infinity, alignment: .leading)
        .background(RoundedRectangle(cornerRadius: 10).fill(Premium.panel))
        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Premium.hairline, lineWidth: 1))
-
        if let sc = s.shortcut {
          Label("Tastenkürzel: \(sc)", systemImage: "keyboard")
            .font(.system(size: 12, weight: .semibold, design: .monospaced))
            .foregroundStyle(Premium.action)
        }
-
        if schritt == schritte.count - 1 {
          Toggle("Tutorial automatisch beim Start zeigen", isOn: $tutorialAktiv)
            .toggleStyle(.switch)
@@ -136,9 +121,7 @@ var body: some View {
      }
      .padding(24)
    }
-
    Divider().overlay(Premium.hairline)
-
    HStack {
      Button("Zurück") {
        if schritt > 0 { schritt -= 1 }
@@ -146,9 +129,7 @@ var body: some View {
      .buttonStyle(.plain)
      .disabled(schritt == 0)
      .foregroundStyle(schritt == 0 ? Premium.textFaint : Premium.textSoft)
-
      Spacer()
-
      HStack(spacing: 5) {
        ForEach(0..<schritte.count, id: \.self) { i in
          Capsule()
@@ -156,9 +137,7 @@ var body: some View {
            .frame(width: i == schritt ? 14 : 6, height: 6)
        }
      }
-
      Spacer()
-
      Button(schritt == schritte.count - 1 ? "Tour beenden" : "Weiter") {
        if schritt == schritte.count - 1 {
          abschliessen(markiert: true)
@@ -180,10 +159,8 @@ var body: some View {
  .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
  .overlay(RoundedRectangle(cornerRadius: 16).stroke(Premium.hairline, lineWidth: 1))
 }
-
 private func abschliessen(markiert: Bool) {
  if markiert { gesehen = true }
  onFertig()
 }
 }
-

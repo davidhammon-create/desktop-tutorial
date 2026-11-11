@@ -1,13 +1,4 @@
 import SwiftUI
-
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-// FENLYNINEOS STUDIO -- Produktwirbelsäule
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-// Ein Objekt. Viele Linsen. Keine Modul-Silos als Startseite.
-// Vorgänge = Home. Legacy-Module = Werkzeugschublade.
-// nK überall. Filigranes Premium-Design.
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-
 enum StudioZone: String, CaseIterable, Identifiable {
 case vorgaenge
 case lage
@@ -15,9 +6,7 @@ case organon
 case werkzeuge
 case wissen
 case einstellungen
-
 var id: String { rawValue }
-
 var titel: String {
   switch self {
   case .vorgaenge: return "Vorgänge"
@@ -28,8 +17,6 @@ var titel: String {
   case .einstellungen: return "Einstellungen"
   }
 }
-
-/// Kurzes Label unter dem Icon in der Hauptleiste -- jede Zone ist ohne Hovern erkennbar.
 var railLabel: String {
   switch self {
   case .vorgaenge: return "Vorgänge"
@@ -40,8 +27,6 @@ var railLabel: String {
   case .einstellungen: return "System"
   }
 }
-
-/// Ein Satz für Tooltip/Hilfe: Was finde ich in dieser Zone?
 var railHilfe: String {
   switch self {
   case .vorgaenge: return "Vorgänge -- der Startpunkt: Akten anlegen, bewerten, entscheiden"
@@ -52,7 +37,6 @@ var railHilfe: String {
   case .einstellungen: return "Einstellungen -- Konto, Design, KI, Daten und System"
   }
 }
-
 var symbol: String {
   switch self {
   case .vorgaenge: return "square.stack.3d.up.fill"
@@ -63,16 +47,23 @@ var symbol: String {
   case .einstellungen: return "gearshape.fill"
   }
 }
+var appleSymbol: String {
+  switch self {
+  case .vorgaenge: return "star"
+  case .lage: return "dot.radiowaves.left.and.right"
+  case .organon: return "person.2"
+  case .werkzeuge: return "square.grid.2x2"
+  case .wissen: return "book"
+  case .einstellungen: return "gearshape"
+  }
 }
-
+}
 struct FenlynineOSStudioShell: View {
 @EnvironmentObject var authManager: AuthManager
 @EnvironmentObject var appState: AppState
 @Bindable private var appearance = AppearanceStore.shared
 @ObservedObject private var kontoStore = KontoStore.shared
-
 var onZurueckZumHub: (() -> Void)? = nil
-
 @State private var zone: StudioZone = .vorgaenge
 @State private var offenerVorgangId: UUID?
 @State private var kommandofeldOffen = false
@@ -82,17 +73,17 @@ var onZurueckZumHub: (() -> Void)? = nil
 @State private var showInspector = true
 @State private var werkzeugFilter = ""
 @AppStorage("fenlynineos_einstellungen_tab") private var einstellungenTab = "ki"
-
+private var istApple: Bool { appearance.istApple }
 var body: some View {
   HStack(spacing: 0) {
-    studioRail
+    if istApple { appleRail } else { classicRail }
     VStack(spacing: 0) {
-      studioTopBar
-      Divider().overlay(Premium.hairline)
+      if istApple { appleTopBar } else { classicTopBar }
+      Divider().overlay(istApple ? Color.white.opacity(0.08) : Premium.hairline)
       zoneInhalt
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
     }
-
     if showInspector {
       StudioInspektor(
         onNavigiere: navigiereZuWerkzeug,
@@ -100,7 +91,9 @@ var body: some View {
       )
     }
   }
-  .background(PremiumAurora())
+  .background {
+    if istApple { StoreCanvasBackground() } else { PremiumAurora() }
+  }
   .fenlynineOSAppearance()
   .sheet(isPresented: $kommandofeldOffen) {
     Kommandofeld { v in
@@ -122,7 +115,6 @@ var body: some View {
     if zone == .werkzeuge && werkzeug == .schreibtisch {
       showInspector = false
    }
-   // Deep-Link-Ziel nachziehen (fenlynineos://schreibtisch), falls Notification zu früh kam
    if let raw = UserDefaults.standard.string(forKey: "fenlynineos_pending_sidebar"),
     let e = SeitenleistenEintrag(rawValue: raw) {
      UserDefaults.standard.removeObject(forKey: "fenlynineos_pending_sidebar")
@@ -152,7 +144,6 @@ var body: some View {
    zeigeTutorial = true
  }
 }
-
 private func navigiereZuWerkzeug(_ e: SeitenleistenEintrag) {
  if e == .vorgaenge {
    zone = .vorgaenge
@@ -169,20 +160,14 @@ private func navigiereZuWerkzeug(_ e: SeitenleistenEintrag) {
    zone = .werkzeuge
    werkzeug = e
  }
- // Schreibtisch-Fenstermodus & Opportunisma Pro brauchen volle Breite
  if e == .schreibtisch || e == .opportunisma {
    withAnimation(.easeOut(duration: 0.15)) { showInspector = false }
  }
 }
-
 private func oeffneModulFenster(_ e: SeitenleistenEintrag) {
- // Direkt + Bridge -- doppelte Absicherung
  ModulFensterHost.shared.oeffneModul(e)
  ModulFensterBridge.installieren()
 }
-
-/// Welches Modul die Top-Bar als Fenster öffnen soll (je Zone).
-/// `nil` = Zone hat kein Pop-out (z. B. Rechtswissen bleibt in Studio).
 private var fensterZiel: SeitenleistenEintrag? {
  switch zone {
  case .vorgaenge: return .lexara
@@ -193,10 +178,60 @@ private var fensterZiel: SeitenleistenEintrag? {
  case .einstellungen: return .einstellungen
  }
 }
-
-// MARK: - Rail
-
-private var studioRail: some View {
+private var appleRail: some View {
+  VStack(alignment: .leading, spacing: 0) {
+    StoreSearchField(text: $werkzeugFilter)
+      .padding(.horizontal, 12)
+      .padding(.top, 12)
+      .padding(.bottom, 10)
+      .onSubmit { kommandofeldOffen = true }
+      .onChange(of: werkzeugFilter) { _, neu in
+        if !neu.trimmingCharacters(in: .whitespaces).isEmpty {
+          zone = .werkzeuge
+        }
+      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 2) {
+        ForEach(StudioZone.allCases) { z in
+          StoreSidebarRow(
+            symbol: z.appleSymbol,
+            titel: z.railLabel,
+            selected: zone == z
+          ) {
+            zone = z
+            if z == .vorgaenge { offenerVorgangId = nil }
+          }
+          .help(z.railHilfe)
+        }
+        StoreSidebarRow(
+          symbol: "questionmark.circle",
+          titel: "Hilfe",
+          selected: false
+        ) { zeigeTutorial = true }
+        .padding(.top, 8)
+      }
+      .padding(.horizontal, 8)
+    }
+    Spacer(minLength: 0)
+    Divider().overlay(Color.white.opacity(0.08))
+    StoreProfilFuss(initials: profilInitialen, name: profilName)
+  }
+  .frame(width: Store.sidebarWidth)
+  .storeSidebarMaterial()
+  .overlay(alignment: .trailing) {
+    Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1)
+  }
+}
+private var profilName: String {
+  let n = authManager.userName.trimmingCharacters(in: .whitespacesAndNewlines)
+  return n.isEmpty ? "FenlynineOS" : n
+}
+private var profilInitialen: String {
+  let parts = profilName.split(whereSeparator: { !$0.isLetter }).filter { !$0.isEmpty }.prefix(2)
+  let ini = parts.compactMap { $0.first.map(String.init) }.joined()
+  return ini.isEmpty ? "FO" : ini.uppercased()
+}
+private var classicRail: some View {
  VStack(spacing: 4) {
    Button {
      onZurueckZumHub?()
@@ -209,7 +244,6 @@ private var studioRail: some View {
    .buttonStyle(.plain)
    .help("FenlynineOS Legal Suite -- Hauptmenü (Hub)")
    .padding(.top, 8)
-
    ForEach(StudioZone.allCases) { z in
      Button {
        zone = z
@@ -237,9 +271,7 @@ private var studioRail: some View {
      .buttonStyle(.plain)
      .help(z.railHilfe)
    }
-
    Spacer()
-
    Button { zeigeTutorial = true } label: {
      VStack(spacing: 3) {
        Image(systemName: "questionmark.circle")
@@ -247,12 +279,11 @@ private var studioRail: some View {
        Text("Hilfe")
          .font(.system(size: 8.5, weight: .semibold))
      }
-     .foregroundStyle(Premium.textSoft)
-     .frame(width: 60, height: 44)
    }
+   .foregroundStyle(Premium.textSoft)
+   .frame(width: 60, height: 44)
    .buttonStyle(.plain)
    .help("Tutorial -- Bedienung Schritt für Schritt")
-
    Button { kommandofeldOffen = true } label: {
      VStack(spacing: 3) {
        Image(systemName: "magnifyingglass")
@@ -274,15 +305,59 @@ private var studioRail: some View {
    Rectangle().fill(Premium.hairline).frame(width: 1)
  }
 }
-
-// MARK: - Top bar
-
-private var studioTopBar: some View {
+private var appleTopBar: some View {
+  HStack(spacing: 10) {
+    if zone == .vorgaenge, let id = offenerVorgangId,
+       let v = VorgangStore.shared.vorgang(id) {
+      Button(action: { offenerVorgangId = nil }) {
+        Image(systemName: "chevron.left")
+          .font(.system(size: 13, weight: .semibold))
+          .foregroundStyle(Store.accent)
+      }
+      .buttonStyle(.plain)
+      Text(v.titel)
+        .font(.system(size: 13, weight: .semibold))
+        .foregroundStyle(Store.text)
+        .lineLimit(1)
+    }
+    Spacer()
+    AppearanceToggle()
+    StorePillButton(titel: "Fenster", action: {
+      if let ziel = fensterZiel { oeffneModulFenster(ziel) }
+    })
+    .opacity(fensterZiel == nil ? 0.35 : 1)
+    .disabled(fensterZiel == nil)
+    StorePillButton(titel: "Vergleich") {
+      ModulFensterHost.shared.oeffneVergleich()
+    }
+    Button {
+      withAnimation(.easeOut(duration: 0.15)) { showInspector.toggle() }
+    } label: {
+      Image(systemName: "sidebar.right")
+        .font(.system(size: 13, weight: .medium))
+        .foregroundStyle(showInspector ? Store.accent : Store.textSecondary)
+        .frame(width: 28, height: 28)
+        .background(Circle().fill(Store.pillFill))
+    }
+    .buttonStyle(.plain)
+    if zone == .vorgaenge && offenerVorgangId == nil {
+      StorePillButton(titel: "Neu", prominent: true) {
+        let v = VorgangStore.shared.neu(typ: .streit, titel: "Neuer Vorgang")
+        offenerVorgangId = v.id
+        Task(priority: .utility) { spiegle(v) }
+      }
+      .keyboardShortcut("n", modifiers: [.command])
+    }
+  }
+  .padding(.horizontal, 20)
+  .padding(.vertical, 10)
+  .background(Store.canvas)
+}
+private var classicTopBar: some View {
  HStack(spacing: 12) {
    Text(zone.titel)
      .font(.system(size: 13, weight: .semibold))
      .foregroundStyle(Premium.text)
-
    if zone == .vorgaenge, let id = offenerVorgangId,
     let v = VorgangStore.shared.vorgang(id) {
      Image(systemName: "chevron.right")
@@ -293,11 +368,8 @@ private var studioTopBar: some View {
        .foregroundStyle(Premium.textSoft)
        .lineLimit(1)
    }
-
    Spacer()
-
    AppearanceToggle()
-
    Button {
      if let ziel = fensterZiel {
        oeffneModulFenster(ziel)
@@ -315,7 +387,6 @@ private var studioTopBar: some View {
    .help(fensterZiel == nil
       ? "Rechtswissen bleibt in Studio -- kein separates Modul-Fenster"
       : "Aktuelles Modul als eigenes Fenster -- Menü: Fenster · Module · nn1-5")
-
    Button {
      ModulFensterHost.shared.oeffneVergleich()
    } label: {
@@ -328,7 +399,6 @@ private var studioTopBar: some View {
    }
    .buttonStyle(.plain)
    .help("2-3 Module nebeneinander · nnV")
-
    Button {
      withAnimation(.easeOut(duration: 0.15)) { showInspector.toggle() }
    } label: {
@@ -340,7 +410,6 @@ private var studioTopBar: some View {
    }
    .buttonStyle(.plain)
    .help("Inspektor ein-/ausblenden")
-
    Button {
      kommandofeldOffen = true
    } label: {
@@ -359,7 +428,6 @@ private var studioTopBar: some View {
      .overlay(RoundedRectangle(cornerRadius: 7).stroke(Premium.hairline, lineWidth: 1))
    }
    .buttonStyle(.plain)
-
    if zone == .vorgaenge && offenerVorgangId == nil {
      Button {
        let v = VorgangStore.shared.neu(typ: .streit, titel: "Neuer Vorgang")
@@ -383,17 +451,13 @@ private var studioTopBar: some View {
  .padding(.vertical, 10)
  .premiumGlasLeiste()
 }
-
-// MARK: - Zone content
-
 @ViewBuilder
 private var zoneInhalt: some View {
  switch zone {
  case .vorgaenge:
    if let id = offenerVorgangId {
-     StudioVorgangHost(vorgangId: id, onZurueck: {
-       offenerVorgangId = nil
-     })
+     StudioVorgangHost(vorgangId: id, onZurueck: { offenerVorgangId = nil })
+       .background(istApple ? Store.canvas : Color.clear)
    } else {
      StudioVorgangListe(onOeffnen: { id in
        offenerVorgangId = id
@@ -405,29 +469,113 @@ private var zoneInhalt: some View {
  case .lage:
    if kontoStore.darf(.lageZentrale) {
      ImperiumLageZentraleView()
-       .padding(8)
+       .padding(istApple ? 16 : 8)
+       .background(istApple ? Store.canvas : Color.clear)
    } else {
      AboGateView(eintrag: .lageZentrale)
    }
  case .organon:
    if kontoStore.darf(.organon) {
      OrganonView()
-       .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-       .padding(10)
+       .clipShape(RoundedRectangle(cornerRadius: istApple ? 14 : 12, style: .continuous))
+       .padding(istApple ? 16 : 10)
+       .background(istApple ? Store.canvas : Color.clear)
    } else {
      AboGateView(eintrag: .organon)
    }
  case .werkzeuge:
-   werkzeugPanel
+   if istApple { appleWerkzeugPanel } else { classicWerkzeugPanel }
  case .wissen:
    RechtswissenPanel()
+     .background(istApple ? Store.canvas : Color.clear)
  case .einstellungen:
    EinstellungenView()
-     .padding(10)
+     .padding(istApple ? 16 : 10)
+     .background(istApple ? Store.canvas : Color.clear)
  }
 }
-
-private var werkzeugPanel: some View {
+private var appleWerkzeugPanel: some View {
+  HStack(spacing: 0) {
+    VStack(spacing: 0) {
+      StoreSearchField(text: $werkzeugFilter, placeholder: "Module suchen")
+        .padding(12)
+      ScrollView {
+        VStack(alignment: .leading, spacing: 2) {
+          ForEach(werkzeugSektionen, id: \.titel) { sektion in
+            let items = gefilterteWerkzeuge(sektion.items)
+            if !items.isEmpty {
+              Text(sektion.titel.uppercased())
+                .font(Store.eyebrow)
+                .foregroundStyle(Store.textTertiary)
+                .tracking(0.7)
+                .padding(.horizontal, 12)
+                .padding(.top, 10)
+                .padding(.bottom, 4)
+              ForEach(items, id: \.self) { e in
+                HStack(spacing: 4) {
+                  Button { werkzeug = e } label: {
+                    HStack(alignment: .top, spacing: 8) {
+                      Image(systemName: e.symbol)
+                        .font(.system(size: 11))
+                        .frame(width: 16)
+                        .padding(.top, 1)
+                      VStack(alignment: .leading, spacing: 1) {
+                        Text(e.bezeichnung)
+                          .font(.system(size: 12, weight: .medium))
+                          .lineLimit(1)
+                        if let sub = e.commandSubtitle {
+                          Text(sub)
+                            .font(.system(size: 9.5))
+                            .foregroundStyle(werkzeug == e ? Store.accent.opacity(0.85) : Store.textTertiary)
+                            .lineLimit(1)
+                        }
+                      }
+                      Spacer()
+                      if !kontoStore.darf(e) { AboFensterSperrBadge(eintrag: e) }
+                    }
+                    .foregroundStyle(werkzeug == e ? Store.text : Store.textSecondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                      RoundedRectangle(cornerRadius: 8)
+                        .fill(werkzeug == e ? Store.selection : Color.clear)
+                    )
+                  }
+                  .buttonStyle(.plain)
+                  .contextMenu {
+                    Button("Als Fenster öffnen") { oeffneModulFenster(e) }
+                    Button("Vergleichsfenster") { ModulFensterHost.shared.oeffneVergleich() }
+                  }
+                  Button { oeffneModulFenster(e) } label: {
+                    Image(systemName: "macwindow")
+                      .font(.system(size: 11, weight: .semibold))
+                      .foregroundStyle(Store.accent)
+                      .frame(width: 28, height: 28)
+                      .background(RoundedRectangle(cornerRadius: 6).fill(Store.accent.opacity(0.10)))
+                  }
+                  .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 6)
+              }
+            }
+          }
+        }
+        .padding(.bottom, 20)
+      }
+    }
+    .frame(width: 292)
+    .storeSidebarMaterial()
+    .overlay(alignment: .trailing) {
+      Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1)
+    }
+    ModulInhalt(eintrag: werkzeug)
+      .id(werkzeug)
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .clipped()
+      .background(Store.canvas)
+  }
+}
+private var classicWerkzeugPanel: some View {
  HStack(spacing: 0) {
    VStack(spacing: 0) {
      HStack(spacing: 6) {
@@ -442,7 +590,6 @@ private var werkzeugPanel: some View {
      .padding(.vertical, 7)
      .background(RoundedRectangle(cornerRadius: 7).fill(Premium.well))
      .padding(10)
-
      ScrollView {
        VStack(alignment: .leading, spacing: 2) {
          ForEach(werkzeugSektionen, id: \.titel) { sektion in
@@ -455,7 +602,6 @@ private var werkzeugPanel: some View {
                .padding(.horizontal, 12)
                .padding(.top, 10)
                .padding(.bottom, 4)
-
              ForEach(items, id: \.self) { e in
                HStack(spacing: 4) {
                  Button {
@@ -495,7 +641,6 @@ private var werkzeugPanel: some View {
                    Button("Als Fenster öffnen") { oeffneModulFenster(e) }
                    Button("Vergleichsfenster") { ModulFensterHost.shared.oeffneVergleich() }
                  }
-
                  Button {
                    oeffneModulFenster(e)
                  } label: {
@@ -521,20 +666,14 @@ private var werkzeugPanel: some View {
    .overlay(alignment: .trailing) {
      Rectangle().fill(Premium.hairline).frame(width: 1)
    }
-
    ModulInhalt(eintrag: werkzeug)
      .frame(maxWidth: .infinity, maxHeight: .infinity)
  }
 }
-
 private struct WerkzeugSektion {
  let titel: String
  let items: [SeitenleistenEintrag]
 }
-
-/// Rubriken nach Tätigkeit sortiert -- Alltagssprache zuerst, Markenname dahinter.
-/// Häufigste Arbeit oben. `lageZentrale` hat eine eigene Zone in der Hauptleiste
-/// und wird hier nicht doppelt gelistet (Funktion unverändert erreichbar).
 private var werkzeugSektionen: [WerkzeugSektion] {
  var sektionen: [WerkzeugSektion] = [
    .init(titel: "Fälle & Recht · Lexara", items: [.lexara, .richterprofile, .zeitleiste, .dokumente, .jurisdiktionen]),
@@ -550,7 +689,6 @@ private var werkzeugSektionen: [WerkzeugSektion] {
  }
  return sektionen
 }
-
 private func gefilterteWerkzeuge(_ items: [SeitenleistenEintrag]) -> [SeitenleistenEintrag] {
  let q = werkzeugFilter.trimmingCharacters(in: .whitespaces).lowercased()
  guard !q.isEmpty else { return items }
@@ -560,39 +698,175 @@ private func gefilterteWerkzeuge(_ items: [SeitenleistenEintrag]) -> [Seitenleis
      || ($0.commandSubtitle?.lowercased().contains(q) ?? false)
  }
 }
-
-// MARK: - Kausalspiegelung
-
 private func spiegleAlleVorgaenge() {
  let store = FenlynineOSKernStore.shared
  for v in VorgangStore.shared.vorgaenge {
    VorgangKausalBrucke.spiegleAlsEreignis(v, in: store)
  }
 }
-
 private func spiegle(_ v: Vorgang) {
  VorgangKausalBrucke.spiegleAlsEreignis(v, in: FenlynineOSKernStore.shared)
 }
 }
-
-// MARK: - Studio Vorgangliste (inline, kein Sheet)
-
 struct StudioVorgangListe: View {
 @Bindable var store: VorgangStore = .shared
+@Bindable private var appearance = AppearanceStore.shared
 let onOeffnen: (UUID) -> Void
 @State private var filterTyp: VorgangTyp? = nil
 @State private var filterZustand: VorgangZustand? = nil
-
 private var liste: [Vorgang] {
  var l = store.vorgaenge
  if let t = filterTyp { l = l.filter { $0.typ == t } }
  if let z = filterZustand { l = l.filter { $0.zustand == z } }
  return l.sorted { $0.geaendert > $1.geaendert }
 }
-
 var body: some View {
+  Group {
+    if appearance.istApple { appleBody } else { classicBody }
+  }
+}
+private var appleBody: some View {
+  ScrollView {
+    VStack(alignment: .leading, spacing: Store.sectionGap) {
+      StorePageHeader(
+        titel: "Vorgänge",
+        untertitel: "Akten · bewerten · entscheiden — App-Store-Bedienung, volle Funktion."
+      )
+      .padding(.top, 4)
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: 16) {
+          StoreHeroCard(
+            eyebrow: "Unsere Favoriten",
+            titel: "Vom Sachverhalt zur Entscheidung",
+            text: "Strukturieren, bewerten, empfehlen — der Motor rechnet.",
+            gradient: [Color(red: 0.35, green: 0.12, blue: 0.75), Color(red: 0.85, green: 0.20, blue: 0.35)],
+            symbol: "scale.3d",
+            height: 200
+          )
+          StoreHeroCard(
+            eyebrow: "Jetzt im Spotlight",
+            titel: "Formelkaskade live",
+            text: "EV, Risiko und Fristen in einem Blick.",
+            gradient: [Color(red: 0.05, green: 0.35, blue: 0.85), Color(red: 0.15, green: 0.65, blue: 0.75)],
+            symbol: "function",
+            height: 200
+          )
+        }
+        StoreHeroCard(
+          eyebrow: "Unsere Favoriten",
+          titel: "Vom Sachverhalt zur Entscheidung",
+          text: "Strukturieren, bewerten, empfehlen — der Motor rechnet.",
+          gradient: [Color(red: 0.35, green: 0.12, blue: 0.75), Color(red: 0.85, green: 0.20, blue: 0.35)],
+          symbol: "scale.3d",
+          height: 200
+        )
+      }
+      StoreSectionHeader(titel: "Essenzielle Werkzeuge")
+      LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+        StoreMediaCard(
+          eyebrow: "Nur für kurze Zeit",
+          titel: "Lagezentrale",
+          text: "Mandate, Konflikte, Pipeline.",
+          gradient: [Color(red: 0.15, green: 0.45, blue: 0.95), Color(red: 0.05, green: 0.2, blue: 0.55)],
+          symbol: "dot.radiowaves.left.and.right",
+          action: { NotificationCenter.default.post(name: .navigateToSidebar, object: SeitenleistenEintrag.lageZentrale.rawValue) }
+        )
+        StoreMediaCard(
+          eyebrow: "Sammlung",
+          titel: "Team & Netzwerk",
+          text: "Organon — wer macht was.",
+          gradient: [Color(red: 0.2, green: 0.7, blue: 0.45), Color(red: 0.05, green: 0.35, blue: 0.25)],
+          symbol: "person.2",
+          action: { NotificationCenter.default.post(name: .navigateToSidebar, object: SeitenleistenEintrag.organon.rawValue) }
+        )
+        StoreMediaCard(
+          eyebrow: "Neu",
+          titel: "Alle Module",
+          text: "Lexara, Strategos, Radar …",
+          gradient: [Color(red: 0.95, green: 0.45, blue: 0.15), Color(red: 0.55, green: 0.1, blue: 0.2)],
+          symbol: "square.grid.2x2",
+          action: { NotificationCenter.default.post(name: .navigateToSidebar, object: SeitenleistenEintrag.lexara.rawValue) }
+        )
+      }
+      StoreSectionHeader(titel: "Übersicht")
+      HStack(alignment: .top, spacing: 16) {
+        StoreWidget(titel: "Erwartungswert-Trend", untertitel: "Illustrativ aus offenen Vorgängen", symbol: "chart.xyaxis.line") {
+          StoreSparkline(values: sparkValues, tint: Store.accent)
+        }
+        StoreWidget(titel: "Zustand", untertitel: "Verteilung der Akte", symbol: "chart.bar.fill") {
+          StoreBarStrip(values: barValues)
+        }
+      }
+      .frame(minHeight: 200)
+      HStack(spacing: 8) {
+        storeChip("Alle", aktiv: filterTyp == nil) { filterTyp = nil }
+        ForEach(VorgangTyp.allCases) { typ in
+          storeChip(typ.bezeichnung, aktiv: filterTyp == typ) {
+            filterTyp = filterTyp == typ ? nil : typ
+          }
+        }
+        Spacer()
+        Text("\(liste.count)")
+          .font(.system(size: 13, weight: .medium, design: .rounded))
+          .foregroundStyle(Store.textTertiary)
+      }
+      StoreSectionHeader(titel: "Aktuelle Vorgänge")
+      VStack(spacing: 0) {
+        ForEach(liste) { v in
+          StoreAppZeile(
+            symbol: v.typ.linsenSymbol,
+            iconColor: zustandFarbe(v.zustand),
+            titel: v.titel,
+            untertitel: untertitel(v),
+            pillTitel: "Öffnen",
+            action: { onOeffnen(v.id) }
+          )
+          Divider().overlay(Color.white.opacity(0.06))
+        }
+      }
+      .padding(.horizontal, 8)
+      .padding(.vertical, 4)
+      .background(
+        RoundedRectangle(cornerRadius: Store.radiusCard, style: .continuous)
+          .fill(Store.canvasElevated)
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: Store.radiusCard, style: .continuous)
+          .stroke(Color.white.opacity(0.10), lineWidth: 1)
+      )
+    }
+    .padding(.horizontal, Store.contentInset)
+    .padding(.bottom, 48)
+  }
+  .background(Store.canvas)
+}
+private var sparkValues: [Double] {
+  var evs: [Double] = []
+  for v in liste {
+    if let wert = v.optionen.first(where: { !$0.istVorgeschichte })?.bewertung.ev?.wert {
+      evs.append(wert)
+    }
+  }
+  guard evs.count >= 2 else {
+    return [0.25, 0.4, 0.38, 0.55, 0.62, 0.58, 0.72, 0.8]
+  }
+  let maxAbs = max(evs.map { abs($0) }.max() ?? 1, 1)
+  return evs.map { ($0 / maxAbs + 1) / 2 }
+}
+private var barValues: [(label: String, value: Double, color: Color)] {
+  let total = Double(max(liste.count, 1))
+  func share(_ z: VorgangZustand) -> Double {
+    Double(liste.filter { $0.zustand == z }.count) / total
+  }
+  return [
+    (label: "Erfasst", value: share(.erfasst), color: Store.textSecondary),
+    (label: "Strukturiert", value: share(.strukturiert), color: Premium.proposed),
+    (label: "Bewertet", value: share(.bewertet), color: Store.accent),
+    (label: "Laufend", value: share(.laufend), color: Premium.computed)
+  ]
+}
+private var classicBody: some View {
  VStack(spacing: 0) {
-   // Hero
    VStack(alignment: .leading, spacing: 6) {
      Text("Akten · Vorgänge · Entscheidungen")
        .font(.system(size: 22, weight: .semibold))
@@ -605,8 +879,6 @@ var body: some View {
    .padding(.horizontal, 24)
    .padding(.top, 20)
    .padding(.bottom, 14)
-
-   // Filter
    HStack(spacing: 6) {
      chip("Alle", aktiv: filterTyp == nil) { filterTyp = nil }
      ForEach(VorgangTyp.allCases) { t in
@@ -621,7 +893,6 @@ var body: some View {
    }
    .padding(.horizontal, 24)
    .padding(.bottom, 10)
-
    ScrollView {
      LazyVStack(spacing: 8) {
        ForEach(liste) { v in
@@ -637,7 +908,17 @@ var body: some View {
  }
  .background(Color.clear)
 }
-
+private func storeChip(_ label: String, aktiv: Bool, action: @escaping () -> Void) -> some View {
+  Button(action: action) {
+    Text(label)
+      .font(.system(size: 12, weight: .semibold))
+      .foregroundStyle(aktiv ? .black : Store.text)
+      .padding(.horizontal, 12)
+      .padding(.vertical, 6)
+      .background(Capsule().fill(aktiv ? Color.white : Store.pillFill))
+  }
+  .buttonStyle(.plain)
+}
 private func chip(_ label: String, aktiv: Bool, symbol: String? = nil, action: @escaping () -> Void) -> some View {
  Button(action: action) {
    HStack(spacing: 4) {
@@ -648,7 +929,6 @@ private func chip(_ label: String, aktiv: Bool, symbol: String? = nil, action: @
  }
  .buttonStyle(.plain)
 }
-
 private func zeile(_ v: Vorgang) -> some View {
  HStack(spacing: 14) {
    Image(systemName: v.typ.linsenSymbol)
@@ -656,11 +936,9 @@ private func zeile(_ v: Vorgang) -> some View {
      .foregroundStyle(Premium.action)
      .frame(width: 28, height: 28)
      .background(RoundedRectangle(cornerRadius: 7).fill(Premium.action.opacity(0.12)))
-
    Circle()
      .fill(zustandFarbe(v.zustand))
      .frame(width: 6, height: 6)
-
    VStack(alignment: .leading, spacing: 2) {
      Text(v.titel)
        .font(.system(size: 13, weight: .semibold))
@@ -675,20 +953,16 @@ private func zeile(_ v: Vorgang) -> some View {
      .font(.system(size: 10))
      .foregroundStyle(Premium.textFaint)
    }
-
    Spacer()
-
    if let ev = v.optionen.first(where: { !$0.istVorgeschichte })?.bewertung.ev {
      WertBadge(wert: ev, groesseText: 13, fett: true)
    }
-
    if let f = v.fristen.min(by: { $0.tageBisAblauf < $1.tageBisAblauf }) {
      Text("\(f.tageBisAblauf) T")
        .font(.system(size: 11, weight: .semibold, design: .monospaced))
        .foregroundStyle(f.tageBisAblauf < 14 ? Premium.critical : Premium.textFaint)
        .frame(width: 36, alignment: .trailing)
    }
-
    Image(systemName: "chevron.right")
      .font(.system(size: 10, weight: .semibold))
      .foregroundStyle(Premium.textFaint)
@@ -698,20 +972,24 @@ private func zeile(_ v: Vorgang) -> some View {
  .premiumGlas(radius: 10)
  .contentShape(Rectangle())
 }
-
+private func untertitel(_ v: Vorgang) -> String {
+  var parts: [String] = [v.kurzId, v.zustand.bezeichnung]
+  if let p = v.parteien.first { parts.append(p.name) }
+  if let f = v.fristen.min(by: { $0.tageBisAblauf < $1.tageBisAblauf }) {
+    parts.append("\(f.tageBisAblauf) T")
+  }
+  return parts.joined(separator: " · ")
+}
 private func zustandFarbe(_ z: VorgangZustand) -> Color {
- switch z {
- case .erfasst: return Premium.mute
- case .strukturiert: return Premium.proposed
- case .bewertet: return Premium.action
- case .entschieden, .laufend: return Premium.computed
- case .abgeschlossen: return Premium.mute
- }
+  switch z {
+  case .erfasst: return appearance.istApple ? Store.textSecondary : Premium.mute
+  case .strukturiert: return Premium.proposed
+  case .bewertet: return appearance.istApple ? Store.accent : Premium.action
+  case .entschieden, .laufend: return Premium.computed
+  case .abgeschlossen: return appearance.istApple ? Store.textTertiary : Premium.mute
+  }
 }
 }
-
-// MARK: - Studio Vorgang-Host (inline Detail + KI + Organon)
-
 struct StudioVorgangHost: View {
 let vorgangId: UUID
 let onZurueck: () -> Void
@@ -722,9 +1000,7 @@ let onZurueck: () -> Void
 @State private var kommandofeldOffen = false
 @State private var kiLaeuft = false
 @State private var kiVorschlaege: [VorgangKIVorschlag] = []
-
 private var vorgang: Vorgang? { store.vorgang(vorgangId) }
-
 var body: some View {
  VStack(spacing: 0) {
    HStack {
@@ -737,9 +1013,7 @@ var body: some View {
        .foregroundStyle(Premium.action)
      }
      .buttonStyle(.plain)
-
      Spacer()
-
      Button {
        Task { await kiOptionen() }
      } label: {
@@ -756,7 +1030,6 @@ var body: some View {
      }
      .buttonStyle(.plain)
      .disabled(kiLaeuft)
-
      Button {
        store.bewerteAlleOptionen(vorgangId)
        store.setzeEmpfehlung(vorgangId)
@@ -774,7 +1047,6 @@ var body: some View {
        .background(RoundedRectangle(cornerRadius: 7).fill(Premium.computed.opacity(0.12)))
      }
      .buttonStyle(.plain)
-
      if let v = vorgang, v.zustand.reihenfolge >= VorgangZustand.bewertet.reihenfolge,
       let best = v.optionen.first(where: { $0.id == v.empfehlung?.optionId }) {
        Button {
@@ -791,7 +1063,6 @@ var body: some View {
    }
    .padding(.horizontal, 16)
    .padding(.vertical, 8)
-
    if let v = vorgang {
      Vorgangskopf(
        vorgang: v,
@@ -809,13 +1080,11 @@ var body: some View {
        }
      )
      .padding(.horizontal, 12)
-
      if !kiVorschlaege.isEmpty {
        kiBanner
          .padding(.horizontal, 16)
          .padding(.top, 8)
      }
-
      Group {
        switch aktiveLinse {
        case .streit: StreitLinse(vorgangId: v.id)
@@ -841,7 +1110,6 @@ var body: some View {
      .presentationBackground(.clear)
  }
 }
-
 private var kiBanner: some View {
  VStack(alignment: .leading, spacing: 8) {
    HStack {
@@ -878,7 +1146,6 @@ private var kiBanner: some View {
  .background(RoundedRectangle(cornerRadius: 10).fill(Premium.proposed.opacity(0.08)))
  .overlay(RoundedRectangle(cornerRadius: 10).stroke(Premium.proposed.opacity(0.25), lineWidth: 1))
 }
-
 private func typWechselSheet(_ v: Vorgang) -> some View {
  VStack(alignment: .leading, spacing: 14) {
    Text("Typ wechseln").font(.system(size: 17, weight: .semibold)).foregroundStyle(Premium.text)
@@ -904,7 +1171,6 @@ private func typWechselSheet(_ v: Vorgang) -> some View {
  .frame(width: 440)
  .background(Premium.ink)
 }
-
 private func kiOptionen() async {
  guard let v = vorgang else { return }
  kiLaeuft = true
@@ -912,4 +1178,3 @@ private func kiOptionen() async {
  kiVorschlaege = await VorgangKIService.schlageOptionenVor(fuer: v)
 }
 }
-

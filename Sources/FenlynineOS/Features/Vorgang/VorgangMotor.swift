@@ -1,15 +1,5 @@
 import Foundation
 import FenlynineOSKern
-
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-// DER MOTOR -- EINER, NICHT FÜNF (Prozessarchitektur, Teil III · C)
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-// „Es sind nicht zwei Workflows. Es ist einer. Der Typ bestimmt die
-// Schritte, Formeln und Pflichtfelder." (PDF S. 14)
-// nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-
-// MARK: - Die 9 Schritte
-
 enum VorgangSchritt: String, Codable, CaseIterable, Identifiable {
 case problem
 case kiAnalyse = "ki"
@@ -20,9 +10,7 @@ case argumente
 case risiko
 case fristen
 case empfehlung
-
 var id: String { rawValue }
-
 var bezeichnung: String {
   switch self {
   case .problem: return "Problem"
@@ -36,7 +24,6 @@ var bezeichnung: String {
   case .empfehlung: return "Empfehlung"
   }
 }
-
 var symbol: String {
   switch self {
   case .problem: return "questionmark.circle"
@@ -51,9 +38,6 @@ var symbol: String {
   }
 }
 }
-
-// MARK: - Formel-Bausteine
-
 enum FormelBaustein: String, Codable {
 case ev // Erwartungswert
 case rav // Risikoadjustierter Wert
@@ -68,9 +52,6 @@ case korrelation
 case rvg
 case gkg
 }
-
-// MARK: - Fristenlogik-Konfiguration
-
 enum FristenLogik: String, Codable {
 case bgbVerjaehrung // Streit -> §§ 195, 199 BGB
 case ao   // Steuerrecht -> AO
@@ -78,9 +59,6 @@ case kschg // Kündigungsschutz -> § 4 KSchG
 case vertragsfristen // Gestaltung
 case portfolio // Programm-Übergreifend
 }
-
-// MARK: - Typkonfiguration (VORGANGSTYPEN, PDF S. 14-15)
-
 struct VorgangsTypKonfiguration {
 let typ: VorgangTyp
 let schritte: [VorgangSchritt]
@@ -91,8 +69,6 @@ let gebuehren: String
 let basiertAuf: VorgangTyp? // z.B. verhandlung basiert_auf: streit
 let ansicht: String // z.B. "kompakt_live" für Advocatus
 let aufnahmeErlaubt: Bool // Advocatus IMMER false (§ 201 StGB)
-
-/// Sichtbare Schritte in der aktuellen Ansicht (Advocatus: nur 2).
 var sichtbareSchritte: [VorgangSchritt] {
   if typ == .verhandlung {
     return [.optionen, .empfehlung]
@@ -100,9 +76,6 @@ var sichtbareSchritte: [VorgangSchritt] {
   return schritte
 }
 }
-
-// MARK: - Der Motor (Registry der Typen)
-
 enum VorgangMotor {
 static let streit = VorgangsTypKonfiguration(
  typ: .streit,
@@ -115,7 +88,6 @@ static let streit = VorgangsTypKonfiguration(
  ansicht: "standard",
  aufnahmeErlaubt: false
 )
-
 static let gestaltung = VorgangsTypKonfiguration(
  typ: .gestaltung,
  schritte: VorgangSchritt.allCases,
@@ -127,7 +99,6 @@ static let gestaltung = VorgangsTypKonfiguration(
  ansicht: "standard",
  aufnahmeErlaubt: false
 )
-
 static let verhandlung = VorgangsTypKonfiguration(
  typ: .verhandlung,
  schritte: [.optionen, .empfehlung],
@@ -139,7 +110,6 @@ static let verhandlung = VorgangsTypKonfiguration(
  ansicht: "kompakt_live",
  aufnahmeErlaubt: false // § 201 StGB -- NIEMALS true, in keiner Version
 )
-
 static let programm = VorgangsTypKonfiguration(
  typ: .programm,
  schritte: [.problem, .optionen, .vergleich, .risiko, .empfehlung],
@@ -151,7 +121,6 @@ static let programm = VorgangsTypKonfiguration(
  ansicht: "portfolio",
  aufnahmeErlaubt: false
 )
-
 static func konfiguration(fuer typ: VorgangTyp) -> VorgangsTypKonfiguration {
  switch typ {
  case .streit: return streit
@@ -161,12 +130,7 @@ static func konfiguration(fuer typ: VorgangTyp) -> VorgangsTypKonfiguration {
  }
 }
 }
-
-// MARK: - Formel-Kaskade (der Burggraben -- PDF S. 27, Regel: nie KI!)
-
 enum Formelkaskade {
-
-/// EV = P x Gewinn + (1-P) x Verlust - Kosten
 static func erwartungswert(_ o: VorgangOption) -> WertMitHerkunft {
  let p = o.chancen.pErfolg.wert
  let best = o.chancen.best.wert
@@ -176,41 +140,30 @@ static func erwartungswert(_ o: VorgangOption) -> WertMitHerkunft {
  let formel = "EV = \(fmt(p)) x \(fmt(best)) + \(fmt(1 - p)) x \(fmt(worst)) - \(fmt(kosten))"
  return .init(wert: ev, herkunft: .formel, quelle: formel)
 }
-
-/// RAV = EV / (1 + r)^t -- Diskontfaktor r = 0.05, t in Jahren.
 static func rav(_ o: VorgangOption, ev: Double, diskont r: Double = 0.05) -> WertMitHerkunft {
  let t = Double(o.zeit.maxMonate) / 12.0
  let rav = ev / pow(1 + r, t)
  let formel = "RAV = EV / (1 + \(fmt(r)))^\(fmt(t)) = \(fmt(ev)) / \(fmt(pow(1 + r, t)))"
  return .init(wert: rav, herkunft: .formel, quelle: formel)
 }
-
-/// VaR -- sehr vereinfacht (95 %-Quantil » worst-case gewichtet).
 static func varAt(_ o: VorgangOption, quantil: Double = 0.95) -> WertMitHerkunft {
  let worst = o.chancen.worst.wert
  let kosten = o.kosten.summe
  let value = min(0, worst - kosten) * quantil
  return .init(wert: value, herkunft: .formel, quelle: "VaR\(Int(quantil*100)) » \(fmt(worst)) - \(fmt(kosten))")
 }
-
-/// Break-Even Wahrscheinlichkeit -- ab welcher P(Erfolg) wird EV = 0?
 static func breakEven(_ o: VorgangOption) -> WertMitHerkunft {
  let best = o.chancen.best.wert
  let worst = o.chancen.worst.wert
  let kosten = o.kosten.summe
- // P x best + (1-P) x worst - kosten = 0 -> P = (kosten - worst) / (best - worst)
  guard best != worst else { return .init(wert: 0, herkunft: .formel, quelle: "n/a") }
  let p = (kosten - worst) / (best - worst)
  return .init(wert: p, herkunft: .formel, quelle: "Pn = (kosten - worst) / (best - worst)")
 }
-
-/// Sharpe (grob) -- EV / s, wobei s » (best - worst)/4.
 static func sharpe(_ o: VorgangOption, ev: Double) -> WertMitHerkunft {
  let sigma = max(1, (o.chancen.best.wert - o.chancen.worst.wert) / 4.0)
  return .init(wert: ev / sigma, herkunft: .formel, quelle: "Sharpe = EV / s")
 }
-
-/// Kelly-Anteil = P - (1-P)/b, b = best/|worst|
 static func kelly(_ o: VorgangOption) -> WertMitHerkunft {
  let p = o.chancen.pErfolg.wert
  let worstAbs = max(1, abs(o.chancen.worst.wert))
@@ -218,14 +171,9 @@ static func kelly(_ o: VorgangOption) -> WertMitHerkunft {
  let k = max(0, p - (1 - p) / max(b, 0.01))
  return .init(wert: k, herkunft: .formel, quelle: "Kelly = P - (1-P)/b, b = best/|worst|")
 }
-
-/// RPN-Summe der Risiken.
 static func rpnGesamt(_ o: VorgangOption) -> Int {
  o.risiken.reduce(0) { $0 + $1.rpn }
 }
-
-/// Wendet die gesamte Kaskade auf eine Option an. NUR HIER!
-/// (Der Rest des Systems liest, schreibt nicht.)
 static func bewerte(_ option: inout VorgangOption) {
  let ev = erwartungswert(option)
  option.bewertung.ev = ev
@@ -237,55 +185,39 @@ static func bewerte(_ option: inout VorgangOption) {
  option.bewertung.breakEven = breakEven(option)
  option.bewertung.rpnGesamt = rpnGesamt(option)
 }
-
-/// Portfolio-EV -- Summe der EVs mit einfacher Korrelationskorrektur.
 static func portfolioEV(_ vorgaenge: [Vorgang]) -> (roh: Double, bereinigt: Double) {
  let evs = vorgaenge.flatMap { $0.optionen.compactMap { $0.bewertung.ev?.wert } }
  let roh = evs.reduce(0, +)
- // Sehr einfache Bereinigung: bei > 2 Vorgängen im selben Rechtsgebiet Klumpenrisiko-Abschlag.
  let gruppen = Dictionary(grouping: vorgaenge, by: { $0.rechtsgebiet })
  let klumpen = gruppen.values.filter { $0.count > 2 }.count
  let bereinigt = roh * (1 - Double(klumpen) * 0.08)
  return (roh, bereinigt)
 }
-
-// MARK: - RVG-Rechner (100 % Formel, PDF S. 12 Abb. 12)
-
 struct RvgErgebnis {
+ let einfach: Double
  let verfahren: Double
  let termin: Double
  let auslagen: Double
  let ust: Double
  var gesamt: Double { verfahren + termin + auslagen + ust }
 }
-
-/// RVG-Berechnung nach Anlage 2 RVG (Tabelle im Kern: RVGTabelle).
-/// ACHTUNG: Bei Streitwert > 500.000 € (§ 13 Abs. 1 S. 3 RVG nicht implementiert)
-/// liefert die Funktion ein Ergebnis mit Nullen. Der Aufrufer MUSS diesen Fall
-/// anzeigen ("Streitwert außerhalb der Tabelle"), nicht als 0 € darstellen.
 static func rvg(streitwert: Double) -> RvgErgebnis {
- // Über den String-Umweg nach Decimal: Decimal(Double) kann Binärartefakte
- // erzeugen (25000.000000000004), und genau an den Stufengrenzen der Anlage 2
- // würde das in die falsche Gebührenstufe springen.
  let gerundet = (max(500, streitwert) * 100).rounded() / 100
  let sw = Decimal(string: String(format: "%.2f", gerundet)) ?? Decimal(500)
  guard let einfach = RVGTabelle.gebuehr(streitwert: sw) else {
-   return .init(verfahren: 0, termin: 0, auslagen: 0, ust: 0)
+   return .init(einfach: 0, verfahren: 0, termin: 0, auslagen: 0, ust: 0)
  }
+ let einfachD = NSDecimalNumber(decimal: einfach).doubleValue
  let verfahren = einfach * Decimal(string: "1.3")!   // Nr. 3100 VV RVG
  let termin = einfach * Decimal(string: "1.2")!      // Nr. 3104 VV RVG
  let auslagen = min((verfahren + termin) * Decimal(string: "0.20")!, Decimal(20))  // Nr. 7002 VV RVG: 20 %, höchstens 20 €
  let ust = (verfahren + termin + auslagen) * Decimal(string: "0.19")!  // Nr. 7008 VV RVG
- return .init(verfahren: NSDecimalNumber(decimal: verfahren).doubleValue,
+ return .init(einfach: einfachD,
+              verfahren: NSDecimalNumber(decimal: verfahren).doubleValue,
               termin: NSDecimalNumber(decimal: termin).doubleValue,
               auslagen: NSDecimalNumber(decimal: auslagen).doubleValue,
               ust: NSDecimalNumber(decimal: ust).doubleValue)
 }
-
-// MARK: - Fristen (100 % Formel)
-
-/// § 4 KSchG -- 3 Wochen ab Zugang.
-// TODO: § 193 BGB (Verschiebung auf nächsten Werktag) fehlt — über FenlynineOSKern.FristenRechner nachziehen, sobald das Bundesland des Erklärungsorts am Vorgang hängt.
 static func klageFristKSchG(zugang: Date) -> VorgangFrist {
  let datum = Calendar.current.date(byAdding: .day, value: 21, to: zugang) ?? zugang
  let tage = Calendar.current.dateComponents([.day], from: .init(), to: datum).day ?? 0
@@ -296,11 +228,7 @@ static func klageFristKSchG(zugang: Date) -> VorgangFrist {
    quelle: "§ 4 S. 1 KSchG (3 Wochen ab Zugang)"
  )
 }
-
-/// § 195 BGB -- Regelverjährung 3 Jahre.
 static func verjaehrungBGB(entstehung: Date) -> VorgangFrist {
- // § 199 Abs. 1 BGB: Die Frist beginnt mit dem Schluss des Jahres der Entstehung.
- // TODO: Höchstfristen des § 199 Abs. 2–4 BGB fehlen noch.
  let jahr = Calendar.current.component(.year, from: entstehung)
  let jahresende = Calendar.current.date(from: DateComponents(year: jahr, month: 12, day: 31)) ?? entstehung
  let datum = Calendar.current.date(byAdding: .year, value: 3, to: jahresende) ?? jahresende
@@ -312,11 +240,6 @@ static func verjaehrungBGB(entstehung: Date) -> VorgangFrist {
    quelle: "§§ 195, 199 Abs. 1 BGB (Beginn mit Schluss des Jahres)"
  )
 }
-
-// MARK: - Kipppunkt-Analyse (PDF Abb. 11)
-
-/// Sensitivitätsanalyse -- an welcher Reglerposition wechselt das Ranking?
-/// Gibt Prozentwert (0..1) zurück, an dem das führende Element wechselt.
 static func kipppunkt(optionen: [VorgangOption], gewichtungRoh: Double = 0.5,
          szenario: (VorgangOption, Double) -> Double) -> Double? {
  guard optionen.count >= 2 else { return nil }
@@ -332,14 +255,148 @@ static func kipppunkt(optionen: [VorgangOption], gewichtungRoh: Double = 0.5,
  _ = step
  return nil
 }
-
+static func rangScore(_ o: VorgangOption, profil: MandantenProfil) -> Double {
+        let ev = o.bewertung.ev?.wert ?? 0
+        let rav = o.bewertung.rav?.wert ?? ev
+        let varStrafe = min(0, o.bewertung.var95?.wert ?? 0)
+        switch profil {
+        case .risikoavers:
+            return rav * 0.45 + ev * 0.20 + varStrafe * 0.35
+        case .ausgewogen:
+            return rav * (1 - profil.evGewicht) + ev * profil.evGewicht
+        case .chancenorientiert:
+            return ev * profil.evGewicht + rav * (1 - profil.evGewicht)
+        }
+    }
+static func rangListe(_ optionen: [VorgangOption], profil: MandantenProfil) -> [VorgangOption] {
+        optionen
+            .filter { !$0.istVorgeschichte && $0.legalitaetsStatus != .rechtswidrig }
+            .sorted { rangScore($0, profil: profil) > rangScore($1, profil: profil) }
+    }
+static func verworfene(_ optionen: [VorgangOption]) -> [VorgangOption] {
+        optionen.filter { !$0.istVorgeschichte && $0.legalitaetsStatus == .rechtswidrig }
+    }
+static func portfolioKlumpen(_ vorgaenge: [Vorgang]) -> [String] {
+        var hinweise: [String] = []
+        let nachGebiet = Dictionary(grouping: vorgaenge, by: { $0.rechtsgebiet })
+        for (g, vs) in nachGebiet where vs.count > 1 && !g.isEmpty {
+            hinweise.append("\(vs.count)× \(g) — dieselbe Wette mehrfach")
+        }
+        let nachGegner = Dictionary(grouping: vorgaenge) { v -> String in
+            v.parteien.first(where: { $0.rolle.lowercased().contains("gegner") })?.name ?? ""
+        }
+        for (n, vs) in nachGegner where vs.count > 1 && !n.isEmpty {
+            hinweise.append("\(vs.count)× Gegner \(n)")
+        }
+        return hinweise
+    }
+static func nichtsTun(streitwert: Double) -> VorgangOption {
+        VorgangOption(
+            label: "D · Nichts tun",
+            beschreibung: "Frist verstreichen lassen / Anspruch nicht verfolgen.",
+            kosten: .init(anwalt: 0, gericht: 0, intern: 0, opportunitaet: 0),
+            chancen: .init(
+                pErfolg: .formel(0, "Nichts tun: P = 0"),
+                best: .formel(0, "Kein Gewinn"),
+                worst: .formel(-abs(streitwert), "Streitwert als entgangener Anspruch"),
+                likely: .formel(-abs(streitwert), "P × 0 + 1 × (−Streitwert)")
+            ),
+            zeit: .init(minMonate: 0, maxMonate: 0),
+            qualitativ: .init(reputation: -1, beziehung: 0, medien: 0, praezedenz: 0)
+        )
+    }
+static func exportText(_ v: Vorgang) -> String {
+        var z: [String] = [
+            "FENLYNINE OS — VORGANG \(v.kurzId)",
+            v.titel,
+            "Typ: \(v.typ.bezeichnung) · Zustand: \(v.zustand.bezeichnung)",
+            "Rechtsgebiet: \(v.rechtsgebiet.isEmpty ? "—" : v.rechtsgebiet)",
+            "Volumen: \(InterfaceZahl.waehrung(v.volumen, mitVorzeichen: false))",
+            "Export: \(Date().formatted(date: .abbreviated, time: .shortened))",
+            "",
+            "PARTEIEN"
+        ]
+        if v.parteien.isEmpty { z.append("  (keine)") }
+        for p in v.parteien { z.append("  \(p.rolle): \(p.name)") }
+        z.append(""); z.append("SACHVERHALT"); z.append(v.beschreibung.isEmpty ? "  (leer)" : v.beschreibung)
+        z.append(""); z.append("OPTIONEN")
+        for o in v.aktiveOptionen {
+            let ev = o.bewertung.ev.map { InterfaceZahl.waehrung($0.wert) } ?? "—"
+            let rav = o.bewertung.rav.map { InterfaceZahl.waehrung($0.wert) } ?? "—"
+            z.append("  \(o.label)  EV \(ev)  RAV \(rav)  P \(NexusAnzeige.band(o.chancen.pErfolg.wert)) · \(o.legalitaetsStatus.titel)")
+            if o.bewertung.ev != nil { z.append("    \(o.bewertung.ev?.quelle ?? "")") }
+        }
+        if let e = v.empfehlung {
+            z.append(""); z.append("EMPFEHLUNG")
+            z.append("  \(e.begruendung)")
+            if let g = e.gegenprobe { z.append("  Gegenprobe: \(g)") }
+        }
+        if let d = v.entscheidung {
+            z.append(""); z.append("ENTSCHEIDUNG von \(d.wer) am \(d.wann.formatted(date: .abbreviated, time: .omitted))")
+            if let g = d.abweichungGrund, !g.isEmpty { z.append("  Abweichung: \(g)") }
+        }
+        let rvg = rvg(streitwert: v.volumen)
+        z.append(""); z.append("RVG (Anlage 2 KostBRÄG 2025)")
+        z.append("  Einfache Gebühr: \(InterfaceZahl.waehrung(rvg.einfach, mitVorzeichen: false))")
+        z.append("  Verfahren 1,3: \(InterfaceZahl.waehrung(rvg.verfahren, mitVorzeichen: false))")
+        z.append("  Termin 1,2: \(InterfaceZahl.waehrung(rvg.termin, mitVorzeichen: false))")
+        z.append("  Auslagen Nr. 7002 (20 %, max. 20 €): \(InterfaceZahl.waehrung(rvg.auslagen, mitVorzeichen: false))")
+        z.append("  USt 19 %: \(InterfaceZahl.waehrung(rvg.ust, mitVorzeichen: false))")
+        z.append("  Gesamt: \(InterfaceZahl.waehrung(rvg.gesamt, mitVorzeichen: false))")
+        z.append(""); z.append("FRISTEN")
+        if v.fristen.isEmpty { z.append("  (keine)") }
+        for f in v.fristen { z.append("  \(f.art) · \(f.quelle)") }
+        return z.joined(separator: "\n")
+    }
+static func auslagenPauschale(gebuehren: Double) -> Double {
+        min(max(0, gebuehren) * 0.20, 20)
+    }
+static func gegenprobe(optionen: [VorgangOption]) -> String {
+        let kopien = optionen.filter { !$0.istVorgeschichte }
+        guard kopien.count >= 2,
+              let bestIdx = kopien.indices.max(by: {
+                  (kopien[$0].bewertung.rav?.wert ?? -.infinity) < (kopien[$1].bewertung.rav?.wert ?? -.infinity)
+              }) else {
+            return "Gegenprobe nicht möglich — weniger als zwei bewertete Optionen."
+        }
+        let name = kopien[bestIdx].label
+        var alt = kopien[bestIdx]
+        alt.chancen.pErfolg.wert = max(0.01, min(0.99, 1 - alt.chancen.pErfolg.wert))
+        bewerte(&alt)
+        let rest = kopien.enumerated()
+            .filter { $0.offset != bestIdx }
+            .compactMap { $0.element.bewertung.rav?.wert }
+            .max() ?? -.infinity
+        if (alt.bewertung.rav?.wert ?? 0) < rest {
+            let zweit = kopien.enumerated()
+                .filter { $0.offset != bestIdx }
+                .max { ($0.element.bewertung.rav?.wert ?? 0) < ($1.element.bewertung.rav?.wert ?? 0) }?
+                .element.label ?? "die nächste Option"
+            return "Diese Empfehlung hängt an „\(name)“. Kehrt sich die Erfolgschance, führt „\(zweit)“."
+        }
+        return "Die Empfehlung „\(name)“ hält auch, wenn man ihre Erfolgschance umkehrt."
+    }
+static func qualitativInRPN(_ o: inout VorgangOption) {
+        func zeile(_ titel: String, _ score: Int) {
+            guard score < 0 else { return }
+            if o.risiken.contains(where: { $0.titel == titel }) { return }
+            o.risiken.append(.init(
+                titel: titel,
+                eintrittWahrscheinlichkeit: min(10, abs(score) * 2),
+                auswirkung: 6,
+                entdeckung: 5
+            ))
+        }
+        zeile("Reputationsrisiko", o.qualitativ.reputation)
+        zeile("Beziehungsrisiko", o.qualitativ.beziehung)
+        zeile("Medienrisiko", o.qualitativ.medien)
+        zeile("Präzedenzrisiko", o.qualitativ.praezedenz)
+    }
 private static func ranking(optionen: [VorgangOption], gewicht g: Double,
              szenario: (VorgangOption, Double) -> Double) -> [VorgangOption] {
  optionen.sorted { szenario($0, g) > szenario($1, g) }
 }
-
 private static func fmt(_ x: Double) -> String {
  String(format: "%.2f", x)
 }
 }
-

@@ -1,16 +1,7 @@
 import SwiftUI
-
-// MARK: - SeitenleistenEintrag (+ Gruppen)
-// AppShell selbst wird NICHT gemountet -- Studio (`FenlynineOSStudioShell`) ist die Produkt-Spine.
-// Diese Datei bleibt die Quelle für Modul-IDs, Labels und Werkzeug-Suche.
-
-// MARK: - Navigations-Einträge
-
 enum SeitenleistenEintrag: String, CaseIterable, Identifiable {
 case dashboard = "dashboard"
 case schreibtisch = "schreibtisch"
-/// NEU (PDF Prozessarchitektur/Interface): Ein Vorgang, ein Motor, vier Konfigurationen.
-/// Fügt sich ADDITIV in die bestehende Navigation ein.
 case vorgaenge = "vorgaenge"
 case lexara = "lexara"
 case richterprofile = "richterprofile"
@@ -21,7 +12,6 @@ case analytik = "analytik"
 case strategos = "strategos"
 case opportunisma = "opportunisma"
 case kiChat = "ki-chat"
-/// Versteckt in Werkzeugen -- Chat bleibt via KI-Assistent erreichbar; Eintrag für Deep-Links.
 case plattformAgent = "plattform-agent"
 case sunTzu = "strategic-analysis"
 case mandanten = "mandant"
@@ -29,7 +19,6 @@ case organon = "organon"
 case compliance = "compliance"
 case dokumente = "dokumente"
 case einstellungen = "einstellungen"
-// Imperium 2.4 -- Querschnittssysteme
 case lageZentrale = "lage-zentrale"
 case konfliktRadar = "konflikt-radar"
 case mandatsPipeline = "mandats-pipeline"
@@ -38,21 +27,14 @@ case entscheidungsjournal = "entscheidungsjournal"
 case praxisProfil = "praxis-profil"
 case beaCheck = "bea-check"
 case berufspflicht = "berufspflicht-desk"
-// Konto-System 2.6 -- Admin-Zentrale (nur für Administratoren sichtbar)
 case adminZentrale = "admin-zentrale"
-// Weltrecht 2.7 -- Jurisdiktionen-Kompass (DACH · Skandinavien · USA · Japan · China)
 case jurisdiktionen = "jurisdiktionen"
-// Wartung 2.8 -- Selbstreparatur-Agent (automatische Scans, Reparaturen, Beschwerden)
 case selbstreparatur = "selbstreparatur"
-
+  case enterpriseRadar = "enterprise-radar"
+  case durchlauf = "durchlauf"
 var id: String { rawValue }
-
-/// Flache Reihenfolge (Fallback / Suche).
 static let commandSidebarOrder: [SeitenleistenEintrag] =
   SeitenleistenKoordinationsGruppe.allCases.flatMap(\.eintraege)
-
-// KLARTEXT-PRINZIP: Funktion zuerst, Markenname in Klammern.
-// Jeder Nutzer versteht sofort, was ein Modul tut -- die Marke bleibt sichtbar.
 var bezeichnung: String {
   switch self {
   case .dashboard: return "Übersicht"
@@ -85,14 +67,11 @@ var bezeichnung: String {
   case .adminZentrale: return "Admin-Zentrale"
   case .jurisdiktionen: return "Weltrecht-Kompass"
   case .selbstreparatur: return "Selbstreparatur"
+  case .enterpriseRadar: return "Enterprise-Radar"
+  case .durchlauf: return "Durchlauf"
   }
 }
-
-/// Sidebar-Label -- identisch mit `bezeichnung` (Klartext-Prinzip).
-/// Früher trugen Suche und Sidebar andere Namen als die Modulliste -- das war verwirrend.
 var commandLabel: String { bezeichnung }
-
-/// Ein Satz in Alltagssprache: Was mache ich hier?
 var commandSubtitle: String? {
  switch self {
  case .dashboard: return "Alles Wichtige auf einen Blick: Kennzahlen, Risiken, nächste Schritte"
@@ -125,9 +104,10 @@ var commandSubtitle: String? {
  case .adminZentrale: return "Konten, Abos, KI-Abrechnung, DSGVO, Audit"
  case .jurisdiktionen: return "Rechtsordnungen vergleichen: DACH, Skandinavien, USA, Japan, China"
  case .selbstreparatur: return "Automatische Scans, Reparaturen und KI-Failover"
+ case .enterpriseRadar: return "14 Risikodimensionen · Wettbewerber-Schwächen · Vorteile · Strategien"
+ case .durchlauf: return "Frage steuert Module · Macht-Erhalt/Wegnahme · Schwächen · Chancen/Risiken"
  }
 }
-
 var symbol: String {
  switch self {
  case .dashboard: return "house.fill"
@@ -160,9 +140,10 @@ var symbol: String {
  case .adminZentrale: return "person.2.badge.gearshape.fill"
  case .jurisdiktionen: return "globe.europe.africa.fill"
  case .selbstreparatur: return "wrench.and.screwdriver.fill"
+ case .enterpriseRadar: return "dot.radiowaves.left.and.right"
+ case .durchlauf: return "signpost.right.fill"
  }
 }
-
 var gruppe: SeitenleistenGruppe {
  switch self {
  case .dashboard: return .haupt
@@ -186,6 +167,8 @@ var gruppe: SeitenleistenGruppe {
  case .einstellungen: return .system
  case .adminZentrale: return .system
  case .selbstreparatur: return .system
+ case .enterpriseRadar: return .enterprise
+ case .durchlauf: return .haupt
  case .jurisdiktionen: return .analyse
  case .lageZentrale, .konfliktRadar, .mandatsPipeline, .honorare,
    .entscheidungsjournal, .praxisProfil, .beaCheck, .berufspflicht:
@@ -193,7 +176,6 @@ var gruppe: SeitenleistenGruppe {
  }
 }
 }
-
 enum SeitenleistenGruppe: String {
 case haupt = "Haupt"
 case analyse = "Analyse"
@@ -203,9 +185,6 @@ case enterprise = "Enterprise"
 case ki = "KI"
 case system = "System"
 }
-
-// MARK: - Koordinations-Ablauf (Sidebar-Gruppen)
-
 enum SeitenleistenKoordinationsGruppe: String, CaseIterable, Identifiable {
 case koordination
 case lexara
@@ -214,9 +193,7 @@ case organisation
 case delegation
 case pragmatismus
 case system
-
 var id: String { rawValue }
-
 var titel: String {
  switch self {
  case .koordination: return "KOORDINATION"
@@ -228,7 +205,6 @@ var titel: String {
  case .system: return "SYSTEM"
  }
 }
-
 var untertitel: String {
  switch self {
  case .koordination: return "Lage · Cockpit · Kausalgraph"
@@ -240,15 +216,14 @@ var untertitel: String {
  case .system: return "Compliance · Einstellungen · Admin"
  }
 }
-
 var eintraege: [SeitenleistenEintrag] {
  switch self {
  case .koordination:
-   return [.lageZentrale, .dashboard, .vorgaenge, .schreibtisch, .cockpit]
+   return [.durchlauf, .lageZentrale, .dashboard, .vorgaenge, .schreibtisch, .cockpit]
  case .lexara:
    return [.lexara, .richterprofile, .jurisdiktionen, .zeitleiste, .dokumente, .mandatsPipeline]
  case .strategos:
-   return [.strategos, .opportunisma, .sunTzu, .analytik, .entscheidungsjournal]
+   return [.enterpriseRadar, .strategos, .opportunisma, .sunTzu, .analytik, .entscheidungsjournal]
  case .organisation:
    return [.organon, .mandanten, .konfliktRadar, .praxisProfil]
  case .delegation:
@@ -256,16 +231,12 @@ var eintraege: [SeitenleistenEintrag] {
  case .pragmatismus:
    return [.kiChat]
  case .system:
-   // plattformAgent bewusst aus der sichtbaren Navigation genommen (dünner Chat-Duplikat)
    return [.berufspflicht, .compliance, .beaCheck, .selbstreparatur, .adminZentrale, .einstellungen]
  }
 }
-
-/// Sichtbare Trennung zwischen Lexara (Verfahren) und Strategos (Enterprise)
 var zeigtMarkenTrennerDanach: Bool {
  self == .lexara
 }
-
 var accent: Color {
  switch self {
  case .koordination: return FenlynineOSTheme.accent
@@ -278,12 +249,8 @@ var accent: Color {
  }
 }
 }
-
-// MARK: - Vision-Inhaltspanel (PDF: äußeres Glas um Hauptinhalt)
-
 private struct VisionInhaltsPanel: ViewModifier {
 let aktiv: Bool
-
 func body(content: Content) -> some View {
  if aktiv {
    content.fenlynineOSVisionHauptPanel(abstand: 20)
@@ -292,30 +259,21 @@ func body(content: Content) -> some View {
  }
 }
 }
-
-// MARK: - App-Shell (UNUSED -- nicht mounten)
-// Historische NavigationSplitView-Shell. Produkt-Spine ist `FenlynineOSStudioShell`.
-// Nicht instantiieren; `SeitenleistenEintrag` oben bleibt die kanonische Modul-Registry.
-
 struct AppShell: View {
 @EnvironmentObject var authManager: AuthManager
 @EnvironmentObject var appState: AppState
-
 @State private var selectedEintrag: SeitenleistenEintrag? = .dashboard
 @State private var sidebarEingeklappt = false
-
 private var nutztVisionLayout: Bool {
  guard let e = selectedEintrag else { return true }
  return e.glasModus != .kein
 }
-
 private let bottomNavEintraege: [(SeitenleistenEintrag, String, String)] = [
  (.dashboard, "Lagebild", "house.fill"),
  (.lexara, "Lexara", "folder.fill"),
  (.cockpit, "Cockpit", "gauge.with.dots.needle.33percent"),
  (.einstellungen, "System", "gearshape.fill")
 ]
-
 var body: some View {
  HStack(spacing: 10) {
    SidebarView(selected: $selectedEintrag, eingeklappt: $sidebarEingeklappt)
@@ -324,7 +282,6 @@ var body: some View {
      .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
      .padding(.leading, 10)
      .padding(.vertical, 16)
-
    ZStack {
      if let eintrag = selectedEintrag {
        NavigationStack {
@@ -379,7 +336,6 @@ var body: some View {
  }
  .onAppear { applyLaunchRoute() }
 }
-
 private func applyLaunchRoute() {
  let route = UserDefaults.standard.string(forKey: "fenlynineos_launch_route")
    ?? (CommandLine.arguments.contains("--opportunisma-fragebogen") ? "opportunisma_fragebogen" : nil)
@@ -389,17 +345,12 @@ private func applyLaunchRoute() {
  UserDefaults.standard.removeObject(forKey: "fenlynineos_launch_route")
 }
 }
-
-// MARK: - Vision Pro Icon-Rail (linke schwebende Pille)
-
 struct VisionOSSidebarRail: View {
 @Binding var selected: SeitenleistenEintrag?
-
 private let hauptIcons: [SeitenleistenEintrag] = [
  .dashboard, .lexara, .cockpit, .strategos, .organon,
  .opportunisma, .aufgaben, .kiChat, .compliance, .einstellungen
 ]
-
 var body: some View {
  ZStack {
    Color.clear
@@ -410,16 +361,12 @@ var body: some View {
  .frame(maxWidth: .infinity, maxHeight: .infinity)
 }
 }
-
-// MARK: - Seitenleiste (Legacy)
-
 struct SidebarView: View {
 @Binding var selected: SeitenleistenEintrag?
 @Binding var eingeklappt: Bool
 @EnvironmentObject var authManager: AuthManager
 @State private var sidebarSuche = ""
 @State private var sidebarSucheAktiv = ""
-
 private var gefilterteGruppen: [SeitenleistenKoordinationsGruppe] {
  guard !sidebarSucheAktiv.trimmingCharacters(in: .whitespaces).isEmpty else {
    return Array(SeitenleistenKoordinationsGruppe.allCases)
@@ -432,7 +379,6 @@ private var gefilterteGruppen: [SeitenleistenKoordinationsGruppe] {
    }
  }
 }
-
 var body: some View {
  List(selection: $selected) {
    if !eingeklappt {
@@ -461,7 +407,6 @@ var body: some View {
      .listRowInsets(EdgeInsets())
      .listRowBackground(Color.clear)
      .listRowSeparator(.hidden)
-
      MacOSSettingsSearchField(text: $sidebarSuche, placeholder: "Suchen")
        .padding(.horizontal, 4)
        .padding(.bottom, 6)
@@ -475,7 +420,6 @@ var body: some View {
          }
        }
    }
-
    ForEach(gefilterteGruppen) { gruppe in
      Section {
        ForEach(gefilterteEintraege(in: gruppe)) { eintrag in
@@ -489,7 +433,6 @@ var body: some View {
              .listRowBackground(Color.clear)
          }
        }
-
        if gruppe.zeigtMarkenTrennerDanach && !eingeklappt {
          SidebarLexaraStrategosTrenner()
        }
@@ -507,7 +450,6 @@ var body: some View {
    SidebarFooter()
  }
 }
-
 private func gefilterteEintraege(in gruppe: SeitenleistenKoordinationsGruppe) -> [SeitenleistenEintrag] {
  let q = sidebarSucheAktiv.trimmingCharacters(in: .whitespaces).lowercased()
  guard !q.isEmpty else { return gruppe.eintraege }
@@ -517,10 +459,8 @@ private func gefilterteEintraege(in gruppe: SeitenleistenKoordinationsGruppe) ->
  }
 }
 }
-
 struct SidebarSectionHeader: View {
 let gruppe: SeitenleistenKoordinationsGruppe
-
 var body: some View {
  Text(gruppe.titel)
    .font(.system(size: 11, weight: .semibold))
@@ -530,8 +470,6 @@ var body: some View {
    .textCase(nil)
 }
 }
-
-/// Goldene Trennlinie zwischen Lexara (Verfahren) und Strategos (Enterprise)
 struct SidebarLexaraStrategosTrenner: View {
 var body: some View {
  VStack(spacing: 4) {
@@ -557,11 +495,9 @@ var body: some View {
  .listRowSeparator(.hidden)
 }
 }
-
 struct SidebarIconRow: View {
 let eintrag: SeitenleistenEintrag
 let isSelected: Bool
-
 var body: some View {
  MacOSSettingsSquircleIcon(
    symbol: eintrag.macSettingsSymbol,
@@ -577,11 +513,9 @@ var body: some View {
  .help(eintrag.commandLabel)
 }
 }
-
 struct SidebarRow: View {
 let eintrag: SeitenleistenEintrag
 let isSelected: Bool
-
 var body: some View {
  MacOSSettingsSidebarRow(
    titel: eintrag.commandLabel,
@@ -592,11 +526,9 @@ var body: some View {
  )
 }
 }
-
 struct SidebarFooter: View {
 @EnvironmentObject var authManager: AuthManager
 @State private var zeigeMenu = false
-
 var body: some View {
  Divider().overlay(FenlynineOSTheme.border)
  Button {
@@ -628,10 +560,8 @@ var body: some View {
  .padding(.bottom, 4)
 }
 }
-
 struct BenutzerMenuView: View {
 @EnvironmentObject var authManager: AuthManager
-
 var body: some View {
  VStack(alignment: .leading, spacing: 4) {
    VStack(alignment: .leading, spacing: 4) {
@@ -644,15 +574,11 @@ var body: some View {
    .padding(.horizontal, 12)
    .padding(.top, 12)
    .padding(.bottom, 8)
-
    Divider()
-
    Button("Einstellungen") {
      NotificationCenter.default.post(name: .navigateToSidebar, object: SeitenleistenEintrag.einstellungen.rawValue)
    }
-
    Divider()
-
    Button("Abmelden", role: .destructive) {
      authManager.logout()
    }
@@ -665,17 +591,12 @@ var body: some View {
  .frame(width: 220)
 }
 }
-
-// MARK: - Haupt-Inhaltsrouter
-
 struct DetailView: View {
 let eintrag: SeitenleistenEintrag
 @Binding var selectedEintrag: SeitenleistenEintrag?
 @Binding var sidebarEingeklappt: Bool
 @EnvironmentObject var appState: AppState
-
 private var istLegacyModul: Bool { eintrag.glasModus == .kein }
-
 var body: some View {
  Group {
    if istLegacyModul {
@@ -696,7 +617,6 @@ var body: some View {
  }
  .navigationTitle(eintrag.bezeichnung)
 }
-
 @ViewBuilder
 private var routedContent: some View {
  switch eintrag {
@@ -706,8 +626,8 @@ private var routedContent: some View {
  case .lexara: CaseListView()
  case .richterprofile: RichterProfileView()
  case .aufgaben: AufgabenView()
- case .zeitleiste: ZeitleisteView()
- case .cockpit: KanzleiCockpitView()
+ case .zeitleiste: FristenArbeitsablaufView()
+ case .cockpit: KanzleiAnalytikView()
  case .analytik: KanzleiAnalytikView()
  case .strategos: StrategosView().fenlynineOSSFTypographyOnly()
  case .opportunisma: OpportunismaView()
@@ -730,16 +650,14 @@ private var routedContent: some View {
  case .adminZentrale: AdminZentraleView()
  case .jurisdiktionen: JurisdiktionenView()
  case .selbstreparatur: SelbstreparaturView()
+ case .enterpriseRadar: EnterpriseRadarView()
+ case .durchlauf: DurchlaufView()
  }
 }
 }
-
-// MARK: - Globale Toast-Benachrichtigungen
-
 struct GlobalToastView: View {
 @EnvironmentObject var appState: AppState
 var extraBottomPadding: CGFloat = 0
-
 var body: some View {
  VStack(spacing: 8) {
    if let error = appState.globalError {
@@ -756,14 +674,11 @@ var body: some View {
  .padding(.bottom, 20 + extraBottomPadding)
 }
 }
-
 struct ToastView: View {
 let message: String
 let typ: ToastTyp
-
 enum ToastTyp {
  case fehler, erfolg, info
-
  var farbe: Color {
    switch self {
    case .fehler: return .red
@@ -771,7 +686,6 @@ enum ToastTyp {
    case .info: return .blue
    }
  }
-
  var symbol: String {
    switch self {
    case .fehler: return "xmark.circle.fill"
@@ -780,7 +694,6 @@ enum ToastTyp {
    }
  }
 }
-
 var body: some View {
  HStack(spacing: 10) {
    Image(systemName: typ.symbol)
@@ -799,13 +712,9 @@ var body: some View {
  .shadow(color: FenlynineOSDesign.cardShadow, radius: 12, y: 6)
 }
 }
-
-// MARK: - Dokumente-Übersicht
-
 struct DokumenteUebersichtView: View {
 @State private var dokumente: [LegalDocument] = []
 @State private var isLoading = false
-
 var body: some View {
  ScrollView {
    VStack(spacing: 12) {
@@ -853,7 +762,6 @@ var body: some View {
  .task { await laden() }
  .refreshable { await laden() }
 }
-
 @MainActor
 private func laden() async {
  isLoading = true
@@ -865,4 +773,3 @@ private func laden() async {
  }
 }
 }
-
