@@ -1,5 +1,6 @@
 import Foundation
 import CryptoKit
+import CommonCrypto
 import SwiftUI
 enum AboPlan: String, Codable, CaseIterable, Identifiable {
     case frei
@@ -251,8 +252,15 @@ final class KontoStore: ObservableObject {
         guard !konto.gesperrt else {
             fehler = "Dieses Konto ist gesperrt. Bitte an den Administrator wenden."; return false
         }
-        guard Self.hash(passwort: passwort, salt: konto.salt) == konto.passwortHash else {
+        guard Self.passt(passwort: passwort, salt: konto.salt, gespeichert: konto.passwortHash) else {
             fehler = "Passwort falsch."; return false
+        }
+        // Alte Konten tragen noch den einfachen SHA-256-Hash. Beim ersten
+        // erfolgreichen Anmelden wird er durch PBKDF2 ersetzt.
+        if !konto.passwortHash.hasPrefix(Self.pbkdf2Praefix),
+           let idx = konten.firstIndex(where: { $0.id == konto.id }) {
+            konten[idx].passwortHash = Self.hash(passwort: passwort, salt: konto.salt)
+            speichern()
         }
         anmeldenIntern(konto)
         return true
@@ -289,7 +297,7 @@ final class KontoStore: ObservableObject {
         fehler = nil
         guard var konto = aktuellesKonto,
               let idx = konten.firstIndex(where: { $0.id == konto.id }) else { return false }
-        guard Self.hash(passwort: alt, salt: konto.salt) == konto.passwortHash else {
+        guard Self.passt(passwort: alt, salt: konto.salt, gespeichert: konto.passwortHash) else {
             fehler = "Aktuelles Passwort falsch."; return false
         }
         guard neu.count >= 8 else {
@@ -505,9 +513,51 @@ final class KontoStore: ObservableObject {
         _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
         return bytes.map { String(format: "%02x", $0) }.joined()
     }
+    // Passwort-Hashing: PBKDF2-HMAC-SHA256 mit 600.000 Runden (OWASP-Empfehlung).
+    // Ein einzelner SHA-256-Durchlauf lässt sich auf einer Grafikkarte
+    // milliardenfach pro Sekunde durchprobieren; PBKDF2 macht jeden Versuch teuer.
+    // Format: "pbkdf2$<Runden>$<Hex>". Hashes ohne dieses Präfix sind alte
+    // SHA-256-Hashes und werden beim nächsten Anmelden ersetzt.
+    static let pbkdf2Praefix = "pbkdf2$"
+    private static let pbkdf2Runden = 600_000
     private static func hash(passwort: String, salt: String) -> String {
+        guard let hex = pbkdf2(passwort: passwort, salt: salt, runden: pbkdf2Runden) else {
+            // Sollte die Systemfunktion ausfallen, lieber den alten Hash als gar keinen.
+            return altHash(passwort: passwort, salt: salt)
+        }
+        return "\(pbkdf2Praefix)\(pbkdf2Runden)$\(hex)"
+    }
+    private static func passt(passwort: String, salt: String, gespeichert: String) -> Bool {
+        if gespeichert.hasPrefix(pbkdf2Praefix) {
+            let teile = gespeichert.split(separator: "$")
+            guard teile.count == 3, let runden = Int(teile[1]), runden > 0,
+                  let hex = pbkdf2(passwort: passwort, salt: salt, runden: runden) else { return false }
+            return zeitkonstantGleich(hex, String(teile[2]))
+        }
+        return zeitkonstantGleich(altHash(passwort: passwort, salt: salt), gespeichert)
+    }
+    private static func altHash(passwort: String, salt: String) -> String {
         let digest = SHA256.hash(data: Data((salt + passwort).utf8))
         return digest.map { String(format: "%02x", $0) }.joined()
+    }
+    private static func pbkdf2(passwort: String, salt: String, runden: Int) -> String? {
+        let pw = Array(passwort.utf8).map { Int8(bitPattern: $0) }
+        let s = Array(salt.utf8)
+        var aus = [UInt8](repeating: 0, count: 32)
+        let status = CCKeyDerivationPBKDF(
+            CCPBKDFAlgorithm(kCCPBKDF2), pw, pw.count, s, s.count,
+            CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256), UInt32(runden), &aus, aus.count)
+        guard status == Int32(kCCSuccess) else { return nil }
+        return aus.map { String(format: "%02x", $0) }.joined()
+    }
+    /// Vergleich ohne vorzeitigen Abbruch, damit die Laufzeit nichts über die
+    /// Zahl der übereinstimmenden Zeichen verrät.
+    private static func zeitkonstantGleich(_ a: String, _ b: String) -> Bool {
+        let x = Array(a.utf8), y = Array(b.utf8)
+        guard x.count == y.count else { return false }
+        var diff: UInt8 = 0
+        for i in 0..<x.count { diff |= x[i] ^ y[i] }
+        return diff == 0
     }
     private static func zufallsPasswort() -> String {
         let zeichen = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789"
