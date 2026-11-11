@@ -1,4 +1,5 @@
 import SwiftUI
+import FenlynineOSKern
 enum StudioZone: String, CaseIterable, Identifiable {
 case vorgaenge
 case lage
@@ -63,6 +64,7 @@ struct FenlynineOSStudioShell: View {
 @EnvironmentObject var appState: AppState
 @Bindable private var appearance = AppearanceStore.shared
 @ObservedObject private var kontoStore = KontoStore.shared
+@ObservedObject private var arbeitsfluss = ArbeitsflussDienst.shared
 var onZurueckZumHub: (() -> Void)? = nil
 @State private var zone: StudioZone = .vorgaenge
 @State private var offenerVorgangId: UUID?
@@ -72,6 +74,8 @@ var onZurueckZumHub: (() -> Void)? = nil
 @State private var zeigeTutorial = false
 @State private var showInspector = true
 @State private var werkzeugFilter = ""
+/// Apple-Ansicht: false = App-Store-Startseite ("Entdecken"), true = ein Modul ist geöffnet.
+@State private var appleModulOffen = false
 @AppStorage("fenlynineos_einstellungen_tab") private var einstellungenTab = "ki"
 private var istApple: Bool { appearance.istApple }
 var body: some View {
@@ -112,6 +116,7 @@ var body: some View {
     if !RechtsradarAgent.shared.laeuft {
       RechtsradarAgent.shared.starten()
     }
+    Task { await ArbeitsflussDienst.shared.aktualisieren() }
     if zone == .werkzeuge && werkzeug == .schreibtisch {
       showInspector = false
    }
@@ -160,6 +165,7 @@ private func navigiereZuWerkzeug(_ e: SeitenleistenEintrag) {
    zone = .werkzeuge
    werkzeug = e
  }
+ if zone == .werkzeuge { appleModulOffen = true }
  if e == .schreibtisch || e == .opportunisma {
    withAnimation(.easeOut(duration: 0.15)) { showInspector = false }
  }
@@ -188,6 +194,7 @@ private var appleRail: some View {
       .onChange(of: werkzeugFilter) { _, neu in
         if !neu.trimmingCharacters(in: .whitespaces).isEmpty {
           zone = .werkzeuge
+          appleModulOffen = false
         }
       }
     ScrollView {
@@ -195,11 +202,13 @@ private var appleRail: some View {
         ForEach(StudioZone.allCases) { z in
           StoreSidebarRow(
             symbol: z.appleSymbol,
-            titel: z.railLabel,
+            titel: z == .werkzeuge ? "Entdecken" : z.railLabel,
+            badge: z == .werkzeuge ? arbeitsfluss.schritte.filter { $0.dringlichkeit == .kritisch }.count : nil,
             selected: zone == z
           ) {
             zone = z
             if z == .vorgaenge { offenerVorgangId = nil }
+            if z == .werkzeuge { appleModulOffen = false }
           }
           .help(z.railHilfe)
         }
@@ -320,7 +329,26 @@ private var appleTopBar: some View {
         .foregroundStyle(Store.text)
         .lineLimit(1)
     }
+    if zone == .werkzeuge && appleModulOffen {
+      Button(action: { appleModulOffen = false }) {
+        HStack(spacing: 4) {
+          Image(systemName: "chevron.left")
+            .font(.system(size: 13, weight: .semibold))
+          Text("Entdecken")
+            .font(.system(size: 13, weight: .regular))
+        }
+        .foregroundStyle(Store.accent)
+      }
+      .buttonStyle(.plain)
+      .keyboardShortcut("[", modifiers: [.command])
+      .help("Zurück zur Modulübersicht")
+      Text(werkzeug.bezeichnung)
+        .font(.system(size: 13, weight: .semibold))
+        .foregroundStyle(Store.text)
+        .lineLimit(1)
+    }
     Spacer()
+    KIPruefsiegelButton()
     AppearanceToggle()
     StorePillButton(titel: "Fenster", action: {
       if let ziel = fensterZiel { oeffneModulFenster(ziel) }
@@ -369,6 +397,7 @@ private var classicTopBar: some View {
        .lineLimit(1)
    }
    Spacer()
+   KIPruefsiegelButton()
    AppearanceToggle()
    Button {
      if let ziel = fensterZiel {
@@ -495,85 +524,32 @@ private var zoneInhalt: some View {
  }
 }
 private var appleWerkzeugPanel: some View {
-  HStack(spacing: 0) {
-    VStack(spacing: 0) {
-      StoreSearchField(text: $werkzeugFilter, placeholder: "Module suchen")
-        .padding(12)
-      ScrollView {
-        VStack(alignment: .leading, spacing: 2) {
-          ForEach(werkzeugSektionen, id: \.titel) { sektion in
-            let items = gefilterteWerkzeuge(sektion.items)
-            if !items.isEmpty {
-              Text(sektion.titel.uppercased())
-                .font(Store.eyebrow)
-                .foregroundStyle(Store.textTertiary)
-                .tracking(0.7)
-                .padding(.horizontal, 12)
-                .padding(.top, 10)
-                .padding(.bottom, 4)
-              ForEach(items, id: \.self) { e in
-                HStack(spacing: 4) {
-                  Button { werkzeug = e } label: {
-                    HStack(alignment: .top, spacing: 8) {
-                      Image(systemName: e.symbol)
-                        .font(.system(size: 11))
-                        .frame(width: 16)
-                        .padding(.top, 1)
-                      VStack(alignment: .leading, spacing: 1) {
-                        Text(e.bezeichnung)
-                          .font(.system(size: 12, weight: .medium))
-                          .lineLimit(1)
-                        if let sub = e.commandSubtitle {
-                          Text(sub)
-                            .font(.system(size: 9.5))
-                            .foregroundStyle(werkzeug == e ? Store.accent.opacity(0.85) : Store.textTertiary)
-                            .lineLimit(1)
-                        }
-                      }
-                      Spacer()
-                      if !kontoStore.darf(e) { AboFensterSperrBadge(eintrag: e) }
-                    }
-                    .foregroundStyle(werkzeug == e ? Store.text : Store.textSecondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                      RoundedRectangle(cornerRadius: 8)
-                        .fill(werkzeug == e ? Store.selection : Color.clear)
-                    )
-                  }
-                  .buttonStyle(.plain)
-                  .contextMenu {
-                    Button("Als Fenster öffnen") { oeffneModulFenster(e) }
-                    Button("Vergleichsfenster") { ModulFensterHost.shared.oeffneVergleich() }
-                  }
-                  Button { oeffneModulFenster(e) } label: {
-                    Image(systemName: "macwindow")
-                      .font(.system(size: 11, weight: .semibold))
-                      .foregroundStyle(Store.accent)
-                      .frame(width: 28, height: 28)
-                      .background(RoundedRectangle(cornerRadius: 6).fill(Store.accent.opacity(0.10)))
-                  }
-                  .buttonStyle(.plain)
-                }
-                .padding(.horizontal, 6)
-              }
-            }
-          }
-        }
-        .padding(.bottom, 20)
-      }
+  Group {
+    if appleModulOffen {
+      ModulInhalt(eintrag: werkzeug)
+        .id(werkzeug)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+        .background(Store.canvas)
+    } else {
+      AppStoreStartseite(
+        regale: werkzeugSektionen.map { AppStoreRegal(titel: $0.titel, eintraege: $0.items) },
+        suchtext: werkzeugFilter,
+        darf: { kontoStore.darf($0) },
+        onOeffnen: { e in
+          werkzeugFilter = ""
+          navigiereZuWerkzeug(e)
+        },
+        onFenster: oeffneModulFenster,
+        onSchritt: oeffneArbeitsschritt
+      )
     }
-    .frame(width: 292)
-    .storeSidebarMaterial()
-    .overlay(alignment: .trailing) {
-      Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1)
-    }
-    ModulInhalt(eintrag: werkzeug)
-      .id(werkzeug)
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .clipped()
-      .background(Store.canvas)
   }
+}
+/// Öffnet die Akte eines Arbeitsschritts im Modul, in dem er erledigt wird.
+private func oeffneArbeitsschritt(_ schritt: Arbeitsschritt) {
+  appState.selectedCaseId = schritt.akteId
+  navigiereZuWerkzeug(SeitenleistenEintrag(rawValue: schritt.modulId) ?? .lexara)
 }
 private var classicWerkzeugPanel: some View {
  HStack(spacing: 0) {
