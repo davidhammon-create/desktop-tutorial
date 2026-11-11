@@ -85,7 +85,7 @@ struct ProfilAuswahlView: View {
             .padding(16)
             .background {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(FenlynineOSTheme.cardBackground)
+                    .fill(FenlynineOSTheme.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
                             .stroke(FenlynineOSTheme.border, lineWidth: 1)
@@ -226,7 +226,7 @@ struct ProfilKachel: View {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(istAktiv
                           ? FenlynineOSTheme.accent.gradient
-                          : FenlynineOSTheme.cardBackground.gradient)
+                          : FenlynineOSTheme.surface.gradient)
             }
             .overlay {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -311,7 +311,7 @@ struct ProfilSchnellwahl: View {
                 .padding(.vertical, 8)
                 .background {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(FenlynineOSTheme.cardBackground)
+                        .fill(FenlynineOSTheme.surface)
                 }
             }
             .buttonStyle(.plain)
