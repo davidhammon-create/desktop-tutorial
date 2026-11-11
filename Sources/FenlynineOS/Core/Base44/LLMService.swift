@@ -350,13 +350,22 @@ actor LLMService {
             model: model,
             jsonSchema: schema
         )
-        let cleaned = content
-            .replacingOccurrences(of: "```json\n", with: "")
-            .replacingOccurrences(of: "```\n", with: "")
-            .replacingOccurrences(of: "```", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let data = cleaned.data(using: .utf8) else {
-            throw Base44Error.decodingError(NSError(domain: "LLMService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Leere Antwort von Offline-KI"]))
+        // Lokale Modelle liefern oft Markdown-Zäune, einen Einleitungssatz oder ein
+        // Komma zu viel. Erst reparieren, dann EINMAL gezielt nachfordern.
+        if let data = JSONReparatur.extrahiere(content),
+           let wert = try? JSONDecoder.base44.decode(T.self, from: data) {
+            return wert
+        }
+        let zweiter = try await invokeOfflineText(
+            prompt: "Deine letzte Antwort war kein gültiges JSON. Gib dieselbe Antwort erneut aus, "
+                + "ausschließlich als ein gültiges JSON-Objekt nach dem Schema, ohne Text davor oder danach.\n\n"
+                + "LETZTE ANTWORT:\n" + String(content.prefix(6000)),
+            url: url,
+            model: model,
+            jsonSchema: schema
+        )
+        guard let data = JSONReparatur.extrahiere(zweiter) else {
+            throw Base44Error.decodingError(NSError(domain: "LLMService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Die lokale KI hat auch im zweiten Versuch kein gültiges JSON geliefert. Bitte erneut versuchen oder ein größeres Modell wählen."]))
         }
         return try JSONDecoder.base44.decode(T.self, from: data)
     }

@@ -69,11 +69,66 @@ enum KIVeredelung {
                 }
             }
         }
-        return """
+        let akte = await aktenlage(caseId: caseId)
+        return akte + """
         # RECHENKERN-FAKTEN (deterministisch berechnet, verbindlich)
         \(zeilen.joined(separator: "\n"))
         Diese Werte nicht neu berechnen und nicht abändern. Fehlt eine Zahl, schreibe \
         „nicht berechnet“, statt zu schätzen.
+        """
+    }
+
+    /// Gemeinsame Sicht aller Module auf die Akte. Egal welches Modul die KI
+    /// fragt -- Strategie, Prognose, Verhandlung --, es sieht denselben Stand:
+    /// die stärksten Argumente beider Seiten, die Beweislage, die Beteiligten
+    /// nach Rolle. So widersprechen sich die Module nicht.
+    static func aktenlage(caseId: String?) async -> String {
+        guard let caseId, !caseId.isEmpty,
+              let fall = try? await Services.cases.get(id: caseId) else { return "" }
+        var zeilen: [String] = []
+        func feld(_ name: String, _ wert: String?) {
+            if let w = wert?.trimmingCharacters(in: .whitespacesAndNewlines), !w.isEmpty {
+                zeilen.append("- \(name): \(w)")
+            }
+        }
+        feld("Rechtsgebiet", fall.rechtsgebiet)
+        feld("Gericht", fall.gericht)
+        zeilen.append("- Instanz: \(fall.instanz.rawValue) · Status: \(fall.status.rawValue)")
+        feld("Prozessziel", fall.prozessziel)
+        feld("Zentrale Rechtsfrage", fall.zentrale_rechtsfrage)
+        if let argumente = try? await Services.arguments.listForCase(caseId: caseId), !argumente.isEmpty {
+            let eigene = argumente.filter { $0.side == .eigen }.sorted { $0.strength > $1.strength }
+            let fremde = argumente.filter { $0.side != .eigen }.sorted { $0.strength > $1.strength }
+            zeilen.append("- Argumente: \(eigene.count) eigene, \(fremde.count) der Gegenseite")
+            for a in eigene.prefix(4) {
+                let norm = (a.rechtsgrundlage?.isEmpty == false) ? " [\(a.rechtsgrundlage!)]" : ""
+                zeilen.append("  · eigen, Stärke \(a.strength)/10: \(a.title)\(norm)")
+            }
+            for a in fremde.prefix(4) {
+                let norm = (a.rechtsgrundlage?.isEmpty == false) ? " [\(a.rechtsgrundlage!)]" : ""
+                zeilen.append("  · Gegenseite, Stärke \(a.strength)/10: \(a.title)\(norm)")
+            }
+            let ohneBeweis = eigene.filter { ($0.linked_evidence_ids ?? []).isEmpty }.count
+            if ohneBeweis > 0 {
+                zeilen.append("  · \(ohneBeweis) eigene Argumente ohne verknüpftes Beweismittel")
+            }
+        }
+        if let beweise = try? await Services.evidence.listForCase(caseId: caseId), !beweise.isEmpty {
+            zeilen.append("- Beweismittel: \(beweise.count)")
+            for b in beweise.sorted(by: { $0.weight > $1.weight }).prefix(5) {
+                zeilen.append("  · \(b.type.rawValue), Gewicht \(b.weight)/10: \(b.title)")
+            }
+        }
+        if let personen = try? await Services.persons.listForCase(caseId: caseId), !personen.isEmpty {
+            let nachRolle = Dictionary(grouping: personen, by: { $0.role.rawValue })
+            let teile = nachRolle.keys.sorted().map { "\(nachRolle[$0]?.count ?? 0)× \($0)" }
+            zeilen.append("- Beteiligte: " + teile.joined(separator: ", "))
+        }
+        guard !zeilen.isEmpty else { return "" }
+        return """
+        # AKTENLAGE (gemeinsamer Stand aller Module zu dieser Akte)
+        \(zeilen.joined(separator: "\n"))
+
         """
     }
 

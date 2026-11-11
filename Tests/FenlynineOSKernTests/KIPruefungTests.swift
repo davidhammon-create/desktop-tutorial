@@ -207,3 +207,33 @@ final class RelevanzsucheTests: XCTestCase {
         XCTAssertEqual(a.map(\.id), b.map(\.id))
     }
 }
+
+final class JSONReparaturTests: XCTestCase {
+
+    private func objekt(_ s: String) -> [String: Any]? {
+        JSONReparatur.extrahiere(s).flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+    }
+
+    func testSauberesJSONBleibt() {
+        XCTAssertEqual(objekt("{\"a\": 1}")?["a"] as? Int, 1)
+    }
+
+    func testMarkdownZaunUndEinleitung() {
+        let s = "Hier ist die Analyse:\n```json\n{\"risiko\": \"hoch\", \"punkte\": [1, 2]}\n```\nViel Erfolg!"
+        XCTAssertEqual(objekt(s)?["risiko"] as? String, "hoch")
+    }
+
+    func testHaengendesKomma() {
+        XCTAssertEqual((objekt("{\"liste\": [1, 2, ], \"x\": \"y\", }")?["liste"] as? [Int]) ?? [], [1, 2])
+    }
+
+    func testKlammerInZeichenketteZaehltNicht() {
+        XCTAssertEqual(objekt("Antwort: {\"text\": \"Klausel } bleibt, auch [so]\"} Ende")?["text"] as? String,
+                       "Klausel } bleibt, auch [so]")
+    }
+
+    func testAbgeschnittenesJSONWirdNichtErfunden() {
+        XCTAssertNil(JSONReparatur.extrahiere("{\"a\": [1, 2"))
+        XCTAssertNil(JSONReparatur.extrahiere("Dazu kann ich nichts sagen."))
+    }
+}
