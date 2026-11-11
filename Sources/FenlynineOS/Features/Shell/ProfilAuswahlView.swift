@@ -70,7 +70,7 @@ struct ProfilAuswahlView: View {
         if let profil = Nutzungsprofil.alleStandard.first(where: { $0.id == ausgewaehltesProfil }),
            !profil.verbuende.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Modulverbünde in „\(profil.titel)"")
+                Text("Modulverbünde in „\(profil.titel)“")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(FenlynineOSTheme.textPrimary)
                 Text("Diese Module arbeiten zusammen: Wählen Sie einen Fall in einem Modul, "
@@ -173,7 +173,7 @@ struct ProfilAuswahlView: View {
         // appState.profilVerwalter.profilHinzufuegen(neues)
         eigenesProfilName = ""
         zeigeEigenesProfil = false
-        erfolgsmeldung = "Profil „\(name)" erstellt."
+        erfolgsmeldung = "Profil „\(name)“ erstellt."
     }
 }
 
