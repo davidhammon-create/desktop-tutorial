@@ -1,4 +1,5 @@
 import Foundation
+import FenlynineOSKern
 enum KIModus: String, CaseIterable, Codable {
     case base44 = "base44"
     case appleIntelligence = "apple_intelligence"
@@ -89,33 +90,38 @@ actor LLMService {
         let eff = KIKonfiguration.shared.aufgeloest(fuer: slot)
         let resolvedModel: String? = model ?? eff.modell
         var logModel = resolvedModel ?? "automatic"
-        let rechtsKopf = Rechtsordnung.promptKopf
-        let angereichert = rechtsKopf.isEmpty ? prompt : rechtsKopf + "\n\n---\n\n" + prompt
         let residenz = DatenResidenz.effektiverModus(fuer: eff.modus)
         DatenResidenz.protokolliere(angefragt: eff.modus, entschieden: residenz.modus, umleitung: residenz.umleitung)
+        // Veredelung: Rechtsordnung, Rechenkern-Fakten, passendes Rechtswissen und
+        // die Arbeitsmethode des Moduls -- für jedes Modul gleich, an einer Stelle.
+        let angereichert = await anreichern(prompt, slot: slot, caseId: logCaseId, wissenLimit: 4)
+        var pseudo = await KIVeredelung.pseudonymisierer(fuer: residenz.modus)
+        let zuSenden = pseudonymisiert(angereichert, mit: &pseudo)
         let result: T
         do {
             switch residenz.modus {
             case .offline:
                 logModel = eff.offlineModell
-                result = try await invokeOffline(prompt: angereichert, schema: schema, fileUrls: fileUrls, model: eff.offlineModell, url: eff.offlineURL)
+                result = try await invokeOffline(prompt: zuSenden, schema: schema, fileUrls: fileUrls, model: eff.offlineModell, url: eff.offlineURL)
             case .appleIntelligence:
                 logModel = AppleIntelligenceService.modellLabel
-                result = try await AppleIntelligenceService.antwortJSON(prompt: angereichert, schema: schema)
+                result = try await AppleIntelligenceService.antwortJSON(prompt: zuSenden, schema: schema)
             case .base44:
-                result = try await invokeBase44(prompt: angereichert, schema: schema, fileUrls: fileUrls, webContext: webContext, model: resolvedModel)
+                result = try await invokeBase44(prompt: zuSenden, schema: schema, fileUrls: fileUrls, webContext: webContext, model: resolvedModel, pseudo: pseudo)
             }
             SelbstreparaturAgent.meldeKIErfolg(modus: residenz.modus)
         } catch {
             SelbstreparaturAgent.meldeKIFehler(modus: residenz.modus, modul: logKiName ?? "KI", fehler: error)
             throw error
         }
+        await KIVeredelung.pruefe(result, quellen: angereichert, modul: logKiName ?? "KI",
+                                  modell: logModel, pseudonymisierteAngaben: pseudo?.anzahl ?? 0)
         let ausgabeZeichen = (result as? String)?.count ?? 1600
         await KontoAbrechnung.verbuche(
             modul: logKiName ?? "KI",
             aktion: "Strukturierte Analyse",
             modell: logModel,
-            tokensEin: KontoAbrechnung.geschaetzteTokens(zeichen: prompt.count),
+            tokensEin: KontoAbrechnung.geschaetzteTokens(zeichen: zuSenden.count),
             tokensAus: KontoAbrechnung.geschaetzteTokens(zeichen: ausgabeZeichen)
         )
         if let logCaseId, let logKiName {
@@ -164,40 +170,61 @@ actor LLMService {
         let eff = KIKonfiguration.shared.aufgeloest(fuer: slot)
         let resolvedModel: String? = model ?? eff.modell
         var logModel = resolvedModel ?? "automatic"
-        let wissen = await MainActor.run {
-            RechtswissenStore.shared.kontextFuerPrompt(limit: 8, query: String(prompt.prefix(80)))
-        }
-        let angereichert = wissen.isEmpty ? prompt : wissen + "\n\n---\n\n" + prompt
         let residenz = DatenResidenz.effektiverModus(fuer: eff.modus)
         DatenResidenz.protokolliere(angefragt: eff.modus, entschieden: residenz.modus, umleitung: residenz.umleitung)
+        let angereichert = await anreichern(prompt, slot: slot, caseId: logCaseId, wissenLimit: 8)
+        var pseudo = await KIVeredelung.pseudonymisierer(fuer: residenz.modus)
+        let zuSenden = pseudonymisiert(angereichert, mit: &pseudo)
         let text: String
         do {
             switch residenz.modus {
             case .offline:
                 logModel = eff.offlineModell
-                text = try await invokeOfflineText(prompt: angereichert, url: eff.offlineURL, model: eff.offlineModell)
+                text = try await invokeOfflineText(prompt: zuSenden, url: eff.offlineURL, model: eff.offlineModell)
             case .appleIntelligence:
                 logModel = AppleIntelligenceService.modellLabel
-                text = try await AppleIntelligenceService.antwort(prompt: angereichert)
+                text = try await AppleIntelligenceService.antwort(prompt: zuSenden)
             case .base44:
-                text = try await invokeBase44Text(prompt: angereichert, fileUrls: fileUrls, webContext: webContext, model: resolvedModel)
+                text = try await invokeBase44Text(prompt: zuSenden, fileUrls: fileUrls, webContext: webContext, model: resolvedModel, pseudo: pseudo)
             }
             SelbstreparaturAgent.meldeKIErfolg(modus: residenz.modus)
         } catch {
             SelbstreparaturAgent.meldeKIFehler(modus: residenz.modus, modul: logKiName ?? "KI", fehler: error)
             throw error
         }
+        await KIVeredelung.pruefe(text, quellen: angereichert, modul: logKiName ?? "KI",
+                                  modell: logModel, pseudonymisierteAngaben: pseudo?.anzahl ?? 0)
         await KontoAbrechnung.verbuche(
             modul: logKiName ?? "KI",
             aktion: "Text-Anfrage",
             modell: logModel,
-            tokensEin: KontoAbrechnung.geschaetzteTokens(zeichen: angereichert.count),
+            tokensEin: KontoAbrechnung.geschaetzteTokens(zeichen: zuSenden.count),
             tokensAus: KontoAbrechnung.geschaetzteTokens(zeichen: text.count)
         )
         if let logCaseId, let logKiName {
             await KIProtokollService.log(caseId: logCaseId, kiName: logKiName, eingabe: prompt, ausgabe: text, modell: logModel)
         }
         return text
+    }
+    /// Baut den Prompt für alle Module gleich auf: Rechtsordnung, verbindliche
+    /// Rechenkern-Fakten, passendes lokales Rechtswissen, Arbeitsmethode, Aufgabe.
+    private func anreichern(_ prompt: String, slot: KIModulSlot, caseId: String?,
+                            wissenLimit: Int) async -> String {
+        let fakten = await KIVeredelung.rechenkernFakten(caseId: caseId)
+        let wissen = await KIVeredelung.rechtswissen(fuer: prompt, limit: wissenLimit)
+        let teile = [Rechtsordnung.promptKopf, fakten, wissen, KIPromptKit.methodik(fuer: slot), prompt]
+        return teile
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n\n---\n\n")
+    }
+    /// Ersetzt geschützte Angaben durch Platzhalter, wenn ein Pseudonymisierer
+    /// übergeben wurde (also nur, wenn die Anfrage das Gerät verlässt).
+    private func pseudonymisiert(_ text: String, mit pseudo: inout Pseudonymisierer?) -> String {
+        guard var p = pseudo else { return text }
+        let ersetzt = p.pseudonymisiere(text)
+        pseudo = p
+        return p.anzahl > 0 ? ersetzt + "\n\n" + Pseudonymisierer.prompthinweis : ersetzt
     }
     private func ensureCloudConfig() async {
         await client.ensureReady()
@@ -207,20 +234,21 @@ actor LLMService {
         schema: Any?,
         fileUrls: [String]?,
         webContext: Bool,
-        model: String?
+        model: String?,
+        pseudo: Pseudonymisierer? = nil
     ) async throws -> T {
         await ensureCloudConfig()
         let sanitized = KIFileURLs.sanitize(fileUrls)
         do {
             return try await performBase44Invoke(
                 prompt: prompt, schema: schema, fileUrls: sanitized,
-                webContext: webContext, model: model
+                webContext: webContext, model: model, pseudo: pseudo
             )
         } catch Base44Error.httpError(400, let msg) where KIFileURLs.isInvalidAttachmentError(msg) && sanitized != nil {
             return try await performBase44Invoke(
                 prompt: prompt + "\n\n[Hinweis: Datei-Anhänge konnten nicht geladen werden — nutze den Textkontext oben.]",
                 schema: schema, fileUrls: nil,
-                webContext: webContext, model: model
+                webContext: webContext, model: model, pseudo: pseudo
             )
         }
     }
@@ -229,7 +257,8 @@ actor LLMService {
         schema: Any?,
         fileUrls: [String]?,
         webContext: Bool,
-        model: String?
+        model: String?,
+        pseudo: Pseudonymisierer? = nil
     ) async throws -> T {
         let url = Base44Config.load().integrationURL("InvokeLLM")
         let req = LLMRequest(
@@ -239,25 +268,26 @@ actor LLMService {
             webContext: webContext ? true : nil,
             model: model
         )
-        let data = try await client.postRaw(url, body: req)
+        let data = KIVeredelung.wiederhergestellt(try await client.postRaw(url, body: req), mit: pseudo)
         return try InvokeLLMResponseParser.decode(data, as: T.self)
     }
     private func invokeBase44Text(
         prompt: String,
         fileUrls: [String]?,
         webContext: Bool,
-        model: String?
+        model: String?,
+        pseudo: Pseudonymisierer? = nil
     ) async throws -> String {
         await ensureCloudConfig()
         let sanitized = KIFileURLs.sanitize(fileUrls)
         do {
             return try await performBase44InvokeText(
-                prompt: prompt, fileUrls: sanitized, webContext: webContext, model: model
+                prompt: prompt, fileUrls: sanitized, webContext: webContext, model: model, pseudo: pseudo
             )
         } catch Base44Error.httpError(400, let msg) where KIFileURLs.isInvalidAttachmentError(msg) && sanitized != nil {
             return try await performBase44InvokeText(
                 prompt: prompt + "\n\n[Hinweis: Datei-Anhänge nicht verfügbar — Textkontext nutzen.]",
-                fileUrls: nil, webContext: webContext, model: model
+                fileUrls: nil, webContext: webContext, model: model, pseudo: pseudo
             )
         }
     }
@@ -265,11 +295,12 @@ actor LLMService {
         prompt: String,
         fileUrls: [String]?,
         webContext: Bool,
-        model: String?
+        model: String?,
+        pseudo: Pseudonymisierer? = nil
     ) async throws -> String {
         let url = Base44Config.load().integrationURL("InvokeLLM")
         let req = LLMRequest(prompt: KIPromptKit.wrap(prompt), fileUrls: fileUrls, webContext: webContext ? true : nil, model: model)
-        let data = try await client.postRaw(url, body: req)
+        let data = KIVeredelung.wiederhergestellt(try await client.postRaw(url, body: req), mit: pseudo)
         return try InvokeLLMResponseParser.decodeText(data)
     }
     func extractDataFromFile(fileUrl: String, jsonSchema: Any? = nil) async throws -> AnyCodable? {
