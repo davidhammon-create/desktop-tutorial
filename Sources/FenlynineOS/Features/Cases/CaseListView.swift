@@ -196,6 +196,13 @@ struct CaseListView: View {
                 selectedFallId = id
             }
         }
+        .onAppear { uebernimmNeuerFallAnforderung() }
+        .onChange(of: appState.neuerFallAngefordert) { _, _ in uebernimmNeuerFallAnforderung() }
+    }
+    private func uebernimmNeuerFallAnforderung() {
+        guard appState.neuerFallAngefordert else { return }
+        appState.neuerFallAngefordert = false
+        zeigeNeuerFall = true
     }
     @ToolbarContentBuilder
     private var lexaraToolbar: some ToolbarContent {

@@ -148,6 +148,20 @@ var body: some View {
  .onReceive(NotificationCenter.default.publisher(for: .oeffneTutorial)) { _ in
    zeigeTutorial = true
  }
+ // Diese drei Nachrichten hatten bisher nur in der nicht mehr angezeigten
+ // AppShell einen Empfänger -- Menü und Menüleiste liefen dadurch ins Leere.
+ .onReceive(NotificationCenter.default.publisher(for: .neuerVorgang)) { _ in
+   neuerVorgang()
+ }
+ .onReceive(NotificationCenter.default.publisher(for: .createNewCase)) { _ in
+   appState.neuerFallAngefordert = true
+   navigiereZuWerkzeug(.lexara)
+ }
+ .onReceive(NotificationCenter.default.publisher(for: .navigateToCase)) { note in
+   guard let id = note.object as? String, !id.isEmpty else { return }
+   appState.selectedCaseId = id
+   navigiereZuWerkzeug(.lexara)
+ }
 }
 private func navigiereZuWerkzeug(_ e: SeitenleistenEintrag) {
  if e == .vorgaenge {
@@ -170,16 +184,22 @@ private func navigiereZuWerkzeug(_ e: SeitenleistenEintrag) {
    withAnimation(.easeOut(duration: 0.15)) { showInspector = false }
  }
 }
+private func neuerVorgang() {
+ let v = VorgangStore.shared.neu(typ: .streit, titel: "Neuer Vorgang")
+ zone = .vorgaenge
+ offenerVorgangId = v.id
+ Task(priority: .utility) { spiegle(v) }
+}
 private func oeffneModulFenster(_ e: SeitenleistenEintrag) {
  ModulFensterHost.shared.oeffneModul(e)
  ModulFensterBridge.installieren()
 }
 private var fensterZiel: SeitenleistenEintrag? {
  switch zone {
- case .vorgaenge: return .lexara
+ case .vorgaenge: return .vorgaenge
  case .lage: return .lageZentrale
  case .organon: return .organon
- case .werkzeuge: return werkzeug
+ case .werkzeuge: return (istApple && !appleModulOffen) ? nil : werkzeug
  case .wissen: return nil
  case .einstellungen: return .einstellungen
  }
@@ -369,12 +389,8 @@ private var appleTopBar: some View {
     }
     .buttonStyle(.plain)
     if zone == .vorgaenge && offenerVorgangId == nil {
-      StorePillButton(titel: "Neu", prominent: true) {
-        let v = VorgangStore.shared.neu(typ: .streit, titel: "Neuer Vorgang")
-        offenerVorgangId = v.id
-        Task(priority: .utility) { spiegle(v) }
-      }
-      .keyboardShortcut("n", modifiers: [.command])
+      StorePillButton(titel: "Neu", prominent: true) { neuerVorgang() }
+        .help("Neuer Vorgang · ⌘N")
     }
   }
   .padding(.horizontal, 20)
@@ -459,9 +475,7 @@ private var classicTopBar: some View {
    .buttonStyle(.plain)
    if zone == .vorgaenge && offenerVorgangId == nil {
      Button {
-       let v = VorgangStore.shared.neu(typ: .streit, titel: "Neuer Vorgang")
-       offenerVorgangId = v.id
-       Task(priority: .utility) { spiegle(v) }
+       neuerVorgang()
      } label: {
        HStack(spacing: 4) {
          Image(systemName: "plus")
@@ -473,7 +487,6 @@ private var classicTopBar: some View {
        .background(RoundedRectangle(cornerRadius: 7).fill(Premium.action))
      }
      .buttonStyle(.plain)
-     .keyboardShortcut("n", modifiers: [.command])
    }
  }
  .padding(.horizontal, 16)

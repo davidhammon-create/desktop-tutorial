@@ -67,6 +67,7 @@ struct ModulInhalt: View {
             } else {
             switch eintrag {
             case .lexara: CaseListView()
+            case .vorgaenge: VorgaengeModulInhalt()
             case .strategos: StrategosView().fenlynineOSSFTypographyOnly()
             case .schreibtisch: SchreibtischView()
             case .dashboard: HomeView(inVisionPanel: false)
@@ -110,6 +111,18 @@ struct ModulInhalt: View {
         }
     }
 }
+/// Vorgänge als eigenständiger Modulinhalt (Liste und geöffneter Vorgang).
+/// Ohne diese Ansicht zeigte ein "Vorgänge"-Fenster die Fallliste von Lexara.
+struct VorgaengeModulInhalt: View {
+    @State private var offenerVorgangId: UUID?
+    var body: some View {
+        if let id = offenerVorgangId {
+            StudioVorgangHost(vorgangId: id, onZurueck: { offenerVorgangId = nil })
+        } else {
+            StudioVorgangListe(onOeffnen: { offenerVorgangId = $0 })
+        }
+    }
+}
 struct ModulFensterAnsicht: View {
     let schluessel: ModulFensterSchluessel
     @Bindable private var appearance = AppearanceStore.shared
@@ -130,7 +143,7 @@ struct ModulFensterAnsicht: View {
         .environment(\.fenlynineOSGlasModus, .kein)
         .environment(\.fenlynineOSVisionOSChrome, false)
         .fenlynineOSAppearance()
-        .frame(minWidth: 880, minHeight: 560)
+        .frame(minWidth: 640, minHeight: 480)
         .onAppear { haerteUndTitel() }
         .onChange(of: appearance.modus) { _, _ in haerteUndTitel() }
     }
@@ -142,7 +155,8 @@ struct ModulFensterAnsicht: View {
                 let id = w.identifier?.rawValue ?? ""
                 if id.hasPrefix(prefix) {
                     FenlynineOSMacWindowChrome.haerteModulFenster(w)
-                    w.title = soll
+                    // Den Sperrhinweis im Titel gesperrter Module nicht überschreiben.
+                    if !w.title.contains("gesperrt") { w.title = soll }
                 } else if FenlynineOSFensterKennung.istModulOderVergleich(w) {
                     FenlynineOSMacWindowChrome.haerteModulFenster(w)
                 }
@@ -217,7 +231,7 @@ struct VergleichsFensterAnsicht: View {
             GeometryReader { geo in
                 let spalten = dritteSpalte ? 3 : 2
                 let gap: CGFloat = 1
-                let w = max(400, floor((geo.size.width - gap * CGFloat(spalten - 1)) / CGFloat(spalten)))
+                let w = max(200, floor((geo.size.width - gap * CGFloat(spalten - 1)) / CGFloat(spalten)))
                 HStack(spacing: gap) {
                     spalte(auswahl: $links, breite: w, hoehe: geo.size.height)
                     Rectangle().fill(Premium.hairline).frame(width: gap)
@@ -239,7 +253,7 @@ struct VergleichsFensterAnsicht: View {
         .environment(\.fenlynineOSGlasModus, .kein)
         .environment(\.fenlynineOSVisionOSChrome, false)
         .fenlynineOSAppearance()
-        .frame(minWidth: 1280, minHeight: 700)
+        .frame(minWidth: 820, minHeight: 480)
         .onAppear { haerteUndTitel() }
     }
     private func haerteUndTitel() {
@@ -314,8 +328,10 @@ struct VergleichsFensterAnsicht: View {
         .contentShape(Rectangle())
     }
     static let vergleichbar: [SeitenleistenEintrag] = [
-        .lexara, .strategos, .opportunisma, .sunTzu, .analytik,
+        .lexara, .vorgaenge, .strategos, .opportunisma, .sunTzu, .analytik,
         .dashboard, .richterprofile, .zeitleiste, .dokumente,
-        .organon, .schreibtisch, .aufgaben, .kiChat, .mandanten
+        .organon, .schreibtisch, .aufgaben, .kiChat, .mandanten,
+        .enterpriseRadar, .durchlauf, .jurisdiktionen, .honorare,
+        .mandatsPipeline, .konfliktRadar, .lageZentrale
     ]
 }

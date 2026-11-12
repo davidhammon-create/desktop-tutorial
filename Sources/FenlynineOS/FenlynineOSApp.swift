@@ -35,7 +35,7 @@ struct FenlynineOSApp: App {
         d.set(true, forKey: "fenlynineos_marken_migration_v1")
     }
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: FenlynineOSFensterKennung.hauptGruppe) {
             ContentRootView()
                 .environmentObject(authManager)
                 .environmentObject(appState)
@@ -45,25 +45,6 @@ struct FenlynineOSApp: App {
         .commands {
             FenlynineOSCommands()
         }
-        WindowGroup(id: ModulFensterKennung.modul, for: ModulFensterSchluessel.self) { $schluessel in
-            if let schluessel {
-                ModulFensterAnsicht(schluessel: schluessel)
-                    .environmentObject(authManager)
-                    .environmentObject(appState)
-            } else {
-                Text("Modul wird geladen…")
-                    .frame(minWidth: 400, minHeight: 300)
-            }
-        }
-        .defaultSize(width: 980, height: 700)
-        .windowStyle(.titleBar)
-        WindowGroup(id: ModulFensterKennung.vergleich, for: Int.self) { $nummer in
-            VergleichsFensterAnsicht(nummer: nummer ?? 1)
-                .environmentObject(authManager)
-                .environmentObject(appState)
-        }
-        .defaultSize(width: 1440, height: 820)
-        .windowStyle(.titleBar)
         MenuBarExtra(AppDefaults.produktKurz, systemImage: "scale.3d") {
             MenuBarView()
                 .environmentObject(authManager)
@@ -175,7 +156,8 @@ final class FenlynineOSAppDelegate: NSObject, NSApplicationDelegate {
     static func aktiviereHauptfenster() {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        for fenster in NSApp.windows where fenster.canBecomeKey && !fenster.isSheet {
+        for fenster in NSApp.windows where fenster.canBecomeKey && !fenster.isSheet
+            && fenster.styleMask.contains(.titled) {
             var rahmen = fenster.frame
             if rahmen.width < 240 || rahmen.height < 180 {
                 rahmen.size = NSSize(width: 1200, height: 760)
@@ -189,8 +171,10 @@ final class FenlynineOSAppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         if NSApp.keyWindow == nil {
-            NSApp.windows.first(where: { $0.canBecomeKey && !$0.isSheet })?
-                .makeKeyAndOrderFront(nil)
+            NSApp.windows.first(where: {
+                $0.canBecomeKey && !$0.isSheet && $0.styleMask.contains(.titled)
+                    && !FenlynineOSFensterKennung.istModulOderVergleich($0)
+            })?.makeKeyAndOrderFront(nil)
         }
     }
 }
@@ -284,16 +268,24 @@ struct SplashView: View {
     }
 }
 struct FenlynineOSCommands: Commands {
+    @Environment(\.openWindow) private var openWindow
     var body: some Commands {
-        CommandGroup(after: .newItem) {
+        // Ersetzt den System-Eintrag "Neues Fenster": Er lag ebenfalls auf ⌘N und
+        // gewann gegen "Neuer Vorgang". Das Hauptfenster bleibt über ⌥⌘N erreichbar.
+        CommandGroup(replacing: .newItem) {
             Button("Neuer Vorgang") {
-                NotificationCenter.default.post(name: .navigateToSidebar, object: SeitenleistenEintrag.vorgaenge.rawValue)
+                NotificationCenter.default.post(name: .neuerVorgang, object: nil)
             }
             .keyboardShortcut("n", modifiers: [.command])
-            Button("Neuer Fall (Legacy)") {
+            Button("Neuer Fall") {
                 NotificationCenter.default.post(name: .createNewCase, object: nil)
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button("Neues Hauptfenster") {
+                openWindow(id: FenlynineOSFensterKennung.hauptGruppe)
+            }
+            .keyboardShortcut("n", modifiers: [.command, .option])
+            Divider()
             Button("Kommandofeld…") {
                 NotificationCenter.default.post(name: .oeffneKommandofeld, object: nil)
             }
@@ -370,4 +362,5 @@ extension Notification.Name {
     static let oeffneUpdatePanel = Notification.Name("fenlynineos.oeffneUpdatePanel")
     static let oeffneTutorial = Notification.Name("fenlynineos.oeffneTutorial")
     static let oeffneStudio = Notification.Name("fenlynineos.oeffneStudio")
+    static let neuerVorgang = Notification.Name("fenlynineos.neuerVorgang")
 }

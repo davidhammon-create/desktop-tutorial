@@ -181,6 +181,9 @@ final class AppState: ObservableObject {
     @Published var selectedSprache: String = UserDefaults.standard.string(forKey: "sprache") ?? "de"
     @Published var isDarkMode: Bool = UserDefaults.standard.bool(forKey: "dark_mode")
     @Published var selectedCaseId: String? = nil
+    /// Wird gesetzt, wenn "Neuer Fall" angefordert wurde, bevor die Fallliste
+    /// sichtbar war; die Fallliste öffnet dann ihr Formular und setzt es zurück.
+    @Published var neuerFallAngefordert = false
     @Published var navigationPfad: [NavigationsZiel] = []
     @Published var globalError: String? = nil
     @Published var globalSuccess: String? = nil

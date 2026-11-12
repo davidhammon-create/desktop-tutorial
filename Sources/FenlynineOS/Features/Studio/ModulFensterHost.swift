@@ -13,7 +13,13 @@ final class ModulFensterController: NSWindowController, NSWindowDelegate {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) not used") }
     func windowWillClose(_ notification: Notification) {
-        ModulFensterHost.shared.entferne(fensterId)
+        // Erst im nächsten Durchlauf freigeben: Würde der Controller hier, mitten
+        // im Schließen, aus dem Register fallen, gäbe AppKit ein Fenster frei,
+        // das es gerade noch abbaut -- das führt zu Abstürzen beim Schließen.
+        let id = fensterId
+        DispatchQueue.main.async {
+            ModulFensterHost.shared.entferne(id)
+        }
     }
     func windowDidBecomeKey(_ notification: Notification) {
         if let w = window { FenlynineOSMacWindowChrome.haerteModulFenster(w) }
@@ -76,10 +82,19 @@ final class ModulFensterHost {
     func entferne(_ id: UUID) {
         controller.removeValue(forKey: id)
     }
-    private func zeige(titel: String, kennung: String, root: AnyView, size: NSSize, minSize: NSSize) {
+    private func zeige(titel: String, kennung: String, root: AnyView, size wunsch: NSSize, minSize wunschMin: NSSize) {
         if NSApp.activationPolicy() != .regular {
             NSApp.setActivationPolicy(.regular)
         }
+        // Auf kleinen Bildschirmen (13-Zoll-MacBook) wäre das Fenster sonst größer
+        // als der Bildschirm: Titelleiste und Ränder lägen außerhalb und das
+        // Fenster ließe sich weder greifen noch schließen.
+        let sichtbar = (NSApp.keyWindow?.screen ?? NSScreen.main)?.visibleFrame.size
+        let size = NSSize(
+            width: min(wunsch.width, max(640, (sichtbar?.width ?? wunsch.width) - 64)),
+            height: min(wunsch.height, max(480, (sichtbar?.height ?? wunsch.height) - 64)))
+        let minSize = NSSize(width: min(wunschMin.width, size.width),
+                             height: min(wunschMin.height, size.height))
         let id = UUID()
         let hosting = NSHostingController(rootView: root)
         hosting.sizingOptions = [.minSize]
@@ -101,7 +116,7 @@ final class ModulFensterHost {
         )
         window.setFrameAutosaveName(kennung)
         FenlynineOSMacWindowChrome.haerteModulFenster(window)
-        if let screen = NSScreen.main {
+        if let screen = NSApp.keyWindow?.screen ?? NSScreen.main {
             let origin = cascadeOrigin(on: screen, size: size)
             window.setFrame(NSRect(origin: origin, size: size), display: false)
         } else {

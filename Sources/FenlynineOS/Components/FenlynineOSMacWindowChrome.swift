@@ -2,6 +2,14 @@ import AppKit
 import SwiftUI
 enum FenlynineOSFensterKennung {
     static let haupt = "fenlynineos.haupt"
+    /// Kennung der SwiftUI-Fenstergruppe des Hauptfensters (für openWindow).
+    static let hauptGruppe = "fenlynineos-haupt"
+    /// Hauptfenster = jedes Fenster mit Titelleiste, das kein Modul- oder
+    /// Vergleichsfenster ist. SwiftUI vergibt eigene Kennungen; ein Vergleich
+    /// auf "fenlynineos.haupt" allein traf das Hauptfenster deshalb nie.
+    static func istHauptfenster(_ fenster: NSWindow) -> Bool {
+        fenster.styleMask.contains(.titled) && !fenster.isSheet && !istModulOderVergleich(fenster)
+    }
     static let modulPrefix = "fenlynineos.modul"
     static let vergleichPrefix = "fenlynineos.vergleich"
     static func istModulOderVergleich(_ fenster: NSWindow) -> Bool {
@@ -31,8 +39,7 @@ struct FenlynineOSMacWindowChrome: ViewModifier {
                 haerteModulFenster(fenster)
                 continue
             }
-            let id = fenster.identifier?.rawValue ?? ""
-            guard id == FenlynineOSFensterKennung.haupt else { continue }
+            guard FenlynineOSFensterKennung.istHauptfenster(fenster) else { continue }
             if appleMode {
                 fenster.isOpaque = true
                 fenster.backgroundColor = NSColor.black

@@ -1,5 +1,18 @@
 import SwiftUI
+/// Holt das Hauptfenster nach vorn -- oder öffnet es neu, wenn es geschlossen wurde.
+enum Hauptfenster {
+    @MainActor
+    static func zeigen(_ openWindow: OpenWindowAction) {
+        NSApp.activate(ignoringOtherApps: true)
+        if let w = NSApp.windows.first(where: { FenlynineOSFensterKennung.istHauptfenster($0) && $0.isVisible }) {
+            w.makeKeyAndOrderFront(nil)
+        } else {
+            openWindow(id: FenlynineOSFensterKennung.hauptGruppe)
+        }
+    }
+}
 struct MenuBarView: View {
+    @Environment(\.openWindow) private var openWindow
     @EnvironmentObject var authManager: AuthManager
     @State private var fristen: [Deadline] = []
     @State private var isLoading = true
@@ -57,7 +70,7 @@ struct MenuBarView: View {
             Divider()
             HStack(spacing: 0) {
                 MenuBarButton(titel: "Öffnen", symbol: "arrow.up.left.and.arrow.down.right") {
-                    NSApp.activate(ignoringOtherApps: true)
+                    Hauptfenster.zeigen(openWindow)
                 }
                 MenuBarButton(titel: "Aktualisieren", symbol: "arrow.clockwise") {
                     Task { await laden() }
@@ -97,6 +110,7 @@ struct MenuBarSektion<Content: View>: View {
 }
 struct MenuBarFristZeile: View {
     let frist: Deadline
+    @Environment(\.openWindow) private var openWindow
     let istVersaeumt: Bool
     var body: some View {
         HStack(spacing: 8) {
@@ -115,7 +129,7 @@ struct MenuBarFristZeile: View {
         .padding(.vertical, 3)
         .contentShape(Rectangle())
         .onTapGesture {
-            NSApp.activate(ignoringOtherApps: true)
+            Hauptfenster.zeigen(openWindow)
             NotificationCenter.default.post(name: .navigateToCase, object: frist.case_id)
         }
     }
