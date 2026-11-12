@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>CFBundleDisplayName</key>
+<string>FenlynineOS Legal Suite by Håmmon &amp; Partner</string>
+<key>CFBundleExecutable</key>
+<string>FenlynineOS</string>
+<key>CFBundleIdentifier</key>
+<string>com.fenlynineos.app</string>
+<key>CFBundleName</key>
+<string>FenlynineOS Legal Suite</string>
+<key>CFBundlePackageType</key>
+<string>APPL</string>
+<key>CFBundleShortVersionString</key>
+<string>2.7.2</string>
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLName</key>
+    <string>com.fenlynineos.app</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>fenlynineos</string>
+    </array>
+  </dict>
+</array>
+<key>CFBundleVersion</key>
+<string>35</string>
+<key>LSApplicationCategoryType</key>
+<string>public.app-category.productivity</string>
+<key>LSMinimumSystemVersion</key>
+<string>14.0</string>
+<key>LSUIElement</key>
+<false/>
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <false/>
+  <key>NSAllowsLocalNetworking</key>
+  <true/>
+  <key>NSExceptionDomains</key>
+  <dict>
+    <key>base44.com</key>
+    <dict>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <false/>
+      <key>NSExceptionMinimumTLSVersion</key>
+      <string>TLSv1.2</string>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+    </dict>
+  </dict>
+</dict>
+<key>NSCalendarsFullAccessUsageDescription</key>
+<string>FenlynineOS Legal Suite benötigt vollen Kalender-Zugriff, um Gerichtsfristen automatisch anzulegen und zu verwalten.</string>
+<key>NSCalendarsUsageDescription</key>
+<string>FenlynineOS Legal Suite möchte Fristen und Termine direkt in Ihre Kalender-App eintragen, damit Sie keine wichtigen Fristen verpassen.</string>
+<key>NSDocumentsFolderUsageDescription</key>
+<string>FenlynineOS Legal Suite möchte auf Ihre Dokumente zugreifen, um Verträge und Schriftsätze zu analysieren.</string>
+<key>NSDownloadsFolderUsageDescription</key>
+<string>FenlynineOS Legal Suite möchte exportierte Berichte und PDFs in Ihrem Download-Ordner speichern.</string>
+<key>NSHumanReadableCopyright</key>
+<string>Copyright © 2026 Håmmon &amp; Partner · FenlynineOS Legal Suite. Alle Rechte vorbehalten.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>FenlynineOS Legal Suite kann optional Sprachnotizen zu Fällen aufnehmen.</string>
+<key>NSPrincipalClass</key>
+<string>NSApplication</string>
+<key>NSSpotlightIndexingEnabled</key>
+<true/>
+<key>NSUserNotificationUsageDescription</key>
+<string>FenlynineOS Legal Suite sendet Ihnen Erinnerungen über bevorstehende Fristen und wichtige Fallentwicklungen.</string>
+</dict>
+</plist>
+
