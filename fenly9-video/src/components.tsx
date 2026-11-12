@@ -184,3 +184,118 @@ export const SceneFade: React.FC<{ duration: number }> = ({ duration }) => {
   const o = interpolate(f, [0, 12, duration - 12, duration], [1, 0, 0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return <AbsoluteFill style={{ background: "#000", opacity: o, pointerEvents: "none" }} />;
 };
+
+// ======================= v2: Kino-Bausteine =======================
+import { Img, OffthreadVideo, Audio as RAudio, Sequence as RSeq } from "remotion";
+import { has, asset, firstOf } from "./config";
+
+/**
+ * Bewegtes Filmmaterial. Reihenfolge: KI-Clip (public/clips/…mp4) → Standbild (public/frames/…jpg).
+ * Ohne Clip wird das Standbild per virtueller Kamerafahrt, Licht und Tiefe animiert (nur Vorschau-Ersatz).
+ */
+export const Footage: React.FC<{
+  clip: string; still?: string; from?: number; dur?: number;
+  move?: "push" | "pull" | "left" | "right" | "rise"; dim?: number; blur?: number; focus?: string;
+}> = ({ clip, still, move = "push", dim = 0.25, blur = 0, focus = "50% 50%" }) => {
+  const f = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const t = f / Math.max(1, durationInFrames);
+  const src = firstOf(`clips/${clip}.mp4`);
+  const m = {
+    push: { s: 1.06 + t * 0.14, x: 0, y: 0 }, pull: { s: 1.22 - t * 0.14, x: 0, y: 0 },
+    left: { s: 1.15, x: 3 - t * 6, y: 0 }, right: { s: 1.15, x: -3 + t * 6, y: 0 }, rise: { s: 1.14, x: 0, y: 3 - t * 6 },
+  }[move];
+  const style: React.CSSProperties = { width: "100%", height: "100%", objectFit: "cover", objectPosition: focus,
+    filter: `blur(${blur}px) saturate(0.85) contrast(1.08)` };
+  return (
+    <AbsoluteFill style={{ overflow: "hidden", background: "#000" }}>
+      {src ? (
+        <OffthreadVideo src={asset(src)} muted style={{ ...style, transform: `scale(${1.02 + t * 0.03})` }} />
+      ) : still && has(still) ? (
+        <AbsoluteFill style={{ transform: `scale(${m.s}) translate(${m.x}%, ${m.y}%)` }}>
+          <Img src={asset(still)} style={style} />
+          {/* Lichtwanderung als Bewegungsersatz */}
+          <AbsoluteFill style={{ mixBlendMode: "screen", opacity: 0.35,
+            background: `linear-gradient(${100 + t * 40}deg, transparent ${20 + t * 50}%, rgba(236,217,164,0.25) ${30 + t * 50}%, transparent ${42 + t * 50}%)` }} />
+        </AbsoluteFill>
+      ) : null}
+      {(src || (still && has(still))) && <AbsoluteFill style={{ background: `rgba(0,0,0,${dim})` }} />}
+    </AbsoluteFill>
+  );
+};
+
+/** Color-Grade, Filmkorn, Vignette, Lichtflimmern – über jede Szene */
+export const Grade: React.FC = () => {
+  const f = useCurrentFrame();
+  const { width, height } = useVideoConfig();
+  const flick = 0.03 * Math.sin(f / 3) * Math.sin(f / 7);
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(20,24,40,0.25), rgba(40,26,8,0.18))", mixBlendMode: "soft-light" }} />
+      <svg width={width} height={height} style={{ position: "absolute", opacity: 0.1, mixBlendMode: "overlay" }}>
+        <filter id="g2"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} seed={f % 24} /></filter>
+        <rect width="100%" height="100%" filter="url(#g2)" />
+      </svg>
+      <AbsoluteFill style={{ background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%)", opacity: 1 + flick }} />
+    </AbsoluteFill>
+  );
+};
+
+/** Virtuelle 3D-Kamera: langsame Dolly-/Orbit-Fahrt um App-Oberflächen */
+export const Camera3D: React.FC<{ 
+  children: React.ReactNode; from?: [number, number, number]; to?: [number, number, number]; zoom?: [number, number];
+}> = ({ children, from = [14, -18, -300], to = [4, 8, 0], zoom = [0.92, 1.04] }) => {
+  const f = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const k = interpolate(f, [0, durationInFrames], [0, 1], { easing: Easing.bezier(0.33, 0, 0.2, 1) });
+  const l = (i: number) => from[i] + (to[i] - from[i]) * k;
+  return (
+    <AbsoluteFill style={{ perspective: 1800, justifyContent: "center", alignItems: "center" }}>
+      <div style={{ transformStyle: "preserve-3d", transform: `translateZ(${l(2)}px) rotateX(${l(0)}deg) rotateY(${l(1)}deg) scale(${zoom[0] + (zoom[1] - zoom[0]) * k})` }}>
+        {children}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/** Einblendung: Kino-Typo mit Tracking-Animation */
+export const Claim: React.FC<{ text: string; start: number; size?: number; color?: string; y?: string }> = ({ text, start, size = 46, color = COLORS.goldLight, y = "50%" }) => {
+  const f = useCurrentFrame();
+  const { u } = useUnit();
+  const p = fade(f, start, 40);
+  return (
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", top: `calc(${y} - 50%)` }}>
+      <div style={{ fontFamily: SERIF, fontSize: size * u, color, fontWeight: 500, opacity: p, textAlign: "center",
+        letterSpacing: (4 + (1 - p) * 30 + f * 0.02) * u, filter: `blur(${(1 - p) * 8}px)`, textShadow: "0 0 40px rgba(0,0,0,0.9)" }}>{text}</div>
+      <div style={{ marginTop: 18 * u }}><GoldLine start={start + 10} width={360} /></div>
+    </AbsoluteFill>
+  );
+};
+
+/** Neues Logo im Stil der Referenzen: § über "Fenly 9" */
+export const ParaLogo: React.FC<{ start?: number; size?: number; tagline?: string }> = ({ start = 0, size = 1, tagline }) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { u } = useUnit();
+  const k = size * u;
+  const s = spring({ frame: f - start, fps, config: { damping: 200, mass: 1.6 } });
+  const n = spring({ frame: f - start - 18, fps, config: { damping: 200, mass: 1.6 } });
+  const shine = interpolate(f - start, [25, 75], [-60, 160], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const gold = `linear-gradient(180deg, #f6e7bd 0%, ${COLORS.gold} 45%, #6e5424 100%)`;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div style={{ fontFamily: SERIF, fontSize: 170 * k, lineHeight: 1, backgroundImage: gold,
+        WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent",
+        opacity: s, transform: `translateY(${(1 - s) * 30 * k}px)`, filter: `drop-shadow(0 0 ${30 * s}px rgba(201,169,97,0.45))` }}>§</div>
+      <div style={{ position: "relative", fontFamily: SERIF, fontSize: 150 * k, lineHeight: 1.05, opacity: n, letterSpacing: (2 + (1 - n) * 20) * k,
+        backgroundImage: `linear-gradient(100deg, transparent ${shine - 15}%, #fff ${shine}%, transparent ${shine + 15}%), ${gold}`,
+        WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>Fenly 9</div>
+      {tagline && <div style={{ marginTop: 22 * k, fontFamily: SANS, fontSize: 26 * k, letterSpacing: 12 * k, color: COLORS.text,
+        opacity: fade(f, start + 50, 30) }}>{tagline}</div>}
+    </div>
+  );
+};
+
+/** Interface-Klick (nur wenn public/sfx/click.mp3 existiert) */
+export const Click: React.FC<{ at: number }> = ({ at }) =>
+  has("sfx/click.mp3") ? <RSeq from={at} durationInFrames={20}><RAudio src={asset("sfx/click.mp3")} volume={0.35} /></RSeq> : null;
