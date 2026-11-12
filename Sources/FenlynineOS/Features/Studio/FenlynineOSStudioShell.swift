@@ -155,6 +155,19 @@ var body: some View {
  .onReceive(NotificationCenter.default.publisher(for: .neuerVorgang)) { _ in
    neuerVorgang()
  }
+ .onReceive(NotificationCenter.default.publisher(for: .oeffneVorgang)) { note in
+   guard let id = note.object as? UUID, VorgangStore.shared.vorgang(id) != nil else { return }
+   zone = .vorgaenge
+   offenerVorgangId = id
+ }
+ .onReceive(NotificationCenter.default.publisher(for: .oeffneKategorie)) { note in
+   guard let raw = note.object as? String, let k = NavKategorie(rawValue: raw) else { return }
+   if istApple {
+     waehle(.kategorie(k))
+   } else if let erstes = k.module(istAdmin: kontoStore.istAdmin).first {
+     navigiereZuWerkzeug(erstes)
+   }
+ }
  .onReceive(NotificationCenter.default.publisher(for: .createNewCase)) { _ in
    appState.neuerFallAngefordert = true
    navigiereZuWerkzeug(.lexara)
@@ -336,7 +349,7 @@ private var classicRail: some View {
      .frame(width: 60, height: 44)
    }
    .buttonStyle(.plain)
-   .help("Alles finden: Vorgänge und Module -- nK Kommandofeld")
+   .help("Alles finden: Funktionen, Befehle, Vorgänge -- ⌘K")
    .padding(.bottom, 10)
  }
  .frame(width: 68)
@@ -446,7 +459,7 @@ private var classicTopBar: some View {
    .disabled(fensterZiel == nil)
    .help(fensterZiel == nil
       ? "Rechtswissen bleibt in Studio -- kein separates Modul-Fenster"
-      : "Aktuelles Modul als eigenes Fenster -- Menü: Fenster · Module · nn1-5")
+      : "Aktuelles Modul als eigenes Fenster -- Menü: Fenster · Module · ⌥⌘1–5")
    Button {
      ModulFensterHost.shared.oeffneVergleich()
    } label: {
@@ -458,7 +471,7 @@ private var classicTopBar: some View {
        .overlay(RoundedRectangle(cornerRadius: 7).stroke(Premium.hairline, lineWidth: 1))
    }
    .buttonStyle(.plain)
-   .help("2-3 Module nebeneinander · nnV")
+   .help("2–3 Module nebeneinander · ⌥⌘V")
    Button {
      withAnimation(.easeOut(duration: 0.15)) { showInspector.toggle() }
    } label: {
@@ -476,7 +489,7 @@ private var classicTopBar: some View {
      HStack(spacing: 6) {
        Image(systemName: "magnifyingglass")
        Text("Suchen")
-       Text("nK")
+       Text("⌘K")
          .font(.system(size: 10, weight: .semibold, design: .monospaced))
          .padding(.horizontal, 5).padding(.vertical, 2)
          .background(RoundedRectangle(cornerRadius: 4).fill(Premium.well))
@@ -1113,7 +1126,7 @@ var body: some View {
    }
  }
  .sheet(isPresented: $kommandofeldOffen) {
-   Kommandofeld(onOeffnen: { _ in }, aktuellerVorgang: vorgang)
+   Kommandofeld(aktuellerVorgang: vorgang)
      .presentationBackground(.clear)
  }
 }

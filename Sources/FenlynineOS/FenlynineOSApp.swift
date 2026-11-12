@@ -184,7 +184,7 @@ struct ContentRootView: View {
     @ObservedObject private var kontoStore = KontoStore.shared
     @Bindable private var design = FenlynineOSDesignStore.shared
     @Bindable private var appearance = AppearanceStore.shared
-    @AppStorage("fenlynineos_tutorial_gesehen_v3") private var tutorialGesehen = false
+    @AppStorage("fenlynineos_tutorial_gesehen_v4") private var tutorialGesehen = false
     @AppStorage("fenlynineos_tutorial_aktiv") private var tutorialAktiv = true
     @AppStorage("fenlynineos_hub_uebersprungen") private var hubUebersprungen = true
     @State private var zeigeStudio = false

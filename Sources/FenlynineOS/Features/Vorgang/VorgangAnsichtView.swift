@@ -80,7 +80,7 @@ struct VorgangAnsichtView: View {
         }
         .sheet(isPresented: $zeigeTypWechsel) { typWechselSheet }
         .sheet(isPresented: $kommandofeldOffen) {
-            Kommandofeld(onOeffnen: { _ in }, aktuellerVorgang: vorgang)
+            Kommandofeld(aktuellerVorgang: vorgang)
                 .presentationBackground(.clear)
         }
         .toolbar {

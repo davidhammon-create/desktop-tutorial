@@ -1,7 +1,7 @@
 import SwiftUI
 struct TutorialView: View {
 @Bindable private var appearance = AppearanceStore.shared
-@AppStorage("fenlynineos_tutorial_gesehen_v3") private var gesehen = false
+@AppStorage("fenlynineos_tutorial_gesehen_v4") private var gesehen = false
 @AppStorage("fenlynineos_tutorial_aktiv") private var tutorialAktiv = true
 let onFertig: () -> Void
 @State private var schritt = 0
@@ -13,46 +13,46 @@ private struct Schritt {
   let shortcut: String?
 }
 private let schritte: [Schritt] = [
-  .init(titel: "Studio -- Ihr Arbeitsplatz",
-     symbol: "scale.3d",
-     text: "FenlynineOS Legal Suite startet im Studio. Die beschriftete Leiste links führt zu: Vorgänge, Lage, Team, Module, Wissen und System.",
-     tipps: ["JI oben links öffnet das Hauptmenü", "Noir = Entscheidung · Atelier = Dokument"],
+  .init(titel: "Willkommen -- so ist die App aufgebaut",
+     symbol: "sidebar.left",
+     text: "Links stehen vier Bereiche: Arbeit, Analyse & Strategie, Kanzlei sowie KI & System. Jeder Bereich hat Kategorien mit farbigem Symbol. Ein Klick auf eine Kategorie zeigt, wofür sie da ist und wie man vorgeht; der Pfeil daneben klappt ihre Funktionen auf.",
+     tipps: ["Jede Funktion ist in höchstens zwei Klicks erreichbar", "Suchfeld oben durchsucht alle Funktionen"],
      shortcut: nil),
-  .init(titel: "Vorgänge -- ein Objekt, viele Linsen",
-     symbol: "square.stack.3d.up.fill",
-     text: "Home der Produktion. Erfasst -> strukturiert -> bewertet -> entschieden -- Formelkaskade schreibt, KI schlägt vor.",
-     tipps: ["nN neuer Vorgang", "nK Kommandofeld"],
-     shortcut: "nN"),
-  .init(titel: "Berufspflicht-Desk",
-     symbol: "scalemass.fill",
-     text: "BGH-Ausgangskontrolle, Mandatsannahme-Gate und KI-Endprüfung -- aus Rechtsprechung und Verbandsforderungen abgeleitet.",
-     tipps: ["Abendkontrolle protokollieren", "Kein Aktiv ohne Annahme-Freigabe"],
+  .init(titel: "Heute -- was als Nächstes ansteht",
+     symbol: "house.fill",
+     text: "„Heute“ zeigt die dringendsten Schritte über alle Akten: abgelaufene oder nahe Fristen zuerst, dann fehlende Grundlagen, Beweise und Bewertungen. Ein Klick öffnet die Akte im passenden Modul.",
+     tipps: ["Rote Zahlen in der Seitenleiste = sofort erledigen", "Die Reihenfolge folgt der anwaltlichen Sorgfalt"],
      shortcut: nil),
-  .init(titel: "Lagezentrale & Imperium",
-     symbol: "rectangle.3.group.bubble.left.fill",
-     text: "KonfliktRadar, Mandats-Pipeline, Honorare, beA-Check und Entscheidungsjournal -- Querschnitt über alle Module.",
-     tipps: ["Praxisprofil steuert Checklisten", "Portfolio steckt in der Lage-Zone"],
+  .init(titel: "Vorgänge & Akten",
+     symbol: "tray.full.fill",
+     text: "Jeder Auftrag beginnt als Vorgang: erfasst, strukturiert, bewertet, entschieden. Zahlen rechnet der Rechenkern; KI-Werte sind markiert und lassen sich bestätigen oder überschreiben.",
+     tipps: ["⌘N neuer Vorgang", "⇧⌘N neuer Fall"],
+     shortcut: "⌘N"),
+  .init(titel: "Fristen & Berufspflichten",
+     symbol: "calendar.badge.clock",
+     text: "Fristen werden nach §§ 187 ff. BGB und § 222 ZPO mit Herleitung berechnet. Danach Bearbeitung zuweisen und vor Ablauf die Ausgangskontrolle durchführen.",
+     tipps: ["Kategorie „Fristen & Aufgaben“ zeigt den Ablauf", "Berufspflichten: Ausgangskontrolle und Mandatsannahme"],
      shortcut: nil),
-  .init(titel: "Alle Module",
-     symbol: "wrench.and.screwdriver.fill",
-     text: "Die Zone 'Module' bündelt jede Funktion der Suite -- nach Tätigkeit sortiert, jede Zeile mit Erklärsatz, oben filterbar.",
-     tipps: ["Fälle & Mandate (Lexara) · Zukunfts-Szenarien (Strategos)", "Chancen-Radar (Opportunisma) standalone = Pro"],
-     shortcut: nil),
+  .init(titel: "Kommandofeld -- alles mit der Tastatur",
+     symbol: "command",
+     text: "⌘K öffnet eine Eingabe für alles: Funktionen, Bereiche, Befehle, Vorgänge. „frist 14“ zeigt Fristen der nächsten 14 Tage, „§ 626“ verknüpfte Normen, „?“ unbestätigte KI-Werte.",
+     tipps: ["↑↓ wählen · ↵ öffnen", "⌘↵ öffnet ein Modul als eigenes Fenster"],
+     shortcut: "⌘K"),
   .init(titel: "Fenster & Vergleich",
      symbol: "macwindow.on.rectangle",
-     text: "Module als eigene Fenster oder nebeneinander im Vergleich -- ohne doppelte Navigationstitel.",
-     tipps: ["Top-Bar \"Fenster\"", "⌘1-3 · ⌘V Vergleich"],
-     shortcut: "⌘V"),
-  .init(titel: "Schreibtisch",
-     symbol: "rectangle.3.group.fill",
-     text: "Fenstermodus, Kausalgraph, Verknüpfen, Advocatus und Verbundnetz -- systemweite Multiview.",
-     tipps: ["Fokus-Kachel = voll interaktiv", "Mini-Kacheln wechseln den Fokus"],
+     text: "Jede Funktion lässt sich als eigenes Fenster öffnen -- über den Fenster-Knopf oben, das Fenstersymbol in jeder Kategorie oder ⌘↵ im Kommandofeld. Der Vergleich zeigt zwei oder drei Funktionen nebeneinander.",
+     tipps: ["⌥⌘1–5 häufige Module als Fenster", "⌥⌘V Vergleichsfenster"],
+     shortcut: "⌥⌘V"),
+  .init(titel: "KI mit Nachweis",
+     symbol: "checkmark.shield.fill",
+     text: "Jede KI-Antwort wird ohne KI nachgeprüft: Gibt es die Paragraphen, stammen die Beträge aus Ihren Daten, welche Entscheidungen hat das Modell beigesteuert. Vor dem Versand an eine Cloud-KI werden Namen durch Platzhalter ersetzt.",
+     tipps: ["Schild oben rechts = Prüfergebnis", "Büroklammer im Chat liest Dokumente lokal ein"],
      shortcut: nil),
-  .init(titel: "KI & Tour steuern",
-     symbol: "brain",
-     text: "Globale oder modulweise KI-APIs. Diese Tour lässt sich dauerhaft abschalten und jederzeit erneut starten.",
-     tipps: ["Einstellungen -> KI", "nnT öffnet die Tour"],
-     shortcut: "⌘T")
+  .init(titel: "Darstellung & Tour",
+     symbol: "paintpalette.fill",
+     text: "Drei Darstellungen, alle mit denselben Funktionen: Apple (Seitenleiste wie die Systemeinstellungen), Noir (dunkel) und Atelier (hell). Diese Tour lässt sich jederzeit erneut starten.",
+     tipps: ["Umschalter oben rechts", "⇧⌘T öffnet die Tour"],
+     shortcut: "⇧⌘T")
 ]
 var body: some View {
   VStack(spacing: 0) {
