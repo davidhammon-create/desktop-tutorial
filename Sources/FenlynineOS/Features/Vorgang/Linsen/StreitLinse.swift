@@ -246,7 +246,21 @@ struct StreitLinse: View {
                             ("P(Erfolg)", o.chancen.pErfolg),
                             ("Best", o.chancen.best),
                             ("Worst", o.chancen.worst)
-                        ]
+                        ],
+                        onAendern: { feld, neu in
+                            store.mutate(vorgangId) { vg in
+                                guard let i = vg.optionen.firstIndex(where: { $0.id == o.id }) else { return }
+                                switch feld {
+                                case "P(Erfolg)":
+                                    vg.optionen[i].chancen.pErfolg = neu
+                                    vg.optionen[i].pManuellUebersteuert = true
+                                case "Best": vg.optionen[i].chancen.best = neu
+                                case "Worst": vg.optionen[i].chancen.worst = neu
+                                default: break
+                                }
+                            }
+                            store.bewerteAlleOptionen(vorgangId)
+                        }
                     )
                 }
                 VStack(spacing: 4) {

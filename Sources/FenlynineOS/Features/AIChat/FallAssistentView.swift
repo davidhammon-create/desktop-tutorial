@@ -1,4 +1,7 @@
 import SwiftUI
+import AppKit
+import UniformTypeIdentifiers
+import PDFKit
 struct ChatNachricht: Identifiable, Equatable {
     var id: UUID = UUID()
     var rolle: ChatRolle
@@ -483,16 +486,32 @@ struct ChatNachrichtBubble: View {
 struct ChatEingabeView: View {
     let viewModel: FallAssistentViewModel
     @FocusState private var isFocused: Bool
+    @State private var dateiwahl = false
+    @State private var anhangFehler: String?
     @Environment(\.fenlynineOSVisionOSChrome) private var chrome
     var body: some View {
         HStack(alignment: .bottom, spacing: 10) {
-            Button { } label: {
+            Button { dateiwahl = true } label: {
                 Image(systemName: "paperclip")
                     .font(.system(size: 16))
                     .foregroundStyle(FenlynineOSTheme.textSecondary)
             }
             .buttonStyle(.plain)
-            .help("Dokument hochladen")
+            .help("Dokument anhängen (PDF, Text, RTF) -- der Text wird lokal gelesen und der Frage beigefügt")
+            .fileImporter(isPresented: $dateiwahl,
+                          allowedContentTypes: [.pdf, .plainText, .rtf, .utf8PlainText]) { ergebnis in
+                switch ergebnis {
+                case let .success(url):
+                    do { viewModel.eingabe = try ChatAnhang.anfuegen(url, an: viewModel.eingabe) }
+                    catch { anhangFehler = error.localizedDescription }
+                case let .failure(fehler):
+                    anhangFehler = fehler.localizedDescription
+                }
+            }
+            .alert("Anhang nicht lesbar", isPresented: Binding(
+                get: { anhangFehler != nil }, set: { if !$0 { anhangFehler = nil } })) {
+                Button("OK", role: .cancel) {}
+            } message: { Text(anhangFehler ?? "") }
             TextField(viewModel.config.eingabePlaceholder, text: Binding(
                 get: { viewModel.eingabe },
                 set: { viewModel.eingabe = $0 }
@@ -574,5 +593,44 @@ struct FlowLayout: Layout {
             x += size.width + spacing
             rowHeight = max(rowHeight, size.height)
         }
+    }
+}
+
+// MARK: - Anhang im Chat
+
+/// Liest ein Dokument auf dem Gerät und fügt seinen Text der Frage bei. Es wird
+/// nichts hochgeladen; geht die Frage an eine Cloud-KI, durchläuft der Text
+/// dieselbe Pseudonymisierung wie jede andere Eingabe.
+enum ChatAnhang {
+    /// Obergrenze, damit ein langes Dokument das Kontextfenster nicht sprengt.
+    static let hoechstzeichen = 24_000
+
+    struct Fehler: LocalizedError {
+        let errorDescription: String?
+    }
+
+    static func anfuegen(_ url: URL, an eingabe: String) throws -> String {
+        let zugriff = url.startAccessingSecurityScopedResource()
+        defer { if zugriff { url.stopAccessingSecurityScopedResource() } }
+        let text: String
+        switch url.pathExtension.lowercased() {
+        case "pdf":
+            guard let dok = PDFDocument(url: url), let t = dok.string,
+                  !t.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                throw Fehler(errorDescription: "Die PDF enthält keinen auslesbaren Text (vermutlich ein Scan ohne Texterkennung).")
+            }
+            text = t
+        case "rtf":
+            let attr = try NSAttributedString(url: url, options: [.documentType: NSAttributedString.DocumentType.rtf],
+                                              documentAttributes: nil)
+            text = attr.string
+        default:
+            text = try String(contentsOf: url, encoding: .utf8)
+        }
+        let gekuerzt = text.count > hoechstzeichen
+        let auszug = gekuerzt ? String(text.prefix(hoechstzeichen)) : text
+        let kopf = "[Anhang: \(url.lastPathComponent)\(gekuerzt ? " · gekürzt auf \(hoechstzeichen) Zeichen" : "")]"
+        let bisher = eingabe.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (bisher.isEmpty ? "" : bisher + "\n\n") + kopf + "\n" + auszug
     }
 }

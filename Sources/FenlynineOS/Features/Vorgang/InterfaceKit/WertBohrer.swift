@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 // nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
 // DER BOHRER (PDF Interface Design, Teil III, Abb. 10)
@@ -19,6 +20,10 @@ let label: String
 /// Optionaler „Kinder-Wert" -- wenn dieser Wert selbst wieder aus einer
 /// Formel entstand, die auf zwei Eingaben zeigt, kann der Nutzer weiterbohren.
 var kinder: [(String, WertMitHerkunft)] = []
+/// Wird aufgerufen, wenn ein Mensch einen KI-Wert bestätigt oder überschreibt
+/// (Bezeichnung des Kind-Werts, neuer Wert). Ohne Rückruf bleiben die Werte
+/// reine Anzeige -- es erscheinen dann auch keine Knöpfe, die nichts tun.
+var onAendern: ((String, WertMitHerkunft) -> Void)? = nil
 
 @State private var ebene: Int = 0
 
@@ -78,7 +83,8 @@ private var bohrEbene1: some View {
       Divider().overlay(InterfacePalette.trennlinie)
       VStack(alignment: .leading, spacing: 6) {
         ForEach(Array(kinder.enumerated()), id: \.offset) { _, kind in
-          WertUnterZeile(label: kind.0, wert: kind.1)
+          WertUnterZeile(label: kind.0, wert: kind.1,
+                         onAendern: onAendern.map { f in { neu in f(kind.0, neu) } })
         }
       }
     }
@@ -114,7 +120,10 @@ private static func zeit(_ d: Date) -> String { df.string(from: d) }
 private struct WertUnterZeile: View {
 let label: String
 let wert: WertMitHerkunft
+var onAendern: ((WertMitHerkunft) -> Void)? = nil
 @State private var offen = false
+@State private var bearbeitet = false
+@State private var eingabe = ""
 
 var body: some View {
  VStack(alignment: .leading, spacing: 4) {
@@ -145,9 +154,33 @@ var body: some View {
          .foregroundStyle(.white.opacity(0.75))
        if wert.herkunft == .ki {
          HStack(spacing: 8) {
-           RoundedButton(text: "Bestätigen", farbe: InterfacePalette.aktion) { }
-           RoundedButton(text: "Überschreiben", farbe: InterfacePalette.sekundaer) { }
-           RoundedButton(text: "Quelle prüfen", farbe: InterfacePalette.berechnet) { }
+           if let onAendern {
+             // Bestätigen macht aus dem KI-Vorschlag eine menschliche Angabe:
+             // derselbe Wert, aber mit Name und Zeitpunkt der Prüfung.
+             RoundedButton(text: "Bestätigen", farbe: InterfacePalette.aktion) {
+               var neu = WertMitHerkunft.mensch(wert.wert, name: NSFullUserName())
+               neu.quelle = "Bestätigt (KI-Vorschlag: \(wert.quelle))"
+               onAendern(neu)
+             }
+             RoundedButton(text: "Überschreiben", farbe: InterfacePalette.sekundaer) {
+               eingabe = InterfaceZahl.dezimal(wert.wert)
+               bearbeitet = true
+             }
+           }
+           RoundedButton(text: "Quelle kopieren", farbe: InterfacePalette.berechnet) {
+             NSPasteboard.general.clearContents()
+             NSPasteboard.general.setString(wert.quelle, forType: .string)
+           }
+         }
+         if bearbeitet, let onAendern {
+           HStack(spacing: 6) {
+             TextField("Neuer Wert", text: $eingabe)
+               .textFieldStyle(.roundedBorder)
+               .frame(width: 120)
+               .onSubmit { uebernehme(onAendern) }
+             RoundedButton(text: "Übernehmen", farbe: InterfacePalette.aktion) { uebernehme(onAendern) }
+             RoundedButton(text: "Abbrechen", farbe: InterfacePalette.sekundaer) { bearbeitet = false }
+           }
          }
        }
        if let wer = wert.wer {
@@ -160,6 +193,18 @@ var body: some View {
      .transition(.opacity)
    }
  }
+}
+
+private func uebernehme(_ onAendern: (WertMitHerkunft) -> Void) {
+ let text = eingabe.trimmingCharacters(in: .whitespaces)
+   .replacingOccurrences(of: ".", with: "")
+   .replacingOccurrences(of: ",", with: ".")
+   .replacingOccurrences(of: "%", with: "")
+ guard let zahl = Double(text) else { return }
+ var neu = WertMitHerkunft.mensch(zahl, name: NSFullUserName())
+ neu.quelle = "Manuell überschrieben (KI-Vorschlag war \(InterfaceZahl.dezimal(wert.wert)))"
+ onAendern(neu)
+ bearbeitet = false
 }
 
 private var farbeText: Color {
