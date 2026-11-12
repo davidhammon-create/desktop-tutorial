@@ -19,11 +19,13 @@ import FenlynineOSKern
 struct AppStoreRegal: Identifiable {
     let titel: String
     let eintraege: [SeitenleistenEintrag]
+    var kategorie: NavKategorie? = nil
     var id: String { titel }
 }
 
 struct AppStoreStartseite: View {
     let regale: [AppStoreRegal]
+    var onKategorie: ((NavKategorie) -> Void)? = nil
     let suchtext: String
     let darf: (SeitenleistenEintrag) -> Bool
     let onOeffnen: (SeitenleistenEintrag) -> Void
@@ -190,7 +192,11 @@ struct AppStoreStartseite: View {
 
     private func regalAnsicht(_ regal: AppStoreRegal) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            StoreSectionHeader(titel: regal.titel)
+            if let k = regal.kategorie, let onKategorie {
+                StoreSectionHeader(titel: regal.titel, link: "Übersicht", onLink: { onKategorie(k) })
+            } else {
+                StoreSectionHeader(titel: regal.titel)
+            }
             LazyVGrid(columns: spalten, alignment: .leading, spacing: 0) {
                 ForEach(regal.eintraege, id: \.self) { eintrag in
                     modulZeile(eintrag)

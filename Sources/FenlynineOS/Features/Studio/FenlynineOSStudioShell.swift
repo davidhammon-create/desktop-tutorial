@@ -76,6 +76,8 @@ var onZurueckZumHub: (() -> Void)? = nil
 @State private var werkzeugFilter = ""
 /// Apple-Ansicht: false = App-Store-Startseite ("Entdecken"), true = ein Modul ist geöffnet.
 @State private var appleModulOffen = false
+/// Apple-Ansicht: geöffnete Kategorie-Seite (nil = Startseite "Heute").
+@State private var appleKategorie: NavKategorie?
 @AppStorage("fenlynineos_einstellungen_tab") private var einstellungenTab = "ki"
 private var istApple: Bool { appearance.istApple }
 var body: some View {
@@ -180,6 +182,7 @@ private func navigiereZuWerkzeug(_ e: SeitenleistenEintrag) {
    werkzeug = e
  }
  if zone == .werkzeuge { appleModulOffen = true }
+ appleKategorie = e.navKategorie
  if e == .schreibtisch || e == .opportunisma {
    withAnimation(.easeOut(duration: 0.15)) { showInspector = false }
  }
@@ -205,50 +208,59 @@ private var fensterZiel: SeitenleistenEintrag? {
  }
 }
 private var appleRail: some View {
-  VStack(alignment: .leading, spacing: 0) {
-    StoreSearchField(text: $werkzeugFilter)
-      .padding(.horizontal, 12)
-      .padding(.top, 12)
-      .padding(.bottom, 10)
-      .onSubmit { kommandofeldOffen = true }
-      .onChange(of: werkzeugFilter) { _, neu in
-        if !neu.trimmingCharacters(in: .whitespaces).isEmpty {
-          zone = .werkzeuge
-          appleModulOffen = false
-        }
-      }
-    ScrollView {
-      VStack(alignment: .leading, spacing: 2) {
-        ForEach(StudioZone.allCases) { z in
-          StoreSidebarRow(
-            symbol: z.appleSymbol,
-            titel: z == .werkzeuge ? "Entdecken" : z.railLabel,
-            badge: z == .werkzeuge ? arbeitsfluss.schritte.filter { $0.dringlichkeit == .kritisch }.count : nil,
-            selected: zone == z
-          ) {
-            zone = z
-            if z == .vorgaenge { offenerVorgangId = nil }
-            if z == .werkzeuge { appleModulOffen = false }
-          }
-          .help(z.railHilfe)
-        }
-        StoreSidebarRow(
-          symbol: "questionmark.circle",
-          titel: "Hilfe",
-          selected: false
-        ) { zeigeTutorial = true }
-        .padding(.top, 8)
-      }
-      .padding(.horizontal, 8)
+  AppleSeitenleiste(
+    auswahl: appleAuswahl,
+    suchtext: $werkzeugFilter,
+    istAdmin: kontoStore.istAdmin,
+    hinweise: { k in
+      let ids = Set(k.module(istAdmin: true).map(\.rawValue))
+      return arbeitsfluss.schritte.filter { ids.contains($0.modulId) && $0.dringlichkeit == .kritisch }.count
+    },
+    dringendGesamt: arbeitsfluss.schritte.filter { $0.dringlichkeit == .kritisch }.count,
+    profilName: profilName,
+    profilInitialen: profilInitialen,
+    onWaehle: waehle,
+    onSuche: { kommandofeldOffen = true },
+    onHilfe: { zeigeTutorial = true }
+  )
+  .onChange(of: werkzeugFilter) { _, neu in
+    if !neu.trimmingCharacters(in: .whitespaces).isEmpty {
+      zone = .werkzeuge
+      appleModulOffen = false
+      appleKategorie = nil
     }
-    Spacer(minLength: 0)
-    Divider().overlay(Color.white.opacity(0.08))
-    StoreProfilFuss(initials: profilInitialen, name: profilName)
   }
-  .frame(width: Store.sidebarWidth)
-  .storeSidebarMaterial()
-  .overlay(alignment: .trailing) {
-    Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1)
+}
+/// Was in der Apple-Seitenleiste markiert ist -- abgeleitet aus dem Zustand,
+/// damit Seitenleiste, Menü und Kommandofeld nie auseinanderlaufen.
+private var appleAuswahl: AppleZiel {
+  switch zone {
+  case .vorgaenge: return .modul(.vorgaenge)
+  case .lage: return .modul(.lageZentrale)
+  case .organon: return .modul(.organon)
+  case .einstellungen: return .modul(.einstellungen)
+  case .wissen: return .wissen
+  case .werkzeuge:
+    if appleModulOffen { return .modul(werkzeug) }
+    return appleKategorie.map(AppleZiel.kategorie) ?? .heute
+  }
+}
+private func waehle(_ ziel: AppleZiel) {
+  werkzeugFilter = ""
+  switch ziel {
+  case .heute:
+    zone = .werkzeuge
+    appleModulOffen = false
+    appleKategorie = nil
+  case let .kategorie(k):
+    zone = .werkzeuge
+    appleModulOffen = false
+    appleKategorie = k
+  case let .modul(e):
+    if e == .vorgaenge { offenerVorgangId = nil }
+    navigiereZuWerkzeug(e)
+  case .wissen:
+    zone = .wissen
   }
 }
 private var profilName: String {
@@ -350,18 +362,21 @@ private var appleTopBar: some View {
         .lineLimit(1)
     }
     if zone == .werkzeuge && appleModulOffen {
-      Button(action: { appleModulOffen = false }) {
+      Button(action: {
+        appleKategorie = werkzeug.navKategorie
+        appleModulOffen = false
+      }) {
         HStack(spacing: 4) {
           Image(systemName: "chevron.left")
             .font(.system(size: 13, weight: .semibold))
-          Text("Entdecken")
+          Text(werkzeug.navKategorie.titel)
             .font(.system(size: 13, weight: .regular))
         }
         .foregroundStyle(Store.accent)
       }
       .buttonStyle(.plain)
       .keyboardShortcut("[", modifiers: [.command])
-      .help("Zurück zur Modulübersicht")
+      .help("Zurück zur Übersicht „\(werkzeug.navKategorie.titel)“ · ⌘[")
       Text(werkzeug.bezeichnung)
         .font(.system(size: 13, weight: .semibold))
         .foregroundStyle(Store.text)
@@ -544,9 +559,21 @@ private var appleWerkzeugPanel: some View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
         .background(Store.canvas)
+    } else if let k = appleKategorie {
+      KategorieSeite(
+        kategorie: k,
+        istAdmin: kontoStore.istAdmin,
+        darf: { kontoStore.darf($0) },
+        onOeffnen: { waehle(.modul($0)) },
+        onFenster: oeffneModulFenster
+      )
+      .id(k)
     } else {
       AppStoreStartseite(
-        regale: werkzeugSektionen.map { AppStoreRegal(titel: $0.titel, eintraege: $0.items) },
+        regale: NavKategorie.allCases.map {
+          AppStoreRegal(titel: $0.titel, eintraege: $0.module(istAdmin: kontoStore.istAdmin), kategorie: $0)
+        },
+        onKategorie: { waehle(.kategorie($0)) },
         suchtext: werkzeugFilter,
         darf: { kontoStore.darf($0) },
         onOeffnen: { e in
@@ -664,19 +691,10 @@ private struct WerkzeugSektion {
  let items: [SeitenleistenEintrag]
 }
 private var werkzeugSektionen: [WerkzeugSektion] {
- var sektionen: [WerkzeugSektion] = [
-   .init(titel: "Fälle & Recht · Lexara", items: [.lexara, .richterprofile, .zeitleiste, .dokumente, .jurisdiktionen]),
-   .init(titel: "Strategie & Zukunft · Strategos", items: [.strategos, .opportunisma, .sunTzu, .analytik]),
-   .init(titel: "Übersicht & Cockpits", items: [.dashboard, .schreibtisch, .cockpit]),
-   .init(titel: "Kanzlei-Verwaltung · Imperium", items: [.mandatsPipeline, .honorare, .konfliktRadar, .berufspflicht, .beaCheck, .entscheidungsjournal, .praxisProfil]),
-   .init(titel: "Zusammenarbeit", items: [.aufgaben, .mandanten]),
-   .init(titel: "KI & Compliance", items: [.kiChat, .compliance])
- ]
- sektionen.append(.init(titel: "System", items: [.selbstreparatur]))
- if kontoStore.istAdmin {
-   sektionen.append(.init(titel: "Verwaltung", items: [.adminZentrale]))
+ // Dieselbe Ordnung wie Seitenleiste und Startseite der Apple-Ansicht.
+ NavKategorie.allCases.map {
+   WerkzeugSektion(titel: $0.titel, items: $0.module(istAdmin: kontoStore.istAdmin))
  }
- return sektionen
 }
 private func gefilterteWerkzeuge(_ items: [SeitenleistenEintrag]) -> [SeitenleistenEintrag] {
  let q = werkzeugFilter.trimmingCharacters(in: .whitespaces).lowercased()
