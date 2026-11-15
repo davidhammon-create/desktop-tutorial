@@ -181,6 +181,19 @@ test("A8 Vorsicht: laden ja, von selbst einschalten nein", b6["geladen"] == ["no
 speicher.setze_schalter(db, "auto.einschalten", False)
 alt = verfassung.SIEGEL.read_text(); verfassung.SIEGEL.write_text("{}")
 test("Sicherer Modus: Takt tut nichts", "Sicherer Modus" in wachstum.zyklus(db, v, gh, lader)["status"])
+# Entwurfsmodus: unversiegelter Kern sperrt NICHT mehr, aber A1/A2 bleiben
+verfassung.entwicklung(True)
+test("Entwurfsmodus: unversiegelter Kern -> Modus 'entwicklung' statt 'sicher'", v.modus() == "entwicklung")
+be = wachstum.zyklus(db, VVorsicht.__mro__ and v, gh, lader) if False else wachstum.zyklus(db, v, gh, lader)
+test("Entwurfsmodus: der Takt laeuft (nicht gesperrt)", be["status"] == "ok" and be["modus"] == "entwicklung")
+test("Entwurfsmodus: nichts geht von selbst an (wie vorsicht)", not be["eingeschaltet"])
+verfassung.abschalten()
+test("A1 gilt auch im Entwurfsmodus: Stop stoppt den Takt", "STOP" in wachstum.zyklus(db, v, gh, lader)["status"])
+verfassung.STOP.unlink()
+test("A2 gilt auch im Entwurfsmodus: App darf Kern/Marke nicht schreiben",
+     not verfassung.darf_schreiben(verfassung.KERN / "vital.py") and not verfassung.darf_schreiben(verfassung.ENTWICKLUNG))
+verfassung.entwicklung(False)
+test("Entwurfsmodus aus: unversiegelter Kern -> wieder 'sicher'", v.modus() == "sicher")
 verfassung.SIEGEL.write_text(alt)
 
 # --- Evolution: lernt aus Faellen, laesst sich nicht taeuschen, rollt zurueck

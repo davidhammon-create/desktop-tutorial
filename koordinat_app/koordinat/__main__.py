@@ -25,6 +25,7 @@ HILFE = """KOORDINAT v0.3
                               besseren Agenten bauen, wie GitHub funktioniert ...)
   weiter                      naechster Schritt des laufenden Ablaufs   (leitfaden: alle Ablaeufe)
   besitzer-setzen             Besitzer-Schluessel anlegen/aendern (einziger Hebel, den Kern zu aendern)
+  entwicklung [an|aus]        offener Entwurfsmodus: nichts festgezurrt, Kern frei aenderbar
   verfassung                  die 8 Artikel
   versiegeln                  Kern-Siegel setzen (nur Mensch)
   stop | fortsetzen           alles anhalten / Stop-Marke entfernen
@@ -60,7 +61,16 @@ def main(argv):
     if b == "fortsetzen":
         verfassung.STOP.unlink(missing_ok=True); print("Stop-Marke entfernt."); return
     if b == "verfassung":
+        print("ZIEL\n  " + verfassung.ZIEL + "\n")
         for t, x in verfassung.ARTIKEL: print(f"{t}\n   {x}")
+        return
+    if b == "entwicklung":
+        if a and a[0] in ("an", "aus"):
+            verfassung.entwicklung(a[0] == "an")
+        print("Entwurfsmodus:", "AN - nichts ist festgezurrt, der Kern ist frei aenderbar."
+              if verfassung.entwicklungsmodus() else
+              "aus - der Kern ist festgeschnuert (Siegel gilt). 'entwicklung an' oeffnet ihn wieder.")
+        print("  (A1 Stop und A2 'App schreibt ihren Kern nie' gelten in beiden Faellen.)")
         return
     if b == "versiegeln":
         import getpass
@@ -114,7 +124,8 @@ def main(argv):
         wachstum.rueckmeldung(db, a[0], a[1])
         print(f"Vital {w:.1f} ({z})")
     elif b == "vital":
-        print(f"Puls {v.puls()}  Modus {v.modus()}  Kern intakt: {verfassung.pruefe_integritaet()}  Protokoll intakt: {v.kette_intakt()}")
+        print(f"Puls {v.puls()}  Modus {v.modus()}  Kern intakt: {verfassung.pruefe_integritaet()}  "
+              f"Entwurfsmodus: {verfassung.entwicklungsmodus()}  Protokoll intakt: {v.kette_intakt()}")
         print("In Not:", v.not_liste() or "-"); print("Stillgelegt:", v.tote() or "-"); print("Hunger:", v.hunger() or "-")
     elif b == "katalog":
         for e in kat:

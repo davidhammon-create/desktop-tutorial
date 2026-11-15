@@ -94,7 +94,8 @@ class Vital:
     def modus(self):
         """A8: niedriger Puls -> mehr Pruefung, mehr Rueckfragen. Nie mehr Risiko."""
         if not verfassung.pruefe_integritaet():
-            return "sicher"            # Kern veraendert: nur lesen
+            # Kern unversiegelt/veraendert: im Entwurfsmodus bleibt die App offen nutzbar, sonst nur lesen.
+            return "entwicklung" if verfassung.entwicklungsmodus() else "sicher"
         p = self.puls()
         return "normal" if p >= 45 else "vorsicht" if p >= 25 else "not"
 

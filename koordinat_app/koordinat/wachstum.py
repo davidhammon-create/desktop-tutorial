@@ -147,7 +147,8 @@ def zyklus(db, vital, gh=github, lader=module.installiere):
         return dict(status="STOP gesetzt - nichts getan")
     modus = vital.modus()
     if modus == "sicher":
-        return dict(status="Sicherer Modus (Kern-Siegel stimmt nicht) - nichts getan", modus=modus)
+        return dict(status="Sicherer Modus (Kern-Siegel stimmt nicht) - nichts getan. "
+                    "Zum offenen Weiterbauen: 'koordinat entwicklung an'.", modus=modus)
     b = dict(status="ok", modus=modus, hunger=[], gesucht=[], geladen=[], eingeschaltet=[], gesperrt=[],
              stillgelegt=[], entdeckt=[], evolution={}, hinweise=[])
 
