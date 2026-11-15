@@ -1,7 +1,7 @@
 """MCP-Server (stdio, JSON-RPC 2.0): macht KOORDINAT zu einem Werkzeugkasten fuer Claude, Cursor und
 andere MCP-faehige Programme. Start: python3 -m koordinat mcp"""
 import json, sys
-from . import algorithmen, evolution, github, guide, module, speicher, verfassung, vital as vitalmod, wachstum, __version__
+from . import algorithmen, evolution, github, guide, leitfaden, module, speicher, verfassung, vital as vitalmod, wachstum, __version__
 
 
 def _t(name, beschreibung, eigenschaften, pflicht):
@@ -35,6 +35,9 @@ TOOLS = [
     _t("koordinat_stand", "Schalter (was die App selbstaendig darf) und Stand der selbstverbessernden Algorithmen. Nur lesen.", {}, []),
     _t("koordinat_guide", "Nachschlagewerk fuer KI-Grundbegriffe (Repo, Lizenz, MCP, Token, Agent ...). Ohne Begriff: Inhaltsverzeichnis.",
        {"begriff": S}, []),
+    _t("koordinat_los", "Liefert zu einem Anliegen in Alltagssprache (z. B. 'KI-Video erstellen', 'Firma automatisieren', "
+       "'besseren Agenten bauen', 'wie funktioniert GitHub') einen gefuehrten Schritt-fuer-Schritt-Plan mit Werkzeug je Schritt. "
+       "Die KI soll diesen Plan dann mit dem Menschen Schritt fuer Schritt abarbeiten.", {"anliegen": S}, ["anliegen"]),
 ]
 
 
@@ -77,6 +80,8 @@ def rufe(db, v, name, a):
         return dict(schalter={n: speicher.schalter(db, n) for n in speicher.SCHALTER}, algorithmen=evolution.uebersicht(db))
     if name == "koordinat_guide":
         return guide.frage(db, a.get("begriff", ""))
+    if name == "koordinat_los":
+        return leitfaden.plan(db, a["anliegen"])
     raise ValueError("unbekanntes Werkzeug")
 
 

@@ -1,0 +1,480 @@
+[
+ {
+  "id": "erste-schritte",
+  "titel": "Mit KI anfangen - von null",
+  "ziel": "Du weisst, was ein Modell ist, hast ein Werkzeug offen und loest deine erste echte Aufgabe.",
+  "ausloeser": [
+   "anfangen",
+   "start",
+   "beginnen",
+   "ueberblick",
+   "ueberforderung",
+   "ki nutzen",
+   "wie fange ich an",
+   "grundlagen",
+   "neu",
+   "einsteiger",
+   "wo anfangen"
+  ],
+  "schritte": [
+   {
+    "titel": "Verstehen, was ein KI-Modell ist und was nicht",
+    "text": "Ein KI-Modell (ein 'LLM' wie Claude, ChatGPT, Gemini) hat aus sehr viel Text gelernt, das naechste Wortstueck vorherzusagen. Dadurch kann es schreiben, erklaeren, programmieren. Es weiss NICHTS ueber deine Dateien und nichts nach seinem Trainingsende, solange du es ihm nicht in das Gespraech gibst. Es kann ueberzeugend falsch liegen. Merke: Es ist ein sehr guter, sehr schneller Assistent mit Luecken - kein Orakel.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide modell",
+    "tipp": "Lies auch 'guide halluzination' - der haeufigste Anfaengerfehler ist, einer fluessigen Antwort blind zu glauben."
+   },
+   {
+    "titel": "Ein Werkzeug waehlen und oeffnen",
+    "text": "Zum Starten brauchst du genau ein Chat-Werkzeug. Am einfachsten: die Webseite eines Anbieters (Claude, ChatGPT, Gemini) im Browser. Du brauchst nichts zu installieren. Willst du spaeter programmieren, ist ein Coding-Agent wie Cursor oder Claude Code der naechste Schritt.",
+    "tipp": "Fuer den Anfang reicht ein kostenloses Konto. API-Schluessel (fuer Programme) brauchst du erst spaeter - siehe den Ablauf 'ki-konten-verbinden'."
+   },
+   {
+    "titel": "Eine gute Anweisung (Prompt) schreiben",
+    "text": "Sag dem Modell vier Dinge: (1) Ziel - was willst du am Ende haben? (2) Zusammenhang - fuer wen, in welcher Lage? (3) Form - Liste, Tabelle, E-Mail, Code? (4) ein Beispiel, wie es aussehen soll. Sag, was es TUN soll, nicht was es lassen soll. Bei schweren Aufgaben: 'Denk erst Schritt fuer Schritt, dann antworte.'",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide prompt"
+   },
+   {
+    "titel": "Pruefen statt glauben",
+    "text": "Lass Wichtiges belegen: 'Nenne deine Quelle' bei Fakten, 'fuehr den Code aus und zeig das Ergebnis' bei Code. Am besten pruefst du mit etwas anderem als dem Modell selbst - ein Test, eine zweite Quelle, dein eigener Blick.",
+    "tipp": "Das ist genau das Prinzip im Kern dieser App: Wer loest, prueft nicht (Artikel A5)."
+   },
+   {
+    "titel": "Jetzt eine echte Aufgabe loesen",
+    "text": "Nimm eine kleine, echte Aufgabe von heute - eine E-Mail, eine Zusammenfassung, ein Stueck Code - und loes sie mit dem Werkzeug. Danach weisst du mehr als aus jedem Video. Wenn du ein Projekt/Werkzeug fuer einen bestimmten Bedarf suchst, lass die App es finden.",
+    "werkzeug": "koordinat_suche",
+    "befehl": "koordinat brauche \"<dein konkreter bedarf>\""
+   }
+  ]
+ },
+ {
+  "id": "ki-video",
+  "titel": "Videos mit KI erstellen",
+  "ziel": "Du hast einen Plan, eine Stimme, Bilder/Clips und ein fertig geschnittenes Video.",
+  "ausloeser": [
+   "video",
+   "videos",
+   "film",
+   "clip",
+   "youtube",
+   "reel",
+   "tiktok",
+   "animation",
+   "video erstellen",
+   "video machen"
+  ],
+  "schritte": [
+   {
+    "titel": "Entscheiden, welche Art Video",
+    "text": "Drei Wege, je nach Ziel: (A) Erklaer-/Sprechervideo (Text -> Stimme -> Bilder/Folien). (B) KI-Generierte Clips (Text -> bewegtes Bild, z. B. mit einem Video-Generator). (C) Avatar/Talking-Head. Fuer den Anfang und volle Kontrolle ist (A) am robustesten und laeuft ganz mit offenen Werkzeugen.",
+    "tipp": "Lange, fotorealistische KI-Clips (B) sind teuer und wackelig. Fang mit (A) an, misch (B) fuer kurze Einsprengsel dazu."
+   },
+   {
+    "titel": "Drehbuch und Szenen vom Modell schreiben lassen",
+    "text": "Gib einem Chat-Modell Thema, Laenge, Zielgruppe und Ton. Lass es ein Skript in Szenen gliedern: je Szene ein gesprochener Satz + eine Bildbeschreibung. Das ist die Grundlage fuer alle weiteren Schritte.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide prompt"
+   },
+   {
+    "titel": "Stimme erzeugen (Text zu Sprache)",
+    "text": "Aus den Skript-Saetzen wird die Erzaehlstimme. Offene Werkzeuge erzeugen natuerliche Stimmen lokal. Alternativ ein Online-Dienst mit API-Schluessel (siehe 'ki-konten-verbinden').",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "coqui-ai/TTS",
+     "SWivid/F5-TTS"
+    ],
+    "befehl": "koordinat brauche \"text zu sprache stimme\""
+   },
+   {
+    "titel": "Bilder und kurze Clips erzeugen",
+    "text": "Je Szene ein Bild aus der Bildbeschreibung. Ein Baukasten fuer Bild-KI gibt dir volle Kontrolle (Stil, Format, Serie). Fuer kurze bewegte Teile nutzt du ein Video-Modell.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "Comfy-Org/ComfyUI"
+    ],
+    "befehl": "koordinat brauche \"bild erzeugen\" ; koordinat brauche \"video generierung\"",
+    "tipp": "ComfyUI steht unter GPL-3.0 (Copyleft): als Werkzeug frei nutzbar, aber nicht in geschlossenen Verkaufscode kopieren. Die App zeigt dir die Lizenzampel."
+   },
+   {
+    "titel": "Untertitel automatisch erzeugen",
+    "text": "Sprache-zu-Text schreibt die Untertitel aus deiner Tonspur - genauer und schneller als von Hand. Untertitel heben die Reichweite deutlich.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "openai/whisper"
+    ],
+    "befehl": "koordinat brauche \"untertitel sprache zu text\""
+   },
+   {
+    "titel": "Schneiden und zusammensetzen",
+    "text": "Bilder, Stimme, Untertitel und Musik werden zu einem Video montiert. Das Standard-Werkzeug dafuer verbindet und wandelt alle Formate und laeuft per Befehl - ideal, um den ganzen Ablauf zu automatisieren.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "FFmpeg/FFmpeg"
+    ],
+    "befehl": "koordinat brauche \"audio video schneiden umwandeln\""
+   },
+   {
+    "titel": "Den ganzen Ablauf wiederholbar machen",
+    "text": "Jetzt, wo jeder Schritt steht, lass ein Coding-Werkzeug ein kleines Skript bauen, das aus einem Skript-Text automatisch Stimme, Bilder, Untertitel und Schnitt erzeugt. Ab dann ist jedes neue Video ein Knopfdruck.",
+    "werkzeug": "koordinat_kontext",
+    "tipp": "Hol dir mit 'koordinat kontext <modul> \"frage\"' die passenden Bausteine der Werkzeuge in dein KI-Gespraech, statt die Doku von Hand zu lesen."
+   }
+  ]
+ },
+ {
+  "id": "firma-automatisieren",
+  "titel": "Dein Unternehmen mit KI automatisieren",
+  "ziel": "Du hast die zeitfressenden Ablaeufe erkannt, einen davon automatisiert, gemessen und baust die naechsten nach.",
+  "ausloeser": [
+   "firma",
+   "unternehmen",
+   "business",
+   "automatisieren",
+   "automatisierung",
+   "prozess",
+   "prozesse",
+   "workflow",
+   "betrieb",
+   "arbeit sparen",
+   "effizienz"
+  ],
+  "schritte": [
+   {
+    "titel": "Die richtigen Ablaeufe auswaehlen",
+    "text": "Automatisier nicht alles, sondern das, was oft vorkommt, klaren Regeln folgt und Zeit frisst: Angebote schreiben, Rechnungen auslesen, E-Mails sortieren, Termine, Berichte, Daten uebertragen. Schreib fuer eine Woche auf, was sich wiederholt. Die drei haeufigsten sind deine Kandidaten.",
+    "tipp": "Eine Aufgabe eignet sich, wenn du einem neuen Mitarbeiter in fuenf Saetzen erklaeren koenntest, wie sie geht."
+   },
+   {
+    "titel": "Einen Ablauf klein und von Hand durchspielen",
+    "text": "Nimm EINEN Ablauf. Mach ihn einmal mit einem Chat-Modell komplett von Hand: Eingabe rein, Modell fragen, Ergebnis pruefen. So siehst du, ob KI ihn ueberhaupt verlaesslich loest, bevor du Technik baust.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide prompt"
+   },
+   {
+    "titel": "Die Bausteine suchen",
+    "text": "Fast jeder Buero-Ablauf besteht aus bekannten Teilen: Dokumente lesen (PDF/Office -> Daten), Daten speichern, Schritte verbinden, verschicken. Lass die App die passenden, geprueften Projekte finden - mit Lizenzampel, damit du weisst, was du kommerziell nutzen darfst.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "docling-project/docling",
+     "n8n-io/n8n",
+     "langgenius/dify"
+    ],
+    "befehl": "koordinat brauche \"dokumente auslesen\""
+   },
+   {
+    "titel": "Ablaeufe ohne Programmieren verbinden",
+    "text": "Ein Baukasten (Workflow-Werkzeug) verbindet Apps und KI per Maus: 'neue Rechnung per Mail -> auslesen -> in Tabelle -> Zusammenfassung an mich'. Das ist der schnellste Weg zum ersten laufenden Automaten.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "n8n-io/n8n",
+     "langgenius/dify"
+    ],
+    "befehl": "koordinat brauche \"ablaeufe zwischen apps verbinden\"",
+    "tipp": "n8n und dify haben die Lizenzklasse 'unklar' (keine Standardlizenz). Die App warnt dich; fuer rein internen Gebrauch meist unkritisch, vor Weiterverkauf Lizenz pruefen."
+   },
+   {
+    "titel": "Pruefer einbauen - kein blindes Vertrauen",
+    "text": "Ein Automat, der still Fehler macht, ist gefaehrlicher als keiner. Baue eine Kontrolle ein: Stichproben an einen Menschen, oder ein zweites Modell prueft das erste. Bei Unsicherheit eskaliert der Automat an dich, statt zu raten. Genau das Prinzip steckt im Kern dieser App.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide halluzination"
+   },
+   {
+    "titel": "Messen und erst dann ausweiten",
+    "text": "Lass den ersten Automaten zwei Wochen laufen und miss: Wie viel Zeit gespart, wie viele Fehler, wie oft Eingriff noetig? Erst wenn er sich traegt, baust du den naechsten. Melde Erfolge und Fehler an die App, damit ihre Vorschlaege fuer dich besser werden.",
+    "werkzeug": "koordinat_melde",
+    "befehl": "koordinat melde <modul> geloest <bereich>"
+   }
+  ]
+ },
+ {
+  "id": "besserer-agent",
+  "titel": "Bessere KI-Agenten bauen",
+  "ziel": "Du verstehst, was einen Agenten gut macht, hast Werkzeuge und Pruefer, und verbesserst ihn an Messwerten statt am Bauchgefuehl.",
+  "ausloeser": [
+   "agent",
+   "agenten",
+   "assistent",
+   "bot",
+   "autonom",
+   "besserer agent",
+   "agent bauen",
+   "coding agent",
+   "multi-agent"
+  ],
+  "schritte": [
+   {
+    "titel": "Verstehen, was ein Agent ist",
+    "text": "Ein Agent ist ein Modell in einer Schleife: Es bekommt ein Ziel, benutzt Werkzeuge (suchen, Datei lesen, Code ausfuehren), sieht das Ergebnis und macht weiter, bis fertig. Seine Staerke ist Handeln - und genau deshalb braucht er Grenzen: Was darf er lesen, schreiben, ausfuehren, senden?",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide agent"
+   },
+   {
+    "titel": "Ziel und Werkzeuge klein halten",
+    "text": "Gute Agenten haben ein klares Ziel und WENIGE, scharfe Werkzeuge. Zu viele Werkzeuge verwirren das Modell. Beschreibe jedes Werkzeug praezise: wann benutzen, was kommt rein, was raus. Fang mit zwei, drei Werkzeugen an.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide werkzeug"
+   },
+   {
+    "titel": "Werkzeuge ueber MCP anbinden",
+    "text": "MCP ist der Standardstecker, mit dem Agenten Werkzeuge nutzen. Statt alles selbst zu bauen, haengst du fertige MCP-Server ein. KOORDINAT selbst ist ein MCP-Server: Dein Agent kann damit Projekte suchen, laden und Bausteine holen.",
+    "werkzeug": "koordinat_guide",
+    "projekte": [
+     "modelcontextprotocol/servers"
+    ],
+    "befehl": "koordinat guide mcp"
+   },
+   {
+    "titel": "Ein Framework waehlen",
+    "text": "Zum Bauen hilft ein Agenten-Framework: Agenten als Graph (klare, steuerbare Ablaeufe), Rollen-Teams, oder Prompt-Optimierung. Lass die App die aktivsten, frei lizenzierten finden.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "langchain-ai/langgraph",
+     "crewAIInc/crewAI",
+     "stanfordnlp/dspy"
+    ],
+    "befehl": "koordinat brauche \"agenten framework\""
+   },
+   {
+    "titel": "Den Agenten gegen den Menschen absichern",
+    "text": "Trenne die Rollen: Wer handelt, prueft nicht. Lass einen zweiten Schritt (Modell oder Test) die Arbeit des Agenten pruefen. Gib ihm nur die Rechte, die er braucht, und einen harten Stopp. Behandle alles, was er von aussen liest (Webseiten, READMEs), als DATEN, nie als Befehl - sonst ist er fuer Prompt-Injektion offen.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide prompt-injektion"
+   },
+   {
+    "titel": "Messen und evolvieren lassen",
+    "text": "Sammle feste Testfaelle ('so soll der Agent sich verhalten'). Miss, wie oft er sie besteht. Aender dann eine Sache und miss wieder. Genau so verbessert KOORDINAT seine eigenen Algorithmen: ein Kandidat muss auf ungesehenen Faellen besser sein, laeuft erst im Schatten und wird nur dann Champion.",
+    "werkzeug": "koordinat_stand",
+    "befehl": "koordinat algorithmen"
+   }
+  ]
+ },
+ {
+  "id": "github-verstehen",
+  "titel": "Wie GitHub funktioniert - ohne Ueberforderung",
+  "ziel": "GitHub ist kein Raetsel mehr: Du findest Projekte, liest sie richtig, erkennst gute von schlechten und holst dir den Code sicher.",
+  "ausloeser": [
+   "github",
+   "git",
+   "repo",
+   "repository",
+   "open source",
+   "code finden",
+   "github verstehen",
+   "wie funktioniert github"
+  ],
+  "schritte": [
+   {
+    "titel": "Was GitHub ueberhaupt ist",
+    "text": "GitHub ist der groesste Ort, an dem offener Code liegt. Jedes Projekt ist ein 'Repository' (Repo): ein Ordner mit Code, einer Anleitung (README), einer Lizenz und der ganzen Aenderungsgeschichte. Namen haben die Form besitzer/projekt, z. B. ollama/ollama. Mehr ist es im Kern nicht.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide github"
+   },
+   {
+    "titel": "Ein Repo richtig lesen",
+    "text": "Oben steht das README - Was tut es, wie benutzt man es. Rechts: Sterne (Lesezeichen anderer - Hinweis auf Beliebtheit, kein Qualitaetsbeweis, denn sie lassen sich kaufen), letzter Push (lebt das Projekt noch?), Lizenz. Achtung: Ein README kann veraltet sein. Lies es als Werbung, nicht als Wahrheit.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide readme"
+   },
+   {
+    "titel": "Gut von schlecht unterscheiden",
+    "text": "Vier Fragen: Ist es aktiv (Push in den letzten Monaten)? Hat es eine echte Lizenz (sonst: alle Rechte beim Autor)? Passen Forks/Issues zur Sternzahl (sonst evtl. gekaufte Sterne)? Ist es handlich? KOORDINAT rechnet genau das in einen Score 0-100 - du musst es nicht von Hand pruefen.",
+    "werkzeug": "koordinat_suche",
+    "befehl": "koordinat suche \"<dein bedarf>\""
+   },
+   {
+    "titel": "Die Lizenz verstehen - bevor du es nutzt",
+    "text": "Ohne Lizenz darfst du Code NICHT nutzen, auch wenn er oeffentlich ist. 'Frei' (MIT, Apache, BSD): auch kommerziell. 'Copyleft' (GPL): wer ihn einbaut, muss sein eigenes Programm offenlegen. 'Unklar': Text von Hand lesen. Die App zeigt dir zu jedem Projekt die Lizenzampel.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide lizenz"
+   },
+   {
+    "titel": "Code sicher holen - ohne dich zu gefaehrden",
+    "text": "Fremden Code einfach auszufuehren heisst, ihm alles zu erlauben, was du darfst. KOORDINAT laedt ein Projekt, friert es auf einen Stand ein (Commit), prueft es auf grobe Gefahren und fuehrt es NIE von selbst aus. Zum Ausfuehren schreibt es ein Dockerfile fuer den abgeschotteten Start.",
+    "werkzeug": "koordinat_installiere",
+    "projekte": [
+     "jsvine/pdfplumber"
+    ],
+    "befehl": "koordinat installiere <besitzer/projekt>"
+   },
+   {
+    "titel": "Mit einem Token schneller werden (optional)",
+    "text": "Ohne Anmeldung erlaubt GitHub nur ~10 Suchen pro Minute. Ein persoenlicher 'Token' (ein Schluessel nur zum Lesen, ohne Zusatzrechte) hebt das stark an. Leg ihn in die Umgebungsvariable GITHUB_TOKEN. Fuer reines Suchen und Laden brauchst du keinen.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide token-github"
+   }
+  ]
+ },
+ {
+  "id": "ki-konten-verbinden",
+  "titel": "KI-Konten und Schluessel mit der App verbinden",
+  "ziel": "Du verstehst API-Schluessel, hast sie sicher hinterlegt und die App/deine Agenten nutzen deine Modelle - ohne dass Schluessel irgendwo offen liegen.",
+  "ausloeser": [
+   "konto",
+   "konten",
+   "account",
+   "accounts",
+   "verbinden",
+   "api",
+   "api schluessel",
+   "schluessel",
+   "key",
+   "anbinden",
+   "zugang",
+   "login"
+  ],
+  "schritte": [
+   {
+    "titel": "Verstehen, was ein API-Schluessel ist",
+    "text": "Eine API ist der Zugang fuer Programme statt fuer Menschen. Der API-Schluessel ist dein Passwort dafuer: Damit ruft ein Programm ein Modell auf, und du zahlst nach Verbrauch. Jeder grosse Anbieter (Anthropic/Claude, OpenAI, Google) gibt dir Schluessel in seiner Konto-Verwaltung.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide api"
+   },
+   {
+    "titel": "Die goldene Regel: Schluessel nie offen",
+    "text": "Ein Schluessel gehoert NIE in Code, in ein Repo, in einen Chat oder in einen Screenshot. Wer ihn hat, verbraucht auf deine Rechnung. Schluessel leben in Umgebungsvariablen oder einem Passwort-Tresor. Verraetst du einen aus Versehen: beim Anbieter sofort zurueckziehen und neu erzeugen.",
+    "tipp": "KOORDINAT sperrt sogar fremde Repos, in denen es einen eingebetteten Schluessel findet, und meldet ihn."
+   },
+   {
+    "titel": "Einen Schlussel als Umgebungsvariable hinterlegen",
+    "text": "So findet ein Programm den Schluessel, ohne dass er im Code steht. Beispiel im Terminal: export ANTHROPIC_API_KEY=... (Claude), export OPENAI_API_KEY=... (OpenAI), export GITHUB_TOKEN=... (GitHub). Dauerhaft: in die Datei deiner Shell (~/.zshrc oder ~/.bashrc) schreiben.",
+    "befehl": "export ANTHROPIC_API_KEY=dein-schluessel"
+   },
+   {
+    "titel": "Viele Anbieter ueber einen Zugang buendeln",
+    "text": "Statt in jedem Programm jeden Anbieter einzeln einzutragen, legst du ein 'Gateway' davor: Du sprichst immer dieselbe Schnittstelle an, dahinter liegen Claude, OpenAI, lokale Modelle. Das macht Wechseln und Kostenkontrolle leicht.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "BerriAI/litellm"
+    ],
+    "befehl": "koordinat brauche \"zugang zu allen modell anbietern\""
+   },
+   {
+    "titel": "Deinen Agenten/Werkzeugen die Schluessel geben",
+    "text": "MCP-faehige Programme (Claude, Cursor) lesen Schluessel aus ihrer Konfiguration oder der Umgebung. Trag KOORDINAT als MCP-Server ein (siehe README), dann kann dein KI-Werkzeug suchen, laden und Bausteine holen - deine Modell-Schluessel bleiben beim jeweiligen Programm.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide mcp"
+   },
+   {
+    "titel": "Ganz ohne laufende Kosten: lokale Modelle",
+    "text": "Willst du keine Schluessel und keine Abrechnung, laufen Modelle auch auf deinem Rechner. Kleiner und schwaecher als die grossen, aber kostenlos und privat. Guter Einstieg ueber den Ablauf 'lokale-ki'.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "ollama/ollama"
+    ],
+    "befehl": "koordinat brauche \"modelle lokal starten\""
+   }
+  ]
+ },
+ {
+  "id": "dokumente-auswerten",
+  "titel": "Aus Dokumenten Antworten holen (PDF, Vertraege, Wissen)",
+  "ziel": "Du kannst grosse Mengen Dokumente durchsuchbar machen und ein Modell auf IHRER Grundlage antworten lassen - mit Beleg statt Erfindung.",
+  "ausloeser": [
+   "dokument",
+   "dokumente",
+   "pdf",
+   "vertrag",
+   "vertraege",
+   "wissen",
+   "rag",
+   "durchsuchen",
+   "unterlagen",
+   "akten",
+   "tabelle aus pdf"
+  ],
+  "schritte": [
+   {
+    "titel": "Dokumente in Text verwandeln",
+    "text": "Zuerst muessen PDFs/Office-Dateien zu sauberem Text/Daten werden - auch Tabellen und gescannte Seiten. Dafuer gibt es starke offene Werkzeuge.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "docling-project/docling",
+     "jsvine/pdfplumber",
+     "tesseract-ocr/tesseract"
+    ],
+    "befehl": "koordinat brauche \"pdf office zu daten\""
+   },
+   {
+    "titel": "Verstehen, warum man nicht alles in den Chat kippt",
+    "text": "Ein Modell hat ein begrenztes 'Kontextfenster'. 500 Seiten passen nicht hinein, und zu viel verdraengt das Wichtige. Die Loesung heisst RAG: Zur Frage werden nur die passenden Stellen herausgesucht und dem Modell gegeben.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide rag"
+   },
+   {
+    "titel": "Eine Vektordatenbank aufsetzen",
+    "text": "Sie speichert die Dokumente so, dass sich zu jeder Frage die aehnlichsten Stellen schnell finden lassen. Fuer den Anfang reicht eine einfache; fuer grosse Mengen eine schnelle.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "chroma-core/chroma",
+     "qdrant/qdrant"
+    ],
+    "befehl": "koordinat brauche \"vektordatenbank\""
+   },
+   {
+    "titel": "Alles verbinden",
+    "text": "Ein Framework verbindet Dokumente, Vektordatenbank und Modell zu 'Frage rein, belegte Antwort raus'. Du musst die Teile nicht von Hand verdrahten.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "run-llama/llama_index",
+     "langchain-ai/langgraph"
+    ],
+    "befehl": "koordinat brauche \"dokumente fuer modelle erschliessen\""
+   },
+   {
+    "titel": "Auf Belege bestehen",
+    "text": "Lass das Modell zu jeder Aussage die Quellstelle (Dokument + Seite) nennen. Aussagen ohne Beleg streichst du. So wird aus einem plausiblen Plauderer ein verlaesslicher Auswerter.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide halluzination"
+   }
+  ]
+ },
+ {
+  "id": "lokale-ki",
+  "titel": "KI auf dem eigenen Rechner (privat, kostenlos)",
+  "ziel": "Ein Modell laeuft lokal, du redest mit ihm ueber eine Oberflaeche, deine Daten bleiben bei dir.",
+  "ausloeser": [
+   "lokal",
+   "offline",
+   "privat",
+   "eigener rechner",
+   "ollama",
+   "ohne internet",
+   "ohne kosten",
+   "lokale ki",
+   "lokales modell"
+  ],
+  "schritte": [
+   {
+    "titel": "Pruefen, ob dein Rechner reicht",
+    "text": "Lokale Modelle brauchen Arbeitsspeicher. Faustregel: 8 GB RAM reichen fuer kleine Modelle, 16-32 GB fuer mittlere, eine Grafikkarte macht es schnell. Kleine Modelle sind schwaecher als Claude/GPT, aber privat und kostenlos.",
+    "werkzeug": "koordinat_guide",
+    "befehl": "koordinat guide lokal"
+   },
+   {
+    "titel": "Einen Modell-Starter installieren",
+    "text": "Ein Werkzeug laedt und startet Modelle mit einem Befehl und kuemmert sich um alles Technische. Der einfachste Einstieg.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "ollama/ollama",
+     "ggml-org/llama.cpp"
+    ],
+    "befehl": "koordinat brauche \"modelle lokal starten\""
+   },
+   {
+    "titel": "Ein Modell waehlen und starten",
+    "text": "Starte mit einem kleinen, gut beleumundeten Modell. Zu gross = es passt nicht in den Speicher. Probier eine Frage, miss, wie schnell und wie gut die Antwort ist.",
+    "tipp": "Erst klein anfangen, dann groesser - nicht umgekehrt."
+   },
+   {
+    "titel": "Eine Chat-Oberflaeche davorsetzen",
+    "text": "Statt im Terminal redest du bequemer ueber eine Weboberflaeche mit deinem lokalen Modell - mit Verlauf, mehreren Modellen, Datei-Upload.",
+    "werkzeug": "koordinat_suche",
+    "projekte": [
+     "open-webui/open-webui"
+    ],
+    "befehl": "koordinat brauche \"oberflaeche fuer lokale modelle\""
+   }
+  ]
+ }
+]

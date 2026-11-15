@@ -1,11 +1,11 @@
-# KOORDINAT v0.3 – Fundament, das von selbst wächst
+# KOORDINAT v0.4 – wächst von selbst und führt dich
 
 Läuft mit Python 3.10+ und git. Keine weiteren Pakete nötig.
 
 ## Start
 ```
 cd koordinat_app
-python3 tests.py                      # Selbsttest (77 Prüfungen, ohne Netz)
+python3 tests.py                      # Selbsttest (101 Prüfungen, ohne Netz)
 python3 -m koordinat versiegeln       # Kern-Siegel setzen (einmalig, nach jeder eigenen Änderung am Kern)
 python3 -m koordinat suche "pdf table extraction"
 python3 -m koordinat installiere jsvine/pdfplumber
@@ -85,6 +85,31 @@ Ein neuer Eintrag ist ein Block in `guide.json`, ohne Programmierung.
 | Modell-Anbindung: Kaskade, Router, Kristalle aus `referenz/koordinat_kern.py` | neu; `Kern.modell()` ist die Einhängestelle | mittel |
 | Weitere lernende Algorithmen (Suchanfrage, Sicherheitsmuster) | `algorithmen.py`: Raum, Einheiten, Güte | mittel |
 | Fremde Algorithmen ausführen und gegeneinander antreten lassen | erst nach Container-Ausführung und Schutzschicht 3 | schwer |
+
+## Neu in v0.4: Ziel im Kern, Besitzer-Schlüssel, geführte Abläufe
+
+**Der Kern trägt jetzt ein Ziel.** `verfassung.py` beginnt mit `ZIEL`: nützlicher werden, mehr wissen,
+mehr können, schwerere Probleme lösen, wachsen – gebunden an Nutzen und die acht Artikel. Ambition im
+Kern, Leitplanken im Kern.
+
+**Ein einziger Hebel, den Kern zu ändern: dein Besitzer-Schlüssel.**
+```
+python3 -m koordinat besitzer-setzen     # einmalig deinen geheimen Code setzen (min. 8 Zeichen)
+python3 -m koordinat versiegeln          # ab jetzt nur noch mit diesem Code
+```
+Der Schlüssel liegt als gesalzener Hash in `~/.koordinat/owner.lock`, nie im Code. Ohne ihn nimmt die
+App keinen neuen Kern an (sicherer Modus). `stop` wirkt weiter ohne Schlüssel (A1). Google-OAuth lässt
+sich später vor `setze_besitzer`/`versiegeln` hängen – dein Google-Konto entsperrt dann den Schlüssel.
+
+**Geführte Abläufe – sofort Schritt für Schritt.** `leitfaden.py` + `leitfaden.json`:
+```
+python3 -m koordinat los "ich will KI Videos erstellen"
+python3 -m koordinat weiter
+python3 -m koordinat leitfaden            # alle Abläufe
+```
+8 Abläufe, 45 Schritte: KI-Video, Firma automatisieren, bessere Agenten, wie GitHub funktioniert,
+KI-Konten/Schlüssel verbinden, Dokumente auswerten, lokale KI, erste Schritte. Jeder Schritt nennt das
+Werkzeug, das er braucht. Über MCP bekommt die KI mit `koordinat_los` den ganzen Plan zum Abarbeiten.
 
 ## In Claude, Cursor oder ein anderes MCP-fähiges Programm einhängen
 Eintrag in der MCP-Konfiguration des jeweiligen Programms (Pfad anpassen):

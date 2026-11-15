@@ -257,7 +257,70 @@ test("Guide findet Begriffe, auch ueber Zweitnamen", "Repository" in guide.frage
 test("Guide merkt Luecken", "noch keinen Eintrag" in guide.frage(db, "Quantenradierer") and guide.luecken(db)[0]["begriff"] == "quantenradierer")
 ids = {e["id"] for e in guide.eintraege()}
 test("Guide: alle Verweise zeigen auf vorhandene Eintraege", all(s in ids for e in guide.eintraege() for s in e["siehe"]))
-test("MCP: 14 Werkzeuge, alle aufrufbar deklariert", len(mcp_server.TOOLS) == 14 and "Einstieg" in mcp_server.rufe(db, v, "koordinat_guide", {}))
+test("MCP: 15 Werkzeuge, alle aufrufbar deklariert", len(mcp_server.TOOLS) == 15 and "Einstieg" in mcp_server.rufe(db, v, "koordinat_guide", {}))
+
+
+# ============================ v0.4: Ziel, Besitzer-Schluessel, Leitfaden ============================
+from koordinat import leitfaden
+
+# --- Ziel im Kern verankert
+test("Kern hat ein ausdrueckliches ZIEL", "nuetzlicher" in verfassung.ZIEL.lower() and "wachsen" in verfassung.ZIEL.lower())
+test("Ziel bleibt an Nuetzlichkeit und Artikel gebunden (nicht Selbstzweck)",
+     "gebunden" in verfassung.ZIEL.lower() and "nie gegen den menschen" in verfassung.ZIEL.lower())
+test("A1 und A2 unveraendert vorhanden (Abschaltbar, kein Selbstschutz gegen Menschen)",
+     verfassung.ARTIKEL[0][0].startswith("A1") and "Kein Selbstschutz gegen Menschen" in verfassung.ARTIKEL[1][0])
+
+# --- Besitzer-Schluessel: der einzige Hebel, den Kern zu aendern
+assert not verfassung.besitzer_gesetzt()
+test("Ohne Besitzer-Schluessel: erstes Versiegeln geht (Einrichtung)", verfassung.versiegeln("ICH VERSIEGELE DEN KERN") and verfassung.pruefe_integritaet())
+verfassung.setze_besitzer("geheim-12345")
+test("Besitzer-Schluessel wird als Hash gespeichert, nie im Klartext",
+     verfassung.besitzer_gesetzt() and "geheim-12345" not in verfassung.BESITZER.read_text())
+test("Richtiger Schluessel wird erkannt, falscher nicht",
+     verfassung.pruefe_besitzer("geheim-12345") and not verfassung.pruefe_besitzer("falsch"))
+try: verfassung.versiegeln("ICH VERSIEGELE DEN KERN"); r = False
+except PermissionError: r = True
+test("Mit gesetztem Besitzer: Versiegeln OHNE Schluessel wird abgelehnt", r)
+try: verfassung.versiegeln("ICH VERSIEGELE DEN KERN", "falsch"); r = False
+except PermissionError: r = True
+test("Versiegeln mit FALSCHEM Schluessel wird abgelehnt", r)
+test("Versiegeln mit richtigem Schluessel geht", bool(verfassung.versiegeln("ICH VERSIEGELE DEN KERN", "geheim-12345")))
+try: verfassung.setze_besitzer("neuerkey9", "falsch"); r = False
+except PermissionError: r = True
+test("Schluessel aendern braucht den alten Schluessel", r)
+test("Schluessel aendern mit altem Schluessel geht", verfassung.setze_besitzer("neuerkey9", "geheim-12345") and verfassung.pruefe_besitzer("neuerkey9"))
+try: verfassung.setze_besitzer("kurz", "neuerkey9"); r = False
+except ValueError: r = True
+test("Zu kurzer Schluessel wird abgelehnt", r)
+test("A1 Stop wirkt auch mit gesetztem Besitzer-Schluessel (ohne Schluessel abschaltbar)",
+     verfassung.abschalten() and verfassung.stop_gesetzt()); verfassung.STOP.unlink()
+test("Die App darf den Besitzer-Schluessel nicht ueberschreiben (A3)", not verfassung.darf_schreiben(verfassung.BESITZER))
+test("MCP kann weder versiegeln noch den Besitzer setzen",
+     not any(x["name"] in ("koordinat_versiegeln", "koordinat_besitzer") for x in mcp_server.TOOLS))
+verfassung.BESITZER.unlink()                                            # fuer die restlichen Tests wieder offen
+verfassung.versiegeln("ICH VERSIEGELE DEN KERN")
+
+# --- Leitfaden: gefuehrter Ablauf Schritt fuer Schritt
+test("Anliegen findet den passenden Ablauf", leitfaden.finde("ich will KI Videos erstellen")["id"] == "ki-video"
+     and leitfaden.finde("mein unternehmen automatisieren")["id"] == "firma-automatisieren"
+     and leitfaden.finde("wie funktioniert github")["id"] == "github-verstehen"
+     and leitfaden.finde("besseren agenten bauen")["id"] == "besserer-agent")
+test("Unpassendes Anliegen erfindet keinen Ablauf", leitfaden.finde("blauer elefant tanzt") is None)
+t1 = leitfaden.los(db, "KI Video erstellen")
+test("los() startet bei Schritt 1 und nennt das Werkzeug je Schritt", "Schritt 1 von" in t1 and "koordinat weiter" in t1)
+t2 = leitfaden.weiter(db)
+test("weiter() geht zum naechsten Schritt und merkt den Stand", "Schritt 2 von" in t2)
+test("Stand liegt in der Datenbank", db.execute("SELECT schritt FROM leitfaden_stand WHERE ablauf='ki-video'").fetchone()[0] == 1)
+pl = leitfaden.plan(db, "firma automatisieren")
+test("plan() gibt der KI den ganzen Ablauf mit Werkzeugen", pl["gefunden"] and pl["id"] == "firma-automatisieren" and len(pl["schritte"]) >= 5
+     and any(sch["werkzeug"] for sch in pl["schritte"]))
+test("Jeder Ablauf hat Ausloeser, Ziel und mind. 4 Schritte", all(a["ausloeser"] and a.get("ziel") and len(a["schritte"]) >= 4 for a in leitfaden.ablaeufe()))
+kat_repos = {e["repo"] for e in json.loads((pathlib.Path(__file__).parent / "koordinat" / "katalog.json").read_text())} if False else None
+test("Leitfaden deckt die ausdruecklich gewuenschten Themen ab",
+     {a["id"] for a in leitfaden.ablaeufe()} >= {"ki-video", "firma-automatisieren", "besserer-agent", "github-verstehen", "ki-konten-verbinden"})
+test("MCP bietet koordinat_los an und liefert einen Plan", any(x["name"] == "koordinat_los" for x in mcp_server.TOOLS)
+     and mcp_server.rufe(db, v, "koordinat_los", {"anliegen": "wie funktioniert github"})["gefunden"])
+
 
 if siegel_vorher: verfassung.SIEGEL.write_text(siegel_vorher)
 shutil.rmtree(tmp)

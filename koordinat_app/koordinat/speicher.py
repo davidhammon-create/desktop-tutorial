@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS algo_version(id INTEGER PRIMARY KEY, algo TEXT, param
     train REAL, holdout REAL, marke INTEGER, zeit REAL, notiz TEXT);
 CREATE TABLE IF NOT EXISTS algo_stand(algo TEXT PRIMARY KEY, naechster INTEGER, pause INTEGER);
 CREATE TABLE IF NOT EXISTS guide_luecke(begriff TEXT PRIMARY KEY, anzahl INTEGER, zeit REAL);
+CREATE TABLE IF NOT EXISTS leitfaden_stand(ablauf TEXT PRIMARY KEY, schritt INTEGER, zeit REAL);
 """
 
 

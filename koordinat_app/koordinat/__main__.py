@@ -1,6 +1,6 @@
 """Befehlszeile:  python3 -m koordinat <befehl>"""
 import json, pathlib, sys
-from . import algorithmen, evolution, github, guide, module, speicher, verfassung, vital as vitalmod, wachstum
+from . import algorithmen, evolution, github, guide, leitfaden, module, speicher, verfassung, vital as vitalmod, wachstum
 
 HILFE = """KOORDINAT v0.3
   suche "<bedarf>"            GitHub durchsuchen und bewerten
@@ -21,9 +21,13 @@ HILFE = """KOORDINAT v0.3
   katalog [kategorie]         Katalog anzeigen (Startkatalog + selbst entdeckte)
   katalog-laden <kategorie>   alle Repos einer Kategorie installieren
   guide [begriff]             Nachschlagewerk: Repo, Lizenz, MCP, Token ...   (guide-luecken: was fehlt)
+  los "<anliegen>"            gefuehrter Ablauf Schritt fuer Schritt (KI-Video, Firma automatisieren,
+                              besseren Agenten bauen, wie GitHub funktioniert ...)
+  weiter                      naechster Schritt des laufenden Ablaufs   (leitfaden: alle Ablaeufe)
+  besitzer-setzen             Besitzer-Schluessel anlegen/aendern (einziger Hebel, den Kern zu aendern)
   verfassung                  die 8 Artikel
   versiegeln                  Kern-Siegel setzen (nur Mensch)
-  stop | weiter               alles anhalten / Stop-Marke entfernen
+  stop | fortsetzen           alles anhalten / Stop-Marke entfernen
   mcp                         als MCP-Server starten (fuer Claude, Cursor ...)"""
 
 
@@ -53,13 +57,32 @@ def main(argv):
     b, a = argv[0], argv[1:]
     if b == "stop":
         verfassung.abschalten(); print("STOP gesetzt. Nichts laeuft mehr."); return
-    if b == "weiter":
+    if b == "fortsetzen":
         verfassung.STOP.unlink(missing_ok=True); print("Stop-Marke entfernt."); return
     if b == "verfassung":
         for t, x in verfassung.ARTIKEL: print(f"{t}\n   {x}")
         return
     if b == "versiegeln":
-        print(json.dumps(verfassung.versiegeln(input('Tippe woertlich "ICH VERSIEGELE DEN KERN": ')), indent=1)); return
+        import getpass
+        sch = getpass.getpass("Besitzer-Schluessel (leer, falls noch keiner gesetzt): ") if verfassung.besitzer_gesetzt() else None
+        try:
+            print(json.dumps(verfassung.versiegeln(input('Tippe woertlich "ICH VERSIEGELE DEN KERN": '), sch), indent=1))
+        except PermissionError as e:
+            print("Abgelehnt:", e)
+        return
+    if b == "besitzer-setzen":
+        import getpass
+        alt = getpass.getpass("Bisheriger Besitzer-Schluessel: ") if verfassung.besitzer_gesetzt() else None
+        neu = getpass.getpass("Neuer Besitzer-Schluessel (mind. 8 Zeichen): ")
+        if neu != getpass.getpass("Neuer Besitzer-Schluessel wiederholen: "):
+            print("Die beiden Eingaben sind verschieden. Nichts geaendert."); return
+        try:
+            verfassung.setze_besitzer(neu, alt)
+            print("Besitzer-Schluessel gesetzt. Von jetzt an braucht jedes 'versiegeln' diesen Schluessel.\n"
+                  "Bewahre ihn sicher auf: Ohne ihn kann der Kern nicht mehr neu versiegelt werden.")
+        except (PermissionError, ValueError) as e:
+            print("Abgelehnt:", e)
+        return
     if b == "mcp":
         from . import mcp_server; mcp_server.main(); return
     if verfassung.stop_gesetzt():
@@ -142,6 +165,12 @@ def main(argv):
         print(guide.frage(db, " ".join(a)))
     elif b == "guide-luecken":
         for x in guide.luecken(db): print(f"{x['gefragt']:>3}x  {x['begriff']}")
+    elif b == "los":
+        print(leitfaden.los(db, " ".join(a)))
+    elif b == "weiter":
+        print(leitfaden.weiter(db))
+    elif b == "leitfaden":
+        print(leitfaden.inhalt())
     else:
         print(HILFE)
 
