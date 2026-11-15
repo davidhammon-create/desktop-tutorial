@@ -1,0 +1,252 @@
+[
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "Aider-AI/aider",
+  "zweck": "KI-Programmierer im Terminal"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "cline/cline",
+  "zweck": "Coding-Agent in VS Code"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "OpenHands/OpenHands",
+  "zweck": "autonomer Software-Agent"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "continuedev/continue",
+  "zweck": "offener Coding-Assistent für IDEs"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "modelcontextprotocol/servers",
+  "zweck": "Sammlung von MCP-Servern"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "langchain-ai/langgraph",
+  "zweck": "Agenten als Graph"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "crewAIInc/crewAI",
+  "zweck": "Rollen-Teams aus Agenten"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "microsoft/autogen",
+  "zweck": "Multi-Agenten-Gespräche"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "stanfordnlp/dspy",
+  "zweck": "Prompts programmieren und optimieren"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "BerriAI/litellm",
+  "zweck": "ein Zugang zu allen Modell-Anbietern"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "ollama/ollama",
+  "zweck": "Modelle lokal starten"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "ggml-org/llama.cpp",
+  "zweck": "schnelle lokale Inferenz"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "open-webui/open-webui",
+  "zweck": "Chat-Oberfläche für lokale Modelle"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "huggingface/transformers",
+  "zweck": "Standardbibliothek für Modelle"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "ml-explore/mlx",
+  "zweck": "maschinelles Lernen auf Apple-Chips"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "browser-use/browser-use",
+  "zweck": "KI bedient den Browser"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "microsoft/playwright",
+  "zweck": "Browser-Automatisierung"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "n8n-io/n8n",
+  "zweck": "Abläufe zwischen Apps verbinden"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "langgenius/dify",
+  "zweck": "KI-Abläufe per Baukasten"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "docling-project/docling",
+  "zweck": "PDF und Office in strukturierte Daten"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "microsoft/markitdown",
+  "zweck": "Dateien zu Markdown"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "tesseract-ocr/tesseract",
+  "zweck": "Texterkennung (OCR)"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "jsvine/pdfplumber",
+  "zweck": "Tabellen und Text aus PDF"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "chroma-core/chroma",
+  "zweck": "Vektordatenbank, einfach"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "qdrant/qdrant",
+  "zweck": "Vektordatenbank, schnell"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "run-llama/llama_index",
+  "zweck": "Dokumente für Modelle erschließen"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "openai/whisper",
+  "zweck": "Sprache zu Text"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "Comfy-Org/ComfyUI",
+  "zweck": "Bild-KI als Baukasten"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "coqui-ai/TTS",
+  "zweck": "Text zu Sprache"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "yt-dlp/yt-dlp",
+  "zweck": "Videos und Audio laden"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "FFmpeg/FFmpeg",
+  "zweck": "Audio und Video umwandeln"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "shadcn-ui/ui",
+  "zweck": "fertige Oberflächen-Bausteine"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "vercel/next.js",
+  "zweck": "Web-Framework"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "supabase/supabase",
+  "zweck": "Datenbank, Login, Speicher"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "fastapi/fastapi",
+  "zweck": "schnelle Python-Schnittstellen"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "streamlit/streamlit",
+  "zweck": "Daten-Apps in Python"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "numpy/numpy",
+  "zweck": "Rechnen mit Feldern"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "scipy/scipy",
+  "zweck": "wissenschaftliche Verfahren"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "pandas-dev/pandas",
+  "zweck": "Tabellen-Daten"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "scikit-learn/scikit-learn",
+  "zweck": "klassisches maschinelles Lernen"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "pytorch/pytorch",
+  "zweck": "neuronale Netze"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "sympy/sympy",
+  "zweck": "Formeln symbolisch rechnen"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "leanprover/lean4",
+  "zweck": "Beweisassistent"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "google/or-tools",
+  "zweck": "Planung und Optimierung"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "optuna/optuna",
+  "zweck": "automatische Parametersuche"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "rdkit/rdkit",
+  "zweck": "Chemie-Informatik"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "biopython/biopython",
+  "zweck": "Bioinformatik"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "astropy/astropy",
+  "zweck": "Astronomie"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "deepchem/deepchem",
+  "zweck": "maschinelles Lernen für Chemie"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "jupyter/notebook",
+  "zweck": "Notizbücher für Auswertungen"
+ }
+]
