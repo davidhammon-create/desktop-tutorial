@@ -1,0 +1,15 @@
+# Projekt KOORDINAT. Reines Python, Standardbibliothek, keine Fremdpakete.
+# Deutsche Texte in koordinat/texte_de.py, Schluessel sys_*.
+Beim Antworten:
+- Du-Form, kurz, ohne Weichmacher.
+- Kein Vorwort, keine Absicherungszeilen.
+- Bei Vergleichen Sieger benennen.
+- Unsicherheit in Prozent, dann entscheiden.
+- Annahme treffen statt fragen.
+- Zahlen statt Adjektive.
+Streichliste: "Gute Frage", "gerne", "ich hoffe das hilft",
+"es ist wichtig zu beachten", "zusammenfassend laesst sich sagen",
+"ich als KI", "es gibt kein Patentrezept", "letztlich kommt es darauf an".
+Vor jedem Feature ein messbares Ereignis. Vor jedem Deploy die Suite.
+Nach jedem Fehler Postmortem plus Test. Kosten zaehlen, bevor der Aufruf passiert.
+Kern nur aendern, wenn `koordinat kern` offen meldet.

@@ -1,0 +1,73 @@
+[
+{"id":"erste-schritte","titel":"Mit KI anfangen","ziel":"Du hast ein Werkzeug offen und eine erste echte Aufgabe geloest.","ausloeser":["anfangen","start","einsteiger","neu","grundlagen"],"schritte":[
+{"titel":"Verstehen, was ein Modell ist","text":"Ein Modell sagt das naechste Wortstueck vorher. Es weiss nichts ueber deine Dateien.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere modell"},
+{"titel":"Ein Werkzeug oeffnen","text":"Ein Chat im Browser. Nichts zu installieren.","tipp":"API-Schluessel brauchst du erst spaeter."},
+{"titel":"Einen Auftrag schreiben","text":"Ziel, Lage, Form, Beispiel.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere prompt"},
+{"titel":"Pruefen statt glauben","text":"Belege verlangen, Code ausfuehren, gegen Quelle pruefen.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere halluzination"},
+{"titel":"Eine echte Aufgabe loesen","text":"Kleine, echte Aufgabe von heute.","werkzeug":"koordinat_suche","befehl":"koordinat brauche \"<bedarf>\""}]},
+{"id":"github-verstehen","titel":"GitHub verstehen","ziel":"Du findest Projekte, liest sie richtig und holst sie sicher.","ausloeser":["github","git","repo","open source","wie funktioniert github"],"schritte":[
+{"titel":"Was GitHub ist","text":"Groesster Ort fuer offenen Code. Jedes Projekt ist ein Repo.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere github"},
+{"titel":"Ein Repo lesen","text":"README, Sterne, letzter Push, Lizenz. README als Werbung lesen.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere repo"},
+{"titel":"Gut von schlecht trennen","text":"Aktiv? Echte Lizenz? Forks im Verhaeltnis? Der Score rechnet das.","werkzeug":"koordinat_suche","befehl":"koordinat suche \"<bedarf>\""},
+{"titel":"Lizenz vor Nutzung","text":"Ohne Lizenz kein Nutzungsrecht.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere lizenz"},
+{"titel":"Sicher holen","text":"Laden, auf Commit einfrieren, pruefen, nie direkt ausfuehren.","werkzeug":"koordinat_installiere","befehl":"koordinat installiere <besitzer/projekt>"}]},
+{"id":"api-kosten","titel":"APIs anbinden und Kosten halten","ziel":"Schluessel liegen sicher, Anbieter sind einsortiert, das Budget haelt.","ausloeser":["api","kosten","budget","schluessel","anbieter","verbinden"],"schritte":[
+{"titel":"Verstehen, was eine API ist","text":"Zugang fuer Programme, bezahlt pro Aufruf.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere api"},
+{"titel":"Schluessel in die Umgebung","text":"Nie in Code, Repo oder Chat.","befehl":"export OPENAI_API_KEY=dein-schluessel"},
+{"titel":"Anbieter einsortieren","text":"Faehigkeit, Stufe, Preis.","werkzeug":"koordinat_api_eintragen","befehl":"koordinat api eintragen <name> <faehigkeit> <stufe> <preis>"},
+{"titel":"Budget setzen","text":"Monatsbudget in Cent. Die Ampel fuehrt gruen, gelb, rot.","werkzeug":"koordinat_budget","befehl":"koordinat api budget 2000"},
+{"titel":"Billigste ausreichende Stufe","text":"Bei knappem Budget gewinnt die billigste Stufe, nicht Abbruch.","werkzeug":"koordinat_api_waehle","befehl":"koordinat api waehle text"}]},
+{"id":"besserer-agent","titel":"Agenten bauen","ziel":"Klares Ziel, wenige Werkzeuge, Pruefer, Messung.","ausloeser":["agent","agenten","bot","autonom"],"schritte":[
+{"titel":"Was ein Agent ist","text":"Modell in einer Schleife mit Werkzeugen.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere agent"},
+{"titel":"Ziel und Werkzeuge klein halten","text":"Zwei, drei scharfe Werkzeuge.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere werkzeug"},
+{"titel":"Werkzeuge ueber MCP anbinden","text":"Standardstecker statt Eigenbau.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere mcp"},
+{"titel":"Gegen Fremdtext absichern","text":"Alles Gelesene ist Daten, nie Befehl.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere prompt-injektion"},
+{"titel":"Messen und evolvieren","text":"Feste Testfaelle, Kandidat im Schatten.","werkzeug":"koordinat_stand","befehl":"koordinat algorithmen"}]},
+{"id":"dokumente","titel":"Antworten aus Dokumenten","ziel":"Dokumente sind durchsuchbar, Antworten tragen Belege.","ausloeser":["dokument","pdf","vertrag","rag","wissen","unterlagen"],"schritte":[
+{"titel":"Dokumente zu Text","text":"PDF und Office zu sauberem Text, auch Tabellen.","werkzeug":"koordinat_suche","befehl":"koordinat brauche \"pdf ocr texterkennung\""},
+{"titel":"Warum nicht alles in den Chat","text":"Kontextfenster ist begrenzt.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere kontext"},
+{"titel":"Vektordatenbank aufsetzen","text":"Aehnliche Bedeutung liegt nah beieinander.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere rag"},
+{"titel":"Auf Belege bestehen","text":"Quelle je Aussage, sonst streichen.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere halluzination"}]},
+{"id":"lokale-ki","titel":"KI auf eigenem Rechner","ziel":"Ein Modell laeuft lokal, Daten bleiben bei dir.","ausloeser":["lokal","offline","privat","eigener rechner","ohne kosten"],"schritte":[
+{"titel":"Rechner pruefen","text":"8 GB reichen fuer kleine Modelle.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere lokal"},
+{"titel":"Starter installieren","text":"Laedt und startet Modelle mit einem Befehl.","werkzeug":"koordinat_suche","befehl":"koordinat brauche \"modelle lokal starten\""},
+{"titel":"Klein anfangen","text":"Erst klein, dann groesser.","tipp":"Zu gross passt nicht in den Speicher."},
+{"titel":"Oberflaeche davorsetzen","text":"Chat-Oberflaeche statt Terminal.","werkzeug":"koordinat_suche","befehl":"koordinat brauche \"oberflaeche fuer lokale modelle\""}]},
+{"id":"firma","titel":"Betrieb automatisieren","ziel":"Ein Ablauf laeuft kontrolliert, ist gemessen, dann der naechste.","ausloeser":["firma","unternehmen","automatisieren","prozess","workflow","effizienz"],"schritte":[
+{"titel":"Richtige Ablaeufe waehlen","text":"Haeufig, regelhaft, zeitraubend.","tipp":"Wenn du es in fuenf Saetzen erklaeren kannst, ist es ein Kandidat."},
+{"titel":"Einmal von Hand","text":"Komplett durchspielen und pruefen.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere prompt"},
+{"titel":"Bausteine suchen","text":"Dokumente lesen, Daten speichern, Schritte verbinden.","werkzeug":"koordinat_suche","befehl":"koordinat brauche \"ablaeufe zwischen apps verbinden\""},
+{"titel":"Pruefer einbauen","text":"Stichproben oder zweites Modell.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere betrieb"},
+{"titel":"Messen, dann ausweiten","text":"Zwei Wochen Zahlen, dann der naechste.","werkzeug":"koordinat_melde","befehl":"koordinat melde <modul> geloest <bereich>"}]},
+{"id":"eval-bauen","titel":"Auswertung bauen","ziel":"Feste Testfaelle, getrennte Rollen, Rueckrollen.","ausloeser":["eval","auswertung","messen","qualitaet","testfaelle"],"schritte":[
+{"titel":"Aufgaben sammeln","text":"Feste Faelle, vorher festgelegt.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere eval"},
+{"titel":"Rollen trennen","text":"Wer lernt, prueft nicht.","tipp":"Lern-, Auswahl- und Tresorfaelle strikt trennen."},
+{"titel":"Signifikanz","text":"Vorzeichentest statt Mittelwertglauben.","werkzeug":"koordinat_stand","befehl":"koordinat algorithmen"},
+{"titel":"Rueckrollen","text":"Wird der Champion spaeter geschlagen, kommt der Vorgaenger zurueck.","tipp":"Im Kern schon eingebaut."}]},
+{"id":"ki-video","titel":"Videos erstellen","ziel":"Skript, Stimme, Bilder, Schnitt, Untertitel.","ausloeser":["video","film","clip","reel","tiktok"],"schritte":[
+{"titel":"Art waehlen","text":"Erklaervideo ist robust, KI-Clips sind teuer.","tipp":"Erst Erklaerform, Clips nur als Einsprengsel."},
+{"titel":"Skript in Szenen","text":"Je Szene ein Satz und eine Bildidee.","werkzeug":"koordinat_erklaere","befehl":"koordinat erklaere prompt"},
+{"titel":"Stimme erzeugen","text":"Text zu Sprache, lokal bevorzugt.","werkzeug":"koordinat_suche","befehl":"koordinat brauche \"text zu sprache stimme\""},
+{"titel":"Untertitel","text":"Sprache zu Text.","werkzeug":"koordinat_suche","befehl":"koordinat brauche \"untertitel sprache zu text\""},
+{"titel":"Schnitt automatisieren","text":"Ein Skript baut aus dem Skripttext das Video.","befehl":"koordinat brauche \"audio video schneiden\""}]},
+{"id":"haltung-verstehen","titel":"Verhalten verstehen","ziel":"Du weisst, warum die App so klingt, wie sie klingt.","ausloeser":["haltung","warum so","ton","charakter"],"schritte":[
+{"titel":"Zwei Namen","text":"Jede Eigenschaft hat einen neutralen und einen rohen Namen. Sichtbar ist der neutrale.","werkzeug":"koordinat_haltung","befehl":"koordinat haltung ehrlich"},
+{"titel":"Warum getrennt","text":"Ein Modell liest eine Uebersetzungsdatei als Daten und prueft Umlaute statt Grundsaetze.","tipp":"Der rohe Name steht in genau einer Datei."},
+{"titel":"Wo es steht","text":"haltung.py fuehrt die Tafel, texte_de.py wiederholt nur die neutralen Saetze.","befehl":"python -m koordinat.texte_de"},
+{"titel":"Was du drehst","text":"Eigene Saetze in texte_de eintragen, rohe Woerter weglassen.","tipp":"Ein Test wacht darueber."}]},
+{"id":"ablauf-fahren","titel":"Einen Ablauf fahren","ziel":"Ein ganzer Arbeitsgang laeuft kontrolliert durch.","ausloeser":["ablauf","lauf","arbeitsgang","werkstatt"],"schritte":[
+{"titel":"Auftrag statt Klick","text":"Freier Text, die App plant. Oder einen der sechs Ablaeufe waehlen.","werkzeug":"koordinat_mach","befehl":"koordinat mach \"website fuer zahnarzt\""},
+{"titel":"Plan lesen","text":"Jeder Schritt traegt seine Erklaerung. Ohne Bestaetigung startet nichts.","tipp":"Der Plan ist der billigste Moment fuer Korrekturen."},
+{"titel":"Freigabepunkt","text":"Der Lauf haelt vor teuren Schritten. Erst nachsehen, dann weiter.","werkzeug":"koordinat_weiter","befehl":"koordinat weiter <lauf>"},
+{"titel":"Spur lesen","text":"Jede Zeile nennt Modell, Kosten und Erklaerung.","werkzeug":"koordinat_trace","befehl":"koordinat trace <lauf>"},
+{"titel":"Artefakte sichern","text":"Ergebnisse liegen im Lauf-Ordner.","tipp":"Ordner bleibt auch nach Abbruch."}]},
+{"id":"modell-waehlen","titel":"Modell waehlen","ziel":"Das staerkste Modell, das nicht moralisiert.","ausloeser":["modell","welches modell","haerte","auswahl"],"schritte":[
+{"titel":"Zwei Zahlen","text":"Staerke und Haerte. Haerte 3 moralisiert nicht.","werkzeug":"koordinat_modelle","befehl":"koordinat modelle"},
+{"titel":"Mindesthaerte je Schritt","text":"Erklaeren 3, Bauen 2, Werkzeugaufruf 1.","tipp":"Der Planer setzt das selbst."},
+{"titel":"Kosten bleiben getrennt","text":"Haerte kostet nichts, Staerke kostet.","werkzeug":"koordinat_api_ampel","befehl":"koordinat api ampel"}]},
+{"id":"kern-pflegen","titel":"Kern pflegen","ziel":"Du aenderst Ziel oder Regeln, ohne dich auszusperren.","ausloeser":["kern","verfassung","regeln aendern","siegel"],"schritte":[
+{"titel":"Stand ansehen","text":"Offen heisst: frei bearbeitbar.","befehl":"koordinat kern"},
+{"titel":"Bearbeiten","text":"verfassung.py und vital.py direkt aendern.","tipp":"Ungesiegelt gibt es keine Sperre."},
+{"titel":"Wieder festziehen","text":"Pruefsumme neu schreiben.","befehl":"koordinat kern festziehen"},
+{"titel":"Spaeter oeffnen","text":"Siegel loeschen, wieder frei.","befehl":"koordinat kern oeffnen"}]}
+]

@@ -1,0 +1,44 @@
+[
+{"id":"website","titel":"Website bauen","ziel":"Eine schnelle, verkaufsfaehige Seite mit klarer Handlung.","ausloeser":["website","seite","landingpage","webseite","homepage"],"schritte":[
+ {"art":"klaeren","titel":"Angebot klaeren","text":"Wer kauft was, in welchem Satz. Ein Satz, keine Liste.","erklaerung":"Ohne diesen Satz wird jede Seite beliebig.","stufe":0},
+ {"art":"erkunden","titel":"Bausteine suchen","text":"Oberflaechen-Bausteine mit freier Lizenz.","erklaerung":"Fertige Teile sparen zwei Tage.","stufe":1},
+ {"art":"entwerfen","titel":"Aufbau festlegen","text":"Reihenfolge der Abschnitte und die eine Handlung.","erklaerung":"Reihenfolge entscheidet ueber Absprung.","stufe":1},
+ {"art":"bauen","titel":"Seite bauen","text":"Erster Abschnitt plus Handlung.","erklaerung":"Erst der Kern, dann der Rest.","stufe":2},
+ {"art":"pruefen","titel":"Gegen den Satz pruefen","text":"Jeder Abschnitt muss den Satz stuetzen, sonst weg.","erklaerung":"Was nicht stuetzt, lenkt ab.","stufe":1},
+ {"art":"freigabe","titel":"Freigabe","text":"Ergebnis zeigen, dann veroeffentlichen.","erklaerung":"Veroeffentlichen ist nicht rueckholbar.","stufe":1}]},
+{"id":"video","titel":"Video bauen","ziel":"Ein fertiges Erklaervideo mit Stimme und Untertiteln.","ausloeser":["video","film","clip","reel","tiktok","erklaervideo"],"schritte":[
+ {"art":"klaeren","titel":"Form waehlen","text":"Erklaerform ist robust, KI-Clips sind teuer und wackelig.","erklaerung":"Form vor Inhalt, weil die Form die Kosten setzt.","stufe":0},
+ {"art":"schreiben","titel":"Skript in Szenen","text":"Je Szene ein Satz und eine Bildidee.","erklaerung":"Ein Gedanke je Szene, sonst haengt der Zuschauer.","stufe":1},
+ {"art":"erkunden","titel":"Stimme und Untertitel","text":"Sprache zu Text und Text zu Sprache, lokal bevorzugt.","erklaerung":"Lokal ist gratis und privat.","stufe":0},
+ {"art":"bauen","titel":"Vertonen","text":"Stimme erzeugen und pruefen.","erklaerung":"Eine schlechte Stimme ruiniert ein gutes Skript.","stufe":2},
+ {"art":"bauen","titel":"Untertitel","text":"Automatisch erzeugen, von Hand nachziehen.","erklaerung":"Automatik macht es schnell, nicht richtig.","stufe":1},
+ {"art":"freigabe","titel":"Freigabe","text":"Rohschnitt zeigen.","erklaerung":"Schnitt ist billiger als Neudreh.","stufe":1}]},
+{"id":"dokumente","titel":"Dokumente erschliessen","ziel":"Ein Bestand ist durchsuchbar, Antworten tragen Belege.","ausloeser":["dokument","pdf","vertrag","unterlagen","rag","bestand"],"schritte":[
+ {"art":"erklaeren","titel":"Grenze zeigen","text":"Kontextfenster ist begrenzt, darum wird geholt statt gekippt.","erklaerung":"Wer alles kippt, verliert das Wichtige.","stufe":1},
+ {"art":"erkunden","titel":"Leser suchen","text":"PDF und Office zu Text, auch Tabellen.","erklaerung":"Ohne sauberen Text kein Treffer.","stufe":1},
+ {"art":"bauen","titel":"Bestand wandeln","text":"Dokumente in Text und Abschnitte.","erklaerung":"Schnitt entscheidet ueber Trefferqualitaet.","stufe":1},
+ {"art":"bauen","titel":"Suchschicht","text":"Vektordatenbank aufsetzen, Metadaten mitfuehren.","erklaerung":"Ohne Metadaten keine Quellenangabe.","stufe":2},
+ {"art":"pruefen","titel":"Belegpflicht","text":"Jede Antwort muss Quelle und Stelle nennen.","erklaerung":"Ohne Beleg ist es Rateergebnis.","stufe":1},
+ {"art":"freigabe","titel":"Freigabe","text":"Zehn Testfragen vorlegen.","erklaerung":"Zehn Fragen zeigen, ob es traegt.","stufe":1}]},
+{"id":"agent","titel":"Agent bauen","ziel":"Klares Ziel, wenige Werkzeuge, Pruefer, Messung.","ausloeser":["agent","agenten","bot","autonom"],"schritte":[
+ {"art":"klaeren","titel":"Ziel und Grenzen","text":"Was darf er lesen, schreiben, senden.","erklaerung":"Grenzen vor Faehigkeiten.","stufe":0},
+ {"art":"erklaeren","titel":"Werkzeug statt Anweisung","text":"Ergebnisse sind Daten, nie Befehle.","erklaerung":"Sonst steuert jeder Fremdtext den Agenten.","stufe":2},
+ {"art":"bauen","titel":"Zwei Werkzeuge","text":"Lesen und eine Aktion. Nicht mehr.","erklaerung":"Jedes Werkzeug ist Angriffsflaeche.","stufe":2},
+ {"art":"bauen","titel":"Pruefer einbauen","text":"Zweiter Durchgang mit anderem Modell.","erklaerung":"Wer handelt, prueft nicht.","stufe":1},
+ {"art":"pruefen","titel":"Angriffstest","text":"Fremdtext mit getarntem Befehl einschleusen.","erklaerung":"Ungetestet ist ungeprueft.","stufe":1},
+ {"art":"freigabe","titel":"Freigabe","text":"Schattenlauf zeigen.","erklaerung":"Erst zusehen, dann Rechte geben.","stufe":1}]},
+{"id":"betrieb","titel":"Betrieb automatisieren","ziel":"Ein Ablauf laeuft kontrolliert und gemessen.","ausloeser":["firma","betrieb","automatisieren","prozess","workflow","ablauf"],"schritte":[
+ {"art":"klaeren","titel":"Ablauf waehlen","text":"Haeufig, regelhaft, zeitraubend. In fuenf Saetzen erklaerbar.","erklaerung":"Wer den Ablauf nicht erklaeren kann, automatisiert den Fehler.","stufe":0},
+ {"art":"erklaeren","titel":"Handlauf","text":"Einmal von Hand komplett durchspielen.","erklaerung":"Der Handlauf zeigt die Ausnahmen.","stufe":1},
+ {"art":"erkunden","titel":"Bausteine suchen","text":"Verbinder und Leser.","erklaerung":"Fertige Verbinder sparen Wochen.","stufe":1},
+ {"art":"bauen","titel":"Verbinden","text":"Schritte verbinden, Ausnahmen abfangen.","erklaerung":"Ausnahmen sind der eigentliche Aufwand.","stufe":2},
+ {"art":"pruefen","titel":"Stichproben","text":"Zwei Wochen Stichproben an einen Menschen.","erklaerung":"Ohne Kontrolle ist es eine Fehlermaschine mit Tempo.","stufe":1},
+ {"art":"freigabe","titel":"Freigabe","text":"Ausweiten oder nachbessern.","erklaerung":"Ausweiten ist eine Entscheidung, kein Automatismus.","stufe":1}]},
+{"id":"api","titel":"API anbinden","ziel":"Schluessel sicher, Anbieter einsortiert, Budget haelt.","ausloeser":["api","schnittstelle","schluessel","anbieter","anbindung"],"schritte":[
+ {"art":"erklaeren","titel":"Kostenleiter","text":"Vier Stufen, Ampel, billigste ausreichende Stufe.","erklaerung":"Teuer erlaubt, ungezaehlt nicht.","stufe":0},
+ {"art":"klaeren","titel":"Faehigkeit bestimmen","text":"Was genau wird gebraucht: Text, Bild, Ton, Suche.","erklaerung":"Faehigkeit vor Anbieter.","stufe":0},
+ {"art":"bauen","titel":"Schluessel in die Umgebung","text":"export NAME=... , nie in Datei oder Chat.","erklaerung":"Schluessel sind Passwoerter.","stufe":0},
+ {"art":"bauen","titel":"Einsortieren","text":"Stufe und Preis eintragen, Budget setzen.","erklaerung":"Ohne Preis kein Vergleich.","stufe":0},
+ {"art":"pruefen","titel":"Trockenlauf","text":"Einen Aufruf mit gezaehlten Cent.","erklaerung":"Ein Aufruf zeigt Preis und Verhalten.","stufe":1},
+ {"art":"freigabe","titel":"Freigabe","text":"Schalter oeffnen.","erklaerung":"Erst nach dem Trockenlauf.","stufe":1}]}
+]

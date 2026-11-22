@@ -1,0 +1,1383 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap");
+/* Full-viewport App Store chrome ? copper hero removed */
+.atmos-app {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #f5f5f7;
+  font-family: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+}
+.atmos-ov-stage {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  place-items: stretch;
+  background: #000;
+  padding: 0;
+  overflow: hidden;
+}
+/* Legacy tokens kept for FreigabeDialog / residual panels */
+.atmos-root {
+  --atmos-bg0: #000;
+  --atmos-bg1: #1c1c1e;
+  --atmos-bg2: #2c2c2e;
+  --atmos-ink: #f5f5f7;
+  --atmos-muted: #98989d;
+  --atmos-copper: #0a84ff;
+  --atmos-copper-soft: #64b5ff;
+  --atmos-line: rgba(255, 255, 255, 0.08);
+  --atmos-ok: #30d158;
+  --atmos-warn: #ff9f0a;
+  --atmos-danger: #ff453a;
+  --atmos-panel: #1c1c1e;
+  --atmos-panel-solid: #1c1c1e;
+  --atmos-font: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --atmos-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  --atmos-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+.atmos-hero {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 8vh, 5rem) 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.atmos-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--atmos-copper-soft);
+  font-weight: 500;
+}
+.atmos-logo {
+  margin: 0;
+  font-family: var(--atmos-display);
+  font-weight: 800;
+  font-size: clamp(3.4rem, 12vw, 6.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  background: linear-gradient(120deg, #f3f7f2 10%, var(--atmos-copper-soft) 55%, #9fd0b2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.atmos-tagline {
+  margin: 0.75rem 0 0;
+  max-width: 34rem;
+  color: var(--atmos-muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+.atmos-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.atmos-chip {
+  border: 1px solid var(--atmos-line);
+  background: rgba(15, 20, 18, 0.55);
+  color: var(--atmos-ink);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  display: inline-flex;
+  gap: 0.55rem;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+  font-size: 0.82rem;
+}
+.atmos-chip:hover {
+  border-color: var(--atmos-copper);
+  transform: translateY(-1px);
+}
+.atmos-chip code {
+  font-family: var(--atmos-mono);
+  color: var(--atmos-copper-soft);
+  font-size: 0.72rem;
+}
+/* ?? Apple App Store?style command overlay ?? */
+.atmos-ov-trigger {
+  position: relative;
+}
+.atmos-ov-trigger__field {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.1rem;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(44, 44, 46, 0.88);
+  color: #98989d;
+  font: 400 0.98rem/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  cursor: pointer;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  transition: background 0.2s, transform 0.2s;
+}
+.atmos-ov-trigger__field:hover {
+  background: rgba(58, 58, 60, 0.95);
+  transform: translateY(-1px);
+}
+.atmos-ov {
+  --ov-bg: #000000;
+  --ov-sidebar: #1c1c1e;
+  --ov-elevated: #2c2c2e;
+  --ov-search: #3a3a3c;
+  --ov-text: #f5f5f7;
+  --ov-muted: #98989d;
+  --ov-blue: #0a84ff;
+  --ov-blue-soft: rgba(10, 132, 255, 0.28);
+  --ov-pill: #f5f5f7;
+  --ov-font: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --ov-radius: 12px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--ov-bg);
+  color: var(--ov-text);
+  font-family: var(--ov-font);
+  isolation: isolate;
+}
+.atmos-ov__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 0.65rem 0.75rem;
+  background: var(--ov-sidebar);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 0;
+  overflow: auto;
+}
+.atmos-ov__search {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0.15rem 0.35rem;
+  padding: 0.42rem 0.65rem;
+  border-radius: 8px;
+  background: var(--ov-search);
+  color: var(--ov-muted);
+}
+.atmos-ov__search input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ov-text);
+  font: 400 0.84rem/1.2 var(--ov-font);
+  min-width: 0;
+}
+.atmos-ov__search input::placeholder {
+  color: #8e8e93;
+}
+.atmos-ov__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  flex: 1;
+  overflow: auto;
+}
+.atmos-ov__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #d1d1d6;
+  font: 500 0.9rem/1.2 var(--ov-font);
+  padding: 0.42rem 0.55rem;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.atmos-ov__nav-item[data-active="true"] {
+  background: var(--ov-blue);
+  color: #fff;
+}
+.atmos-ov__nav-icon {
+  display: inline-flex;
+  width: 1.15rem;
+  opacity: 0.95;
+}
+.atmos-ov__badge {
+  margin-left: auto;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: rgba(142, 142, 147, 0.55);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  display: inline-grid;
+  place-items: center;
+}
+.atmos-ov__badge--api {
+  background: rgba(10, 132, 255, 0.35);
+  color: #64b5ff;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  padding: 0 0.35rem;
+}
+.atmos-ov__nav-item[data-active="true"] .atmos-ov__badge {
+  background: rgba(255, 255, 255, 0.28);
+}
+.atmos-ov__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding: 0.45rem 0.4rem;
+  border-radius: 10px;
+}
+.atmos-ov__profile strong {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.atmos-ov__profile span {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--ov-muted);
+}
+.atmos-ov__avatar {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #5ac8fa, #0a84ff 55%, #5856d6);
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.atmos-ov__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  position: relative;
+  z-index: 1;
+}
+.atmos-ov__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.35rem 0.35rem;
+  flex-shrink: 0;
+}
+.atmos-ov__title {
+  margin: 0;
+  font-family: var(--ov-font);
+  font-synthesis: none;
+  font-size: clamp(1.85rem, 3.2vw, 2.45rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.atmos-ov__close {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ov-elevated);
+  color: var(--ov-muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.atmos-ov__close:hover {
+  color: #fff;
+}
+.atmos-ov__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.55rem 1.35rem 1.1rem;
+  background: #000;
+  touch-action: pan-y;
+}
+.atmos-ov__lede {
+  margin: 0 0 1rem;
+  color: var(--ov-muted);
+  font-size: 0.92rem;
+}
+.atmos-ov__features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.35rem;
+}
+.atmos-ov__features--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.atmos-ov__feature {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.28rem;
+  min-height: 148px;
+  padding: 0.95rem 1rem 1rem;
+  border: 0;
+  border-radius: var(--ov-radius);
+  text-align: left;
+  cursor: pointer;
+  color: #fff;
+  overflow: hidden;
+  background: #2c2c2e;
+  transition: transform 0.2s ease;
+}
+.atmos-ov__feature:hover {
+  transform: translateY(-2px);
+}
+.atmos-ov__feature--copper {
+  background:
+    radial-gradient(ellipse 80% 70% at 90% 20%, rgba(255, 180, 120, 0.45), transparent 55%),
+    linear-gradient(145deg, #3a2418, #1a120e 60%, #0d0b0a);
+}
+.atmos-ov__feature--teal {
+  background:
+    radial-gradient(ellipse 70% 60% at 85% 15%, rgba(90, 220, 200, 0.4), transparent 55%),
+    linear-gradient(145deg, #12343a, #0b171a 65%, #070d0f);
+}
+.atmos-ov__feature--violet {
+  background:
+    radial-gradient(ellipse 70% 60% at 90% 10%, rgba(180, 120, 255, 0.45), transparent 55%),
+    linear-gradient(145deg, #2a1848, #120c1c 60%, #09070e);
+}
+.atmos-ov__feature--blue {
+  background:
+    radial-gradient(ellipse 70% 60% at 90% 10%, rgba(90, 180, 255, 0.4), transparent 55%),
+    linear-gradient(145deg, #0e2a4a, #0a121c 60%, #07090e);
+}
+.atmos-ov__eyebrow {
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64b5ff;
+}
+.atmos-ov__feature strong {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.atmos-ov__feature > span:not(.atmos-ov__eyebrow) {
+  color: rgba(245, 245, 247, 0.72);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+.atmos-ov__feature code {
+  margin-top: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.7rem;
+  color: rgba(245, 245, 247, 0.55);
+}
+.atmos-ov__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.35rem 0 0.75rem;
+}
+.atmos-ov__section-head h3,
+.atmos-ov__group-label {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.atmos-ov__group-label {
+  margin: 0.25rem 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ov-muted);
+}
+.atmos-ov__link {
+  border: 0;
+  background: transparent;
+  color: var(--ov-blue);
+  font: 500 0.88rem/1 var(--ov-font);
+  cursor: pointer;
+  padding: 0;
+}
+.atmos-ov__link--block {
+  display: inline-block;
+  margin-top: 0.85rem;
+}
+.atmos-ov__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.15rem 1.1rem;
+}
+.atmos-ov__grid--modules,
+.atmos-ov__grid--account {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1.25rem;
+}
+.atmos-ov__row,
+.atmos-ov__account-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 3.4rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.atmos-ov__account-item {
+  align-items: flex-start;
+  padding: 0.55rem 0;
+  border-bottom: 0;
+}
+.atmos-ov__squircle {
+  width: 2.55rem;
+  height: 2.55rem;
+  border-radius: 22%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #fff;
+  background: linear-gradient(160deg, #5ac8fa, #0a84ff);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18);
+}
+.atmos-ov__squircle--lg {
+  width: 3.35rem;
+  height: 3.35rem;
+  border-radius: 22%;
+}
+.atmos-ov__squircle[data-id="effort"],
+.atmos-ov__squircle[data-id="lauf"] {
+  background: linear-gradient(160deg, #ffd60a, #ff9f0a);
+  color: #1c1200;
+}
+.atmos-ov__squircle[data-id="stop"],
+.atmos-ov__squircle[data-id="aus"] {
+  background: linear-gradient(160deg, #ff6961, #ff453a);
+}
+.atmos-ov__squircle[data-id="suche"],
+.atmos-ov__squircle[data-id="install"],
+.atmos-ov__squircle[data-id="module"] {
+  background: linear-gradient(160deg, #64d2ff, #30d158);
+  color: #062012;
+}
+.atmos-ov__squircle[data-id="kristall"],
+.atmos-ov__squircle[data-id="mach"] {
+  background: linear-gradient(160deg, #bf5af2, #5e5ce6);
+}
+.atmos-ov__squircle[data-id="verfassung"],
+.atmos-ov__squircle[data-id="vital"] {
+  background: linear-gradient(160deg, #64d2ff, #0a84ff);
+}
+.atmos-ov__row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+}
+.atmos-ov__row-text strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atmos-ov__row-text span,
+.atmos-ov__meta {
+  font-size: 0.75rem;
+  color: var(--ov-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atmos-ov__meta {
+  display: block;
+  margin-top: 0.1rem;
+}
+.atmos-ov__row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+.atmos-ov__pill {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.28rem 0.85rem;
+  min-width: 3.6rem;
+  background: #f5f5f7;
+  color: #0a84ff;
+  font: 650 0.72rem/1 var(--ov-font);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-align: center;
+}
+.atmos-ov__pill--blue {
+  background: transparent;
+  color: var(--ov-blue);
+  font-weight: 600;
+  font-size: 0.84rem;
+  padding: 0.2rem 0.35rem;
+}
+.atmos-ov__pill:hover {
+  filter: brightness(1.05);
+}
+.atmos-ov__pill-ghost {
+  border: 0;
+  background: transparent;
+  color: var(--ov-muted);
+  font: 500 0.65rem/1 var(--ov-font);
+  cursor: pointer;
+  padding: 0;
+}
+.atmos-ov__settings {
+  list-style: none;
+  margin: 0;
+  padding: 0.15rem 0;
+  border-radius: 12px;
+  background: var(--ov-elevated);
+  overflow: hidden;
+}
+.atmos-ov__settings li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.72rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.atmos-ov__settings li:last-child {
+  border-bottom: 0;
+}
+.atmos-ov__settings strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.atmos-ov__settings span {
+  font-size: 0.75rem;
+  color: var(--ov-muted);
+}
+.atmos-ov__settings-icon {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--ov-blue);
+  flex-shrink: 0;
+}
+.atmos-ov__settings-icon[data-tone="law"] {
+  background: #5856d6;
+}
+.atmos-ov__settings-icon[data-tone="pulse"] {
+  background: #30d158;
+}
+.atmos-ov__settings-icon[data-tone="effort"] {
+  background: #ff9f0a;
+  color: #1c1200;
+}
+.atmos-ov__settings-icon[data-tone="stop"] {
+  background: #ff453a;
+}
+.atmos-ov__settings-icon[data-tone="ok"] {
+  background: #30d158;
+}
+.atmos-ov__settings-icon[data-tone="warn"],
+.atmos-ov__settings-icon[data-tone="trace"] {
+  background: #ff9f0a;
+  color: #1c1200;
+}
+.atmos-ov__chevron {
+  margin-left: auto;
+  color: #636366;
+  font-size: 1.1rem;
+}
+.atmos-ov__segment {
+  display: inline-flex;
+  padding: 0.18rem;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: rgba(58, 58, 60, 0.85);
+  gap: 0.1rem;
+}
+.atmos-ov__segment button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.38rem 0.95rem;
+  background: transparent;
+  color: #fff;
+  font: 500 0.82rem/1 var(--ov-font);
+  cursor: pointer;
+}
+.atmos-ov__segment button[data-active="true"] {
+  background: var(--ov-blue);
+}
+.atmos-ov__composer {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(28, 28, 30, 0.95);
+  flex-shrink: 0;
+}
+.atmos-ov__prompt {
+  color: var(--ov-blue);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 1.05rem;
+}
+.atmos-ov__composer input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ov-text);
+  font: 400 0.95rem/1.2 var(--ov-font);
+  min-width: 0;
+}
+.atmos-ov__composer input::placeholder {
+  color: #636366;
+}
+.atmos-ov__run {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  background: #f5f5f7;
+  color: var(--ov-blue);
+  font: 650 0.8rem/1 var(--ov-font);
+  cursor: pointer;
+}
+/* ?? Einstellungen (Settings) ?? */
+.atmos-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.5rem;
+}
+.atmos-settings__status .atmos-settings__pill {
+  margin-left: auto;
+}
+.atmos-settings__pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(58, 58, 60, 0.9);
+  color: #d1d1d6;
+  white-space: nowrap;
+}
+.atmos-settings__pill--connected {
+  background: rgba(48, 209, 88, 0.18);
+  color: #30d158;
+}
+.atmos-settings__pill--partial,
+.atmos-settings__pill--stub {
+  background: rgba(255, 159, 10, 0.18);
+  color: #ff9f0a;
+}
+.atmos-settings__pill--missing {
+  background: rgba(255, 69, 58, 0.15);
+  color: #ff6961;
+}
+.atmos-settings__pill--off {
+  background: rgba(142, 142, 147, 0.2);
+  color: #8e8e93;
+}
+.atmos-settings__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  margin-bottom: 0.85rem;
+  border-radius: 12px;
+  background: var(--ov-elevated);
+}
+.atmos-settings__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.atmos-settings__row strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.atmos-settings__row span,
+.atmos-settings__field span,
+.atmos-settings__hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ov-muted);
+  font-style: normal;
+  font-weight: 400;
+}
+.atmos-settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.atmos-settings__field input {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  background: #1c1c1e;
+  color: var(--ov-text);
+  font: 400 0.88rem/1.2 var(--ov-font);
+  outline: none;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+}
+.atmos-settings__field input:focus {
+  box-shadow: inset 0 0 0 1px var(--ov-blue);
+}
+.atmos-settings__secret {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.atmos-settings__secret input {
+  flex: 1;
+  min-width: 0;
+}
+.atmos-settings__toggle {
+  position: relative;
+  width: 3rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: #3a3a3c;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.atmos-settings__toggle[data-on="true"] {
+  background: #30d158;
+}
+.atmos-settings__knob {
+  position: absolute;
+  top: 0.18rem;
+  left: 0.18rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s;
+}
+.atmos-settings__toggle[data-on="true"] .atmos-settings__knob {
+  transform: translateX(1.2rem);
+}
+.atmos-settings__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  margin-top: 0.35rem;
+}
+.atmos-settings__clear {
+  border: 0;
+  background: transparent;
+  color: #ff6961;
+  font: 500 0.85rem/1 var(--ov-font);
+  cursor: pointer;
+  padding: 0.35rem 0.2rem;
+}
+.atmos-settings__flash {
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  color: #30d158;
+}
+.atmos-ov__empty,
+.atmos-ov__empty-row {
+  color: var(--ov-muted);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+@media (max-width: 860px) {
+  .atmos-ov {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100%;
+  }
+  .atmos-ov__sidebar {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    max-height: 38%;
+    min-height: 0;
+  }
+  .atmos-ov__features,
+  .atmos-ov__features--two,
+  .atmos-ov__grid,
+  .atmos-ov__grid--modules,
+  .atmos-ov__grid--account {
+    grid-template-columns: 1fr;
+  }
+  .atmos-ov__profile {
+    display: none;
+  }
+}
+/* legacy command bar kept for tests / fallback imports */
+.atmos-command {
+  position: relative;
+}
+.atmos-command__row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.55rem 0.55rem 1rem;
+  border: 1px solid var(--atmos-line);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(36, 49, 42, 0.9), rgba(18, 26, 22, 0.92));
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+}
+.atmos-command__prompt {
+  color: var(--atmos-copper);
+  font-family: var(--atmos-mono);
+  font-size: 1.2rem;
+}
+.atmos-command__input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--atmos-ink);
+  font-size: 1.05rem;
+  font-family: var(--atmos-font);
+  min-width: 0;
+}
+.atmos-command__input::placeholder {
+  color: #6f8076;
+}
+.atmos-command__go {
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1.1rem;
+  background: var(--atmos-copper);
+  color: #1a120c;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--atmos-display);
+  letter-spacing: 0.02em;
+}
+.atmos-command__go:hover {
+  background: var(--atmos-copper-soft);
+}
+.atmos-command__menu {
+  list-style: none;
+  margin: 0.45rem 0 0;
+  padding: 0.35rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--atmos-panel-solid);
+  border: 1px solid var(--atmos-line);
+  border-radius: 0.85rem;
+  max-height: 280px;
+  overflow: auto;
+}
+.atmos-command__menu button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  font: inherit;
+}
+.atmos-command__menu button:hover {
+  background: rgba(196, 113, 59, 0.12);
+}
+.atmos-command__cmd {
+  font-family: var(--atmos-mono);
+  color: var(--atmos-copper-soft);
+}
+.atmos-main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem 5rem;
+}
+.atmos-work {
+  display: grid;
+  gap: 1rem;
+}
+.atmos-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  border-bottom: 1px solid rgba(232, 239, 233, 0.08);
+  padding-bottom: 0.5rem;
+}
+.atmos-tabs__btn {
+  background: transparent;
+  border: 0;
+  color: var(--atmos-muted);
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  font: inherit;
+}
+.atmos-tabs__btn[data-active="true"] {
+  color: var(--atmos-ink);
+  background: rgba(196, 113, 59, 0.14);
+}
+.atmos-work__body {
+  background: var(--atmos-panel);
+  border: 1px solid rgba(232, 239, 233, 0.08);
+  border-radius: 1.1rem;
+  padding: 1.25rem;
+  backdrop-filter: blur(12px);
+  min-height: 320px;
+}
+.atmos-work__body h3,
+.atmos-work__body h4 {
+  margin: 0 0 0.5rem;
+  font-family: var(--atmos-display);
+  letter-spacing: -0.02em;
+}
+.atmos-panel-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 860px) {
+  .atmos-panel-grid {
+    grid-template-columns: 1fr 1.2fr;
+  }
+}
+.atmos-muted {
+  color: var(--atmos-muted);
+}
+.atmos-mt {
+  margin-top: 1.25rem;
+}
+.atmos-row-between {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+.atmos-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--atmos-line);
+  color: var(--atmos-copper-soft);
+}
+.atmos-pill[data-tone="stop"],
+.atmos-pill[data-tone="not"],
+.atmos-pill[data-tone="fehler"] {
+  color: #ffd0c8;
+  border-color: rgba(212, 90, 74, 0.5);
+  background: rgba(212, 90, 74, 0.15);
+}
+.atmos-pill[data-tone="an"],
+.atmos-pill[data-tone="fertig"],
+.atmos-pill[data-tone="normal"],
+.atmos-pill[data-tone="stark"] {
+  color: #c8f0d8;
+  border-color: rgba(95, 191, 138, 0.45);
+}
+.atmos-pill[data-tone="halt"],
+.atmos-pill[data-tone="vorsicht"],
+.atmos-pill[data-tone="schatten"] {
+  color: #ffe6a8;
+  border-color: rgba(212, 160, 23, 0.45);
+}
+.atmos-btn {
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.95rem;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.atmos-btn--primary {
+  background: var(--atmos-copper);
+  color: #1a120c;
+  font-weight: 600;
+}
+.atmos-btn--ghost {
+  background: transparent;
+  border-color: var(--atmos-line);
+  color: var(--atmos-ink);
+}
+.atmos-zyklus {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+.atmos-zyklus li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.55rem;
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+}
+.atmos-zyklus li span {
+  color: var(--atmos-muted);
+  font-size: 0.75rem;
+}
+.atmos-zyklus li[data-done="true"] {
+  opacity: 0.55;
+}
+.atmos-zyklus li[data-active="true"] {
+  border-color: var(--atmos-copper);
+  background: rgba(196, 113, 59, 0.1);
+}
+.atmos-lauf header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+.atmos-lauf__steps {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.atmos-lauf__steps li {
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.45rem;
+  font-size: 0.9rem;
+}
+.atmos-lauf__steps li[data-state="done"] {
+  opacity: 0.55;
+}
+.atmos-lauf__steps li[data-state="now"] {
+  background: rgba(196, 113, 59, 0.14);
+}
+.atmos-lauf__steps em {
+  color: var(--atmos-muted);
+  font-style: normal;
+  font-family: var(--atmos-mono);
+  font-size: 0.75rem;
+}
+.atmos-trace {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+}
+.atmos-trace li {
+  display: grid;
+  grid-template-columns: 4.5rem 4.5rem 1fr;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(232, 239, 233, 0.06);
+}
+.atmos-trace time,
+.atmos-trace__art {
+  font-family: var(--atmos-mono);
+  color: var(--atmos-muted);
+  font-size: 0.72rem;
+}
+.atmos-module-list,
+.atmos-kristall-list {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  margin-top: 1rem;
+}
+.atmos-module,
+.atmos-kristall {
+  border: 1px solid rgba(232, 239, 233, 0.08);
+  border-radius: 0.9rem;
+  padding: 0.9rem;
+  background: rgba(10, 14, 12, 0.35);
+}
+.atmos-module header,
+.atmos-kristall footer,
+.atmos-module footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.atmos-module p,
+.atmos-kristall p {
+  margin: 0.45rem 0 0.7rem;
+  color: var(--atmos-muted);
+  font-size: 0.9rem;
+}
+.atmos-module footer,
+.atmos-kristall footer {
+  font-size: 0.75rem;
+  color: var(--atmos-muted);
+  margin-bottom: 0.55rem;
+}
+.atmos-module__actions {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+.atmos-module__actions button,
+.atmos-module__actions a {
+  font-size: 0.8rem;
+  color: var(--atmos-copper-soft);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  font-family: inherit;
+}
+.atmos-kristall__art {
+  font-family: var(--atmos-mono);
+  font-size: 0.72rem;
+  color: var(--atmos-copper-soft);
+}
+.atmos-kristall[data-status="schatten"] {
+  border-style: dashed;
+}
+.atmos-gesetze,
+.atmos-regeln,
+.atmos-hunger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.atmos-gesetze li,
+.atmos-regeln li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(232, 239, 233, 0.06);
+  font-size: 0.9rem;
+}
+.atmos-gesetze span,
+.atmos-regeln span {
+  color: var(--atmos-muted);
+}
+.atmos-dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.atmos-dl div {
+  padding: 0.7rem;
+  border-radius: 0.7rem;
+  background: rgba(10, 14, 12, 0.35);
+}
+.atmos-dl dt {
+  color: var(--atmos-muted);
+  font-size: 0.75rem;
+}
+.atmos-dl dd {
+  margin: 0.2rem 0 0;
+  font-family: var(--atmos-display);
+  font-size: 1.25rem;
+}
+.atmos-cascade {
+  margin: 0.75rem 0 1rem;
+}
+.atmos-cascade__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.45rem;
+}
+.atmos-cascade__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  height: 88px;
+}
+.atmos-cascade__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  height: 100%;
+  justify-content: flex-end;
+  font-size: 0.7rem;
+  color: var(--atmos-muted);
+}
+.atmos-cascade__bar {
+  width: 100%;
+  border-radius: 0.35rem 0.35rem 0.15rem 0.15rem;
+  background: rgba(143, 160, 148, 0.25);
+  min-height: 8px;
+  transition: height 0.4s ease, background 0.3s;
+}
+.atmos-cascade__bar[data-active="true"] {
+  background: linear-gradient(180deg, var(--atmos-copper-soft), var(--atmos-copper));
+}
+.atmos-result {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(232, 239, 233, 0.08);
+  background: rgba(10, 14, 12, 0.55);
+  padding: 0.85rem 1rem;
+}
+.atmos-result[data-ok="false"] {
+  border-color: rgba(212, 90, 74, 0.4);
+}
+.atmos-result pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: var(--atmos-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #d5e0d7;
+}
+.atmos-result__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+.atmos-result__quick button {
+  border: 1px solid var(--atmos-line);
+  background: transparent;
+  color: var(--atmos-copper-soft);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-family: var(--atmos-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.atmos-statusbar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.4rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1.25rem;
+  background: rgba(12, 16, 14, 0.92);
+  border-top: 1px solid rgba(196, 113, 59, 0.22);
+  backdrop-filter: blur(12px);
+  font-size: 0.8rem;
+  z-index: 5;
+}
+.atmos-statusbar__cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.atmos-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+.atmos-freigabe {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 9, 8, 0.72);
+  display: grid;
+  place-items: center;
+  z-index: 40;
+  padding: 1rem;
+  animation: atmos-fade 0.25s ease;
+}
+@keyframes atmos-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.atmos-freigabe__panel {
+  width: min(440px, 100%);
+  background: var(--atmos-panel-solid);
+  border: 1px solid var(--atmos-line);
+  border-radius: 1rem;
+  padding: 1.35rem;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+.atmos-freigabe__panel h2 {
+  margin: 0.2rem 0 0.6rem;
+  font-family: var(--atmos-display);
+  font-size: 1.35rem;
+}
+.atmos-freigabe__panel p {
+  color: var(--atmos-muted);
+  margin: 0 0 1.1rem;
+}
+.atmos-freigabe__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+.atmos-foot {
+  text-align: center;
+  color: var(--atmos-muted);
+  font-size: 0.75rem;
+  padding: 0 1rem 1.25rem;
+}
+.atmos-foot a {
+  color: var(--atmos-copper-soft);
+}
+@media (max-width: 640px) {
+  .atmos-command__row {
+    flex-wrap: wrap;
+  }
+  .atmos-command__go {
+    width: 100%;
+  }
+  .atmos-trace li {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+  .atmos-zyklus {
+    grid-template-columns: 1fr;
+  }
+}
