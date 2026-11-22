@@ -1,2 +1,2 @@
-"""KOORDINAT - Modul-Koordinator fuer KI-gestuetztes Programmieren. v0.3"""
-__version__ = "0.3"
+"""KOORDINAT - alle KIs, Werkzeuge und Befehle an einem Ort; Modul-Koordinator fuer KI-gestuetztes Arbeiten. v0.5"""
+__version__ = "0.5"

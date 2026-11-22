@@ -148,7 +148,7 @@ test("Ohne Lizenz, archiviert, unbewaehrt: kein Vorschlag", len(vs) == 3 and not
 st = {x["repo"]: x["status"] for x in vs}
 test("Hoechstens 2 Ladungen je Takt; riskantes Repo gesperrt", st == {"gut/ocr-eins": "geladen", "gut/ocr-zwei": "gesperrt", "gut/ocr-drei": "gefunden"})
 test("Geladen heisst nicht eingeschaltet (Schalter ab Werk aus)", not db.execute("SELECT schalter FROM modul WHERE name='gut/ocr-eins'").fetchone()[0] and not b1["eingeschaltet"])
-test("Katalog waechst nur um lizenzierte Projekte", b1["entdeckt"] == ["neu/agentwerk"] and db.execute("SELECT COUNT(*) FROM katalog").fetchone()[0] == 51)
+test("Katalog waechst nur um lizenzierte Projekte", b1["entdeckt"] == ["neu/agentwerk"] and db.execute("SELECT COUNT(*) FROM katalog").fetchone()[0] == len(json.loads((pathlib.Path(__file__).parent / "koordinat" / "katalog.json").read_text())) + 1)
 b2 = wachstum.zyklus(db, v, gh, lader)
 test("Zweiter Takt sucht nicht erneut, laedt den Rest", gh.anfragen == ["pdf ocr"] and b2["geladen"] == ["gut/ocr-drei"])
 nr = {x["repo"]: x["id"] for x in wachstum.vorschlaege(db, True)}
@@ -181,6 +181,19 @@ test("A8 Vorsicht: laden ja, von selbst einschalten nein", b6["geladen"] == ["no
 speicher.setze_schalter(db, "auto.einschalten", False)
 alt = verfassung.SIEGEL.read_text(); verfassung.SIEGEL.write_text("{}")
 test("Sicherer Modus: Takt tut nichts", "Sicherer Modus" in wachstum.zyklus(db, v, gh, lader)["status"])
+# Entwurfsmodus: unversiegelter Kern sperrt NICHT mehr, aber A1/A2 bleiben
+verfassung.entwicklung(True)
+test("Entwurfsmodus: unversiegelter Kern -> Modus 'entwicklung' statt 'sicher'", v.modus() == "entwicklung")
+be = wachstum.zyklus(db, VVorsicht.__mro__ and v, gh, lader) if False else wachstum.zyklus(db, v, gh, lader)
+test("Entwurfsmodus: der Takt laeuft (nicht gesperrt)", be["status"] == "ok" and be["modus"] == "entwicklung")
+test("Entwurfsmodus: nichts geht von selbst an (wie vorsicht)", not be["eingeschaltet"])
+verfassung.abschalten()
+test("A1 gilt auch im Entwurfsmodus: Stop stoppt den Takt", "STOP" in wachstum.zyklus(db, v, gh, lader)["status"])
+verfassung.STOP.unlink()
+test("A2 gilt auch im Entwurfsmodus: App darf Kern/Marke nicht schreiben",
+     not verfassung.darf_schreiben(verfassung.KERN / "vital.py") and not verfassung.darf_schreiben(verfassung.ENTWICKLUNG))
+verfassung.entwicklung(False)
+test("Entwurfsmodus aus: unversiegelter Kern -> wieder 'sicher'", v.modus() == "sicher")
 verfassung.SIEGEL.write_text(alt)
 
 # --- Evolution: lernt aus Faellen, laesst sich nicht taeuschen, rollt zurueck
@@ -257,7 +270,7 @@ test("Guide findet Begriffe, auch ueber Zweitnamen", "Repository" in guide.frage
 test("Guide merkt Luecken", "noch keinen Eintrag" in guide.frage(db, "Quantenradierer") and guide.luecken(db)[0]["begriff"] == "quantenradierer")
 ids = {e["id"] for e in guide.eintraege()}
 test("Guide: alle Verweise zeigen auf vorhandene Eintraege", all(s in ids for e in guide.eintraege() for s in e["siehe"]))
-test("MCP: 15 Werkzeuge, alle aufrufbar deklariert", len(mcp_server.TOOLS) == 15 and "Einstieg" in mcp_server.rufe(db, v, "koordinat_guide", {}))
+test("MCP: 19 Werkzeuge, alle aufrufbar deklariert", len(mcp_server.TOOLS) == 19 and "Einstieg" in mcp_server.rufe(db, v, "koordinat_guide", {}))
 
 
 # ============================ v0.4: Ziel, Besitzer-Schluessel, Leitfaden ============================
@@ -320,6 +333,99 @@ test("Leitfaden deckt die ausdruecklich gewuenschten Themen ab",
      {a["id"] for a in leitfaden.ablaeufe()} >= {"ki-video", "firma-automatisieren", "besserer-agent", "github-verstehen", "ki-konten-verbinden"})
 test("MCP bietet koordinat_los an und liefert einen Plan", any(x["name"] == "koordinat_los" for x in mcp_server.TOOLS)
      and mcp_server.rufe(db, v, "koordinat_los", {"anliegen": "wie funktioniert github"})["gefunden"])
+
+# ============================ v0.5: alle KIs, Befehle, Katalog, Oberflaeche ============================
+from koordinat import anbieter as AN, befehle as BF, oberflaeche as OF
+from koordinat.__main__ import _optionen
+for _n in [x for y in AN.ANBIETER.values() for x in y["env"]]: os.environ.pop(_n, None)
+os.environ["ANTHROPIC_API_KEY"] = "sk-test-geheim"
+u, h, k = AN.baue("anthropic", "Hallo", effort="max")
+test("Claude: Messages-API, Schluessel im Kopf, Effort in output_config", u.endswith("/v1/messages") and h["x-api-key"] == "sk-test-geheim"
+     and k["output_config"] == {"effort": "max"} and k["messages"][-1] == {"role": "user", "content": "Hallo"})
+test("Claude: Standardmodell claude-opus-5-5 mit serverseitigem Fallback", k["model"] == "claude-opus-5-5" and k["fallbacks"] == "default"
+     and h["anthropic-beta"].startswith("server-side-fallback"))
+test("Effort 'aus' laesst den Parameter weg", "output_config" not in AN.baue("anthropic", "x", effort="aus")[2])
+_, _, k = AN.baue("openai", "x", effort="xhigh")
+test("OpenAI: Effort -> reasoning_effort (xhigh wird high)", k["reasoning_effort"] == "high")
+_, _, k = AN.baue("openrouter", "x", effort="low")
+test("OpenRouter: Effort -> reasoning.effort", k["reasoning"] == {"effort": "low"})
+u, h, k = AN.baue("gemini", "x", verlauf=[{"role": "user", "content": "a"}, {"role": "assistant", "content": "b"}], effort="medium", system="S")
+test("Gemini: generateContent, Rollen, Denk-Budget, Systemanweisung", ":generateContent" in u and [c["role"] for c in k["contents"]] == ["user", "model", "user"]
+     and k["generationConfig"]["thinkingConfig"]["thinkingBudget"] == 8192 and k["systemInstruction"]["parts"][0]["text"] == "S")
+_, _, k = AN.baue("mistral", "x", effort="high", system="S")
+test("OpenAI-kompatibel ohne Effort-Regler: kein fremder Parameter, System vorne", "reasoning_effort" not in k and k["messages"][0]["role"] == "system")
+try: AN.baue("openai", "x", effort="turbo"); r = False
+except ValueError: r = True
+test("Unbekannter Effort wird abgelehnt", r)
+test("Antworten aller drei Bauarten werden gelesen",
+     AN.lies_antwort("anthropic", {"content": [{"type": "thinking", "thinking": ""}, {"type": "text", "text": "A"}], "stop_reason": "end_turn"})["text"] == "A"
+     and AN.lies_antwort("gemini", {"candidates": [{"content": {"parts": [{"text": "denk", "thought": True}, {"text": "G"}]}}]})["text"] == "G"
+     and AN.lies_antwort("openai", {"choices": [{"message": {"content": "O"}}]})["text"] == "O")
+test("Ablehnung (refusal) wird kenntlich gemacht", AN.lies_antwort("anthropic", {"stop_reason": "refusal", "content": []})["text"].startswith("[abgelehnt]"))
+gesendet = []
+def fake(url, h, body=None):
+    gesendet.append(url)
+    if body is None: return {"data": [{"id": "m-b"}, {"id": "m-a"}]}
+    if "anthropic" in url: return {"content": [{"type": "text", "text": "Antwort"}], "model": body["model"], "stop_reason": "end_turn"}
+    raise RuntimeError("HTTP 401: falscher Schluessel")
+r = AN.frage("Hi", "anthropic", senden=fake)
+test("frage() liefert Text, Modell, Anbieter, Zeit", r["text"] == "Antwort" and r["anbieter"] == "anthropic" and "sekunden" in r)
+alle = {x["anbieter"]: x for x in AN.frage_alle("Hi", ["anthropic", "openai"], senden=fake)}
+test("frage_alle(): parallel, Fehler einer KI stoppt die anderen nicht", alle["anthropic"]["text"] == "Antwort" and "401" in alle["openai"]["fehler"])
+test("modelle() holt die Liste beim Anbieter", AN.modelle("mistral", senden=fake) == ["m-a", "m-b"])
+try: AN.frage("Hi", "openai"); r = False
+except PermissionError: r = True
+test("Ohne Schluessel: klare Meldung statt Anfrage", r)
+verfassung.abschalten()
+try: AN.frage("Hi", "anthropic", senden=fake); r = False
+except PermissionError: r = True
+test("A1: nach Stop fragt KOORDINAT keine KI mehr", r)
+verfassung.STOP.unlink()
+AN.setze_schluessel("groq", "gsk-geheim")
+test("Gespeicherter Schluessel: Datei nur fuer den Besitzer lesbar", oct((verfassung.HEIM / "schluessel.json").stat().st_mode & 0o777) == "0o600"
+     and AN.schluessel("groq") == "gsk-geheim")
+test("Uebersicht, MCP und Oberflaeche zeigen nie Schluessel",
+     "geheim" not in json.dumps(AN.uebersicht(False)) and "geheim" not in json.dumps(mcp_server.rufe(db, v, "koordinat_anbieter", {}))
+     and "geheim" not in json.dumps(OF.get(db, v, "/api/uebersicht", {})))
+AN.setze("groq", "modell", "mein-modell"); AN.setze(None, "effort", "low"); AN.setze("groq", "standard", "groq")
+test("Einstellungen: Modell, Standard-Effort, Standard-Anbieter bleiben gespeichert",
+     AN.konfig("groq")["modell"] == "mein-modell" and AN.standard_effort() == "low" and AN.standard_anbieter() == "groq")
+test("Alle Anbieter vollstaendig beschrieben", len(AN.ANBIETER) >= 15 and all(x["bauart"] in ("anthropic", "openai", "gemini") and x["basis"].startswith("http")
+     for x in AN.ANBIETER.values()))
+
+bf = BF.alle()
+test("Befehle: >= 200 Eintraege, jedes Feld gefuellt", len(bf) >= 200 and all(all(e.get(f) for f in ("werkzeug", "gruppe", "befehl", "was")) for e in bf))
+test("Befehle decken alle grossen Werkzeuge ab", set(BF.werkzeuge()) >= {"Claude Code", "Codex CLI", "Gemini CLI", "Aider", "Cursor", "Ollama",
+     "Claude API", "OpenAI API", "Gemini API", "MCP", "Git & GitHub", "Effort ueberall", "KOORDINAT"})
+test("Befehle-Suche: alle Woerter muessen passen", {e["werkzeug"] for e in BF.suche("effort")} >= {"Claude Code", "Claude API", "OpenAI API"}
+     and all("compact" in json.dumps(e).lower() for e in BF.suche("compact")) and BF.suche("gibtsnicht xyz") == [])
+
+kj = json.loads((pathlib.Path(__file__).parent / "koordinat" / "katalog.json").read_text())
+test("Katalog: >= 200 Repos, keine Dopplung, alle owner/name", len(kj) >= 200 and len({e["repo"].lower() for e in kj}) == len(kj)
+     and all(e["repo"].count("/") == 1 and e["zweck"] for e in kj))
+db.execute("DELETE FROM katalog WHERE repo='anthropics/claude-code'"); db.commit(); db.close(); db = speicher.db(); v = V.Vital(db)
+test("Neue Startkatalog-Eintraege kommen bei bestehender Datenbank dazu", db.execute("SELECT 1 FROM katalog WHERE repo='anthropics/claude-code'").fetchone())
+test("MCP: Katalog und Befehle durchsuchbar", any(x["repo"] == "modelcontextprotocol/servers" for x in mcp_server.rufe(db, v, "koordinat_katalog", {"kategorie": "mcp"}))
+     and mcp_server.rufe(db, v, "koordinat_befehle", {"suche": "effort", "werkzeug": "Codex CLI"}))
+
+ue = OF.get(db, v, "/api/uebersicht", {})
+test("Oberflaeche: Uebersicht hat alle Bereiche", {"anbieter", "katalog", "befehle", "ablaeufe", "guide", "module", "puls"} <= set(ue) and ue["katalog"] >= 200)
+test("Oberflaeche: Ablauf per Kennung", OF.get(db, v, "/api/ablauf", {"anliegen": "ki-video"})["id"] == "ki-video")
+test("Oberflaeche: Frage geht an die gewaehlte KI", OF.post(db, v, "/api/frage", {"nachricht": "x", "anbieter": "anthropic"}, senden=fake)["text"] == "Antwort")
+import threading, urllib.request as UR, urllib.error as UE
+srv = OF.ThreadingHTTPServer(("127.0.0.1", 0), OF._Handler); port = srv.server_address[1]
+threading.Thread(target=srv.serve_forever, daemon=True).start()
+def hol(pfad, host=None, daten=None, kopf=None):
+    rq = UR.Request(f"http://127.0.0.1:{port}{pfad}", data=daten, headers=dict(kopf or {}, **({"Host": host} if host else {})))
+    try:
+        with UR.urlopen(rq, timeout=10) as r: return r.status, r.read()
+    except UE.HTTPError as e: return e.code, e.read()
+test("Oberflaeche: Seite wird ausgeliefert", hol("/")[0] == 200 and b"KOORDINAT" in hol("/")[1])
+test("Oberflaeche: fremder Host wird abgewiesen (DNS-Rebinding)", hol("/api/uebersicht", host="boese.example")[0] == 403)
+test("Oberflaeche: POST ohne eigene Kopfzeile wird abgewiesen", hol("/api/brauche", daten=b'{"bedarf":"x"}', kopf={"Content-Type": "application/json"})[0] == 403)
+test("Oberflaeche: POST von der eigenen Seite klappt", hol("/api/brauche", daten=b'{"bedarf":"Tabellen aus PDF"}', kopf={"X-Koordinat": "1"})[0] == 200)
+srv.shutdown()
+test("Befehlszeile: --optionen werden vom Text getrennt", _optionen(["--effort", "max", "wie", "geht", "--alle", "das"]) == ({"effort": "max", "alle": True}, "wie geht das"))
 
 
 if siegel_vorher: verfassung.SIEGEL.write_text(siegel_vorher)

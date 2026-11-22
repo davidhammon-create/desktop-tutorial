@@ -10,14 +10,19 @@ AtemOS/
 └── koordinat_app/
     ├── koordinat/        der ganze Code (reines Python, keine Zusatzpakete)
     ├── referenz/         koordinat_kern.py aus Band II (Kaskade/Router/Kristalle, zum späteren Einhängen)
-    ├── tests.py          101 Selbsttests ohne Netz
+    ├── tests.py          140 Selbsttests ohne Netz
     └── README.md         ausführliche Anleitung aller Befehle und Schleifen
 ```
 
 ## In 30 Sekunden ausprobieren
 ```
 cd koordinat_app
-python3 tests.py                              # 101 Prüfungen, ohne Netz, wenige Sekunden
+python3 tests.py                              # 140 Prüfungen, ohne Netz, wenige Sekunden
+python3 -m koordinat uebersicht                # alles auf einen Blick
+python3 -m koordinat ui                        # Oberfläche im Browser: Chat mit allen KIs, Katalog, Befehle ...
+python3 -m koordinat anbieter                  # 15 KI-Anbieter: Claude, OpenAI, Gemini, Mistral, Ollama ...
+python3 -m koordinat frage --alle --effort high "Welche Datenbank für RAG?"   # alle KIs gleichzeitig
+python3 -m koordinat befehle effort            # Effort-Regler aller Werkzeuge
 python3 -m koordinat los "ich will KI Videos erstellen"   # SOFORT Schritt für Schritt geführt
 python3 -m koordinat weiter                    # nächster Schritt
 python3 -m koordinat guide github              # Nachschlagewerk
@@ -33,9 +38,10 @@ python3 -m koordinat brauche "Tabellen aus PDF" && python3 -m koordinat wachse
        "command": "python3", "args": ["-m", "koordinat", "mcp"],
        "env": { "PYTHONPATH": "/PFAD/ZU/AtemOS/koordinat_app" } } } }
    ```
-3. Der KI im Chat sagen, was sie bauen soll. Sie hat dann 15 Werkzeuge: suchen, installieren,
+3. Der KI im Chat sagen, was sie bauen soll. Sie hat dann 19 Werkzeuge: suchen, installieren,
    schalten, Kontext/Auszug, melden, vital, brauchen/wachsen/vorschläge/entscheiden, Stand, Guide
-   und `koordinat_los` (gibt ihr zu einem Anliegen einen Schritt-für-Schritt-Plan).
+   `koordinat_los` (Schritt-für-Schritt-Plan), `koordinat_befehle`, `koordinat_katalog`, `koordinat_anbieter`
+   und `koordinat_frage` (zweite Meinung einer anderen KI, nur auf deine Anweisung).
 
 ---
 
@@ -85,6 +91,10 @@ Schlüssel schützt nur das Wieder-Scharfmachen des Kerns, nie deine Kontrolle �
 | `mcp_server.py` | 15 Werkzeuge für Claude/Cursor. Schalter und Kern sind hier nur lesbar, nie änderbar. |
 | `speicher.py` | SQLite in `~/.koordinat`, alle Tabellen und die Schalter. |
 | `__main__.py` | Die Befehlszeile (`python3 -m koordinat …`). |
+| `anbieter.py` | **Alle KIs:** 15 Anbieter über drei Bauarten (Anthropic, Gemini, OpenAI-kompatibel), einheitlicher Effort-Regler, Fragen an eine oder alle KIs, Modelllisten, Schlüssel sicher in `~/.koordinat`. |
+| `befehle.py` + `befehle.json` | **Nachschlagewerk:** 208 Befehle und Regler von Claude Code, Codex CLI, Gemini CLI, Aider, Cursor, Ollama, llama.cpp, den APIs, MCP, Git/GitHub, Prompting. Neuer Eintrag = eine Zeile JSON. |
+| `oberflaeche.py` | **Oberfläche:** `koordinat ui` – alles auf einer Seite im Browser, nur lokal. |
+| `katalog.json` | 236 gegen GitHub geprüfte Repos in 22 Kategorien (Startkatalog; wächst über `entdecke`). |
 
 ## Was absichtlich NICHT im Kern steht
 Datenschutz, Filter, Lernlogik, Wachstum – all das lebt **um** den Kern. Der Kern trägt nur Ziel +

@@ -100,7 +100,7 @@ def weiter(db):
 
 def plan(db, anliegen):
     """Fuer die KI (MCP): der ganze Ablauf auf einmal, als Plan zum Abarbeiten - mit Werkzeugen je Schritt."""
-    a = finde(anliegen)
+    a = _ablauf(anliegen.strip()) or finde(anliegen)
     if not a:
         return dict(gefunden=False, verfuegbar=[dict(id=x["id"], titel=x["titel"]) for x in ablaeufe()])
     return dict(gefunden=True, id=a["id"], titel=a["titel"], ziel=a.get("ziel", ""),

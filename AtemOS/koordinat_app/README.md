@@ -1,11 +1,56 @@
-# KOORDINAT v0.4 – wächst von selbst und führt dich
+# KOORDINAT v0.5 – alle KIs, alle Werkzeuge, alle Befehle an einem Ort
+
+Läuft mit Python 3.10+ und git. Keine weiteren Pakete nötig.
+
+## Neu in v0.5: eine App für alle KIs
+
+| Bereich | Was es kann | Befehl |
+|---|---|---|
+| **Alles auf einen Blick** | Stand von KIs, Katalog, Modulen, Vorschlägen, Puls | `koordinat uebersicht` |
+| **Oberfläche** | Browser-Seite mit Chat, Katalog, Befehlen, Abläufen, Guide, Modulen, System (nur lokal, 127.0.0.1) | `koordinat ui` |
+| **Alle KIs verbinden** | 15 Anbieter: Claude, OpenAI, Gemini, Mistral, DeepSeek, xAI, Groq, OpenRouter, Together, Perplexity, Fireworks, Cerebras, Ollama, LM Studio, eigener OpenAI-kompatibler Server | `koordinat anbieter` |
+| **Effort überall** | ein Regler `aus · low · medium · high · xhigh · max`, je Anbieter übersetzt (Claude `output_config.effort`, OpenAI `reasoning_effort`, Gemini `thinkingBudget`, OpenRouter `reasoning.effort`) | `koordinat effort high` |
+| **Fragen & vergleichen** | einer KI fragen oder dieselbe Frage parallel an alle bereiten KIs | `koordinat frage --alle "…"` |
+| **Chat im Terminal** | mit `/effort`, `/modell`, `/anbieter`, `/neu`, `/ende` | `koordinat chat` |
+| **Befehls-Nachschlagewerk** | 208 Befehle und Regler: Claude Code, Codex CLI, Gemini CLI, Aider, Cursor, Ollama, llama.cpp, Claude/OpenAI/Gemini-API, MCP, Git/GitHub, Prompting | `koordinat befehle effort` |
+| **Katalog** | 236 geprüfte GitHub-Repos in 22 Kategorien (gegen GitHub verifiziert, keine archivierten) | `koordinat katalog` |
+| **MCP** | 19 Werkzeuge für Claude, Cursor & Co., neu: `koordinat_befehle`, `koordinat_katalog`, `koordinat_anbieter`, `koordinat_frage` | `koordinat mcp` |
+
+### KIs einrichten
+```
+koordinat anbieter                         # wer ist bereit? (lokale werden kurz angepingt)
+koordinat schluessel anthropic             # Schlüssel unsichtbar eingeben -> ~/.koordinat/schluessel.json (Rechte 600)
+export OPENAI_API_KEY=...                  # oder ganz normal als Umgebungsvariable
+koordinat modelle openai                   # aktuelle Modellliste direkt beim Anbieter
+koordinat anbieter openai modell <name>    # eigenes Standardmodell
+koordinat anbieter anthropic standard      # Standard-Anbieter
+koordinat anbieter eigener basis http://localhost:4000/v1   # z. B. LiteLLM-Proxy, vLLM, LocalAI
+koordinat frage --anbieter gemini --effort max "Erkläre RAG in 5 Sätzen"
+```
+Standardmodelle sind Startwerte; Modellnamen ändern sich schnell – `koordinat modelle <anbieter>` zeigt die aktuellen.
+Schlüssel werden nie über MCP oder die Oberfläche angezeigt. Bei Claude-Modellen der 5er-Reihe wird der serverseitige
+Fallback (`fallbacks: "default"`) mitgeschickt: lehnt das Modell eine Anfrage ab, übernimmt automatisch ein passendes Modell.
+
+**Kosten:** Fragen an Cloud-KIs kosten beim jeweiligen Anbieter Geld. `frage --alle` fragt jeden bereiten Anbieter einmal.
+Das MCP-Werkzeug `koordinat_frage` ist so beschrieben, dass eine KI es nur auf ausdrückliche Anweisung nutzt.
+
+### Oberfläche
+`koordinat ui` öffnet `http://127.0.0.1:8765`. Sie läuft nur auf dem eigenen Rechner, antwortet nur für `localhost`
+(Schutz gegen DNS-Rebinding) und nimmt schreibende Aufrufe nur von der eigenen Seite an. Schalter und Kern lassen sich
+dort nur ansehen; umgestellt werden sie weiter nur über die Befehlszeile.
+
+---
+
+## Bisherige Fassungen
+
+### KOORDINAT v0.4 – wächst von selbst und führt dich
 
 Läuft mit Python 3.10+ und git. Keine weiteren Pakete nötig.
 
 ## Start
 ```
 cd koordinat_app
-python3 tests.py                      # Selbsttest (101 Prüfungen, ohne Netz)
+python3 tests.py                      # Selbsttest (140 Prüfungen, ohne Netz)
 python3 -m koordinat versiegeln       # Kern-Siegel setzen (einmalig, nach jeder eigenen Änderung am Kern)
 python3 -m koordinat suche "pdf table extraction"
 python3 -m koordinat installiere jsvine/pdfplumber

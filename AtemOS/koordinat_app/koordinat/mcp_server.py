@@ -1,7 +1,7 @@
 """MCP-Server (stdio, JSON-RPC 2.0): macht KOORDINAT zu einem Werkzeugkasten fuer Claude, Cursor und
 andere MCP-faehige Programme. Start: python3 -m koordinat mcp"""
 import json, sys
-from . import algorithmen, evolution, github, guide, leitfaden, module, speicher, verfassung, vital as vitalmod, wachstum, __version__
+from . import algorithmen, anbieter, befehle, evolution, github, guide, leitfaden, module, speicher, verfassung, vital as vitalmod, wachstum, __version__
 
 
 def _t(name, beschreibung, eigenschaften, pflicht):
@@ -38,6 +38,17 @@ TOOLS = [
     _t("koordinat_los", "Liefert zu einem Anliegen in Alltagssprache (z. B. 'KI-Video erstellen', 'Firma automatisieren', "
        "'besseren Agenten bauen', 'wie funktioniert GitHub') einen gefuehrten Schritt-fuer-Schritt-Plan mit Werkzeug je Schritt. "
        "Die KI soll diesen Plan dann mit dem Menschen Schritt fuer Schritt abarbeiten.", {"anliegen": S}, ["anliegen"]),
+    _t("koordinat_befehle", "Nachschlagewerk der Befehle und Regler aller KI-Werkzeuge (Claude Code, Codex CLI, Gemini CLI, Aider, "
+       "Cursor, Ollama, llama.cpp, Claude/OpenAI/Gemini-API, MCP, Git/GitHub, Prompting) inkl. Effort je Werkzeug. "
+       "Alle Woerter der Suche muessen vorkommen.", {"suche": S, "werkzeug": S}, []),
+    _t("koordinat_katalog", "Gepruefter Katalog nuetzlicher GitHub-Repos fuer KI-Arbeit (Coding-Agenten, MCP, Agenten-Frameworks, "
+       "lokale Modelle, RAG, Dokumente, Medien, Video, Training, Auswertung, Sicherheit ...). Filter nach Kategorie/Suchwort.",
+       {"kategorie": S, "suche": S}, []),
+    _t("koordinat_anbieter", "Welche KI-Anbieter verbunden sind (bereit ja/nein, Standardmodell, Effort-Regler). Zeigt nie Schluessel.", {}, []),
+    _t("koordinat_frage", "Stellt einer ANDEREN KI eine Frage (zweite Meinung, Vergleich) oder mit alle=true allen bereiten KIs "
+       "gleichzeitig. Kostet beim Anbieter Geld: NUR aufrufen, wenn der Mensch es ausdruecklich will. "
+       "effort: aus|low|medium|high|xhigh|max.", {"nachricht": S, "anbieter": S, "modell": S, "effort": S, "system": S, "alle": B},
+       ["nachricht"]),
 ]
 
 
@@ -82,6 +93,19 @@ def rufe(db, v, name, a):
         return guide.frage(db, a.get("begriff", ""))
     if name == "koordinat_los":
         return leitfaden.plan(db, a["anliegen"])
+    if name == "koordinat_befehle":
+        return befehle.suche(a.get("suche", ""), a.get("werkzeug")) if (a.get("suche") or a.get("werkzeug")) else befehle.inhalt()
+    if name == "koordinat_katalog":
+        q, k = a.get("suche", "").lower(), a.get("kategorie", "").lower()
+        return [dict(kategorie=r[0], repo=r[1], zweck=r[2], sterne=r[3], lizenz=r[4]) for r in db.execute(
+            "SELECT kategorie, repo, zweck, sterne, lizenz FROM katalog ORDER BY kategorie, sterne DESC")
+            if (not k or r[0].lower().startswith(k)) and (not q or q in f"{r[0]} {r[1]} {r[2]}".lower())]
+    if name == "koordinat_anbieter":
+        return anbieter.uebersicht()
+    if name == "koordinat_frage":
+        if a.get("alle"):
+            return anbieter.frage_alle(a["nachricht"], None, a.get("effort"), a.get("system"))
+        return anbieter.frage(a["nachricht"], a.get("anbieter"), a.get("modell"), a.get("effort"), a.get("system"))
     raise ValueError("unbekanntes Werkzeug")
 
 

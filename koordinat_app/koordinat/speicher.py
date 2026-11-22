@@ -39,10 +39,11 @@ def db():
     (verfassung.HEIM / "module").mkdir(exist_ok=True)
     c = sqlite3.connect(verfassung.HEIM / "koordinat.db")
     c.executescript(SCHEMA)
-    if not c.execute("SELECT 1 FROM katalog LIMIT 1").fetchone():          # Startkatalog einmalig uebernehmen
-        start = json.loads((pathlib.Path(__file__).parent / "katalog.json").read_text())
-        c.executemany("INSERT OR IGNORE INTO katalog(repo,kategorie,zweck,quelle,zeit) VALUES(?,?,?,?,?)",
-                      [(e["repo"], e["kategorie"], e["zweck"], "start", time.time()) for e in start])
+    start = json.loads((pathlib.Path(__file__).parent / "katalog.json").read_text())
+    if c.execute("SELECT COUNT(*) FROM katalog WHERE quelle='start'").fetchone()[0] < len(start):
+        # Startkatalog uebernehmen und bei neuen App-Versionen ergaenzen (vorhandene Eintraege bleiben unberuehrt)
+        c.executemany("INSERT OR IGNORE INTO katalog(repo,kategorie,zweck,sterne,lizenz,quelle,zeit) VALUES(?,?,?,?,?,?,?)",
+                      [(e["repo"], e["kategorie"], e["zweck"], e.get("sterne"), e.get("lizenz"), "start", time.time()) for e in start])
     c.commit()
     return c
 

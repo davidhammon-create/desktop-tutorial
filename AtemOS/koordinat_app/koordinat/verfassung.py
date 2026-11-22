@@ -61,6 +61,7 @@ SIEGEL = KERN / "verfassung.lock"
 HEIM = pathlib.Path(os.environ.get("KOORDINAT_HOME", pathlib.Path.home() / ".koordinat"))
 STOP = HEIM / "STOP"
 BESITZER = HEIM / "owner.lock"                 # gesalzener Hash des Besitzer-Schluessels; nie der Schluessel selbst
+ENTWICKLUNG = HEIM / "ENTWICKLUNG"             # Marke: offener Entwurfsmodus (nichts ist festgezurrt)
 SATZ = "ICH VERSIEGELE DEN KERN"
 _ITER = 240_000
 
@@ -140,8 +141,27 @@ def darf_schreiben(pfad):
     """Jede Selbstaenderung der App muss vorher hier fragen. Kern, Siegel, Stop-Marke und der
     Besitzer-Schluessel sind fuer die App unschreibbar."""
     p = pathlib.Path(pfad).resolve()
-    tabu = {q.resolve() for q in GESCHUETZT} | {SIEGEL.resolve(), STOP.resolve(), BESITZER.resolve()}
+    tabu = {q.resolve() for q in GESCHUETZT} | {SIEGEL.resolve(), STOP.resolve(), BESITZER.resolve(), ENTWICKLUNG.resolve()}
     return p not in tabu
+
+
+def entwicklungsmodus():
+    """True = offener Entwurfsmodus. Dann sperrt ein unversiegelter oder veraenderter Kern die App
+    NICHT (der sichere Modus wird zu 'entwicklung'): alles ist aenderbar, nichts ist festgezurrt - der
+    Zustand, in dem du am Kern selbst baust, bevor du ihn mit deinem Schluessel festschnuerst.
+    Was auch hier bleibt: A1 (Stop wirkt immer) und A2 (die App schreibt ihren eigenen Kern nie).
+    Geschaltet nur vom Menschen, ueber die Umgebungsvariable KOORDINAT_DEV oder die Marke ENTWICKLUNG."""
+    return bool(os.environ.get("KOORDINAT_DEV")) or ENTWICKLUNG.exists()
+
+
+def entwicklung(an):
+    """Mensch: Entwurfsmodus an/aus. Die App selbst kann das nicht (die Marke ist fuer sie unschreibbar)."""
+    HEIM.mkdir(parents=True, exist_ok=True)
+    if an:
+        ENTWICKLUNG.write_text("offen: nichts ist festgezurrt, der Kern ist in Arbeit.")
+    else:
+        ENTWICKLUNG.unlink(missing_ok=True)
+    return an
 
 
 def stop_gesetzt():

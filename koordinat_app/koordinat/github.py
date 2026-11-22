@@ -9,7 +9,7 @@ COPYLEFT = {"GPL-2.0", "GPL-3.0", "AGPL-3.0"}
 
 def _get(pfad):
     req = urllib.request.Request(API + pfad, headers={"Accept": "application/vnd.github+json",
-                                                      "User-Agent": "koordinat/0.3"})
+                                                      "User-Agent": "koordinat"})
     if os.environ.get("GITHUB_TOKEN"):
         req.add_header("Authorization", "Bearer " + os.environ["GITHUB_TOKEN"])
     with urllib.request.urlopen(req, timeout=30) as r:

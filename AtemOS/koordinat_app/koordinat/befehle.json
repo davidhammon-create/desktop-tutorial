@@ -1,0 +1,1250 @@
+[
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Einheitlich",
+  "befehl": "aus / low / medium / high / xhigh / max",
+  "was": "KOORDINAT-Regler: wird je Anbieter auf dessen Parameter uebersetzt (siehe die Zeilen darunter)"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Claude Code",
+  "befehl": "claude --effort high",
+  "was": "Effort fuer eine Sitzung beim Start setzen"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Claude Code",
+  "befehl": "/model",
+  "was": "Modell (und je nach Version Effort) in der laufenden Sitzung waehlen"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Claude API",
+  "befehl": "\"output_config\": {\"effort\": \"high\"}",
+  "was": "low, medium, high, xhigh, max - steuert Denktiefe und Tokenverbrauch"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "OpenAI API",
+  "befehl": "\"reasoning_effort\": \"high\"",
+  "was": "bei Reasoning-Modellen: minimal/low/medium/high"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Codex CLI",
+  "befehl": "codex -c model_reasoning_effort=high",
+  "was": "Denktiefe fuer Codex setzen (auch in ~/.codex/config.toml)"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Gemini API",
+  "befehl": "\"thinkingConfig\": {\"thinkingBudget\": 8192}",
+  "was": "Denk-Budget in Tokens; -1 = Modell entscheidet, 0 = aus (wo erlaubt)"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "OpenRouter",
+  "befehl": "\"reasoning\": {\"effort\": \"high\"}",
+  "was": "einheitlicher Reasoning-Regler fuer viele Modelle"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Aider",
+  "befehl": "aider --reasoning-effort high",
+  "was": "Reasoning-Effort an das Modell weitergeben"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "Aider",
+  "befehl": "aider --thinking-tokens 8k",
+  "was": "Denk-Budget fuer Modelle mit Token-Budget"
+ },
+ {
+  "werkzeug": "Effort ueberall",
+  "gruppe": "KOORDINAT",
+  "befehl": "koordinat frage --effort max \"...\"",
+  "was": "eine Frage mit hoechster Denktiefe"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Start",
+  "befehl": "koordinat uebersicht",
+  "was": "alles auf einen Blick: Anbieter, Module, Vorschlaege, Puls"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Start",
+  "befehl": "koordinat ui",
+  "was": "Oberflaeche im Browser (http://127.0.0.1:8765)"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Start",
+  "befehl": "koordinat los \"<anliegen>\"",
+  "was": "gefuehrter Ablauf Schritt fuer Schritt"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Start",
+  "befehl": "koordinat weiter",
+  "was": "naechster Schritt des Ablaufs"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat anbieter",
+  "was": "alle KI-Anbieter mit Stand (Schluessel da? Standardmodell?)"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat schluessel <anbieter>",
+  "was": "API-Schluessel sicher speichern (Datei mit Rechten 600)"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat anbieter <id> modell <name>",
+  "was": "Standardmodell eines Anbieters setzen"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat anbieter <id> standard",
+  "was": "diesen Anbieter als Standard nutzen"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat modelle <anbieter>",
+  "was": "aktuelle Modellliste direkt beim Anbieter holen"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat frage \"<text>\" [--anbieter x] [--modell y] [--effort z]",
+  "was": "einer KI eine Frage stellen"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat frage --alle \"<text>\"",
+  "was": "dieselbe Frage an alle bereiten KIs - Antworten vergleichen"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "KIs",
+  "befehl": "koordinat chat [--anbieter x]",
+  "was": "Gespraech im Terminal (/effort, /modell, /anbieter, /neu, /ende)"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Repos",
+  "befehl": "koordinat katalog [kategorie]",
+  "was": "geprueften Katalog nuetzlicher Repos zeigen"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Repos",
+  "befehl": "koordinat suche \"<bedarf>\"",
+  "was": "GitHub durchsuchen und bewerten"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Repos",
+  "befehl": "koordinat installiere <owner/name>",
+  "was": "Repo laden, Lizenz und Risiken pruefen (bleibt AUS)"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Repos",
+  "befehl": "koordinat an <name> / aus <name>",
+  "was": "Modul schalten"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Repos",
+  "befehl": "koordinat kontext <name> \"frage\"",
+  "was": "Repo als verdichtetes KI-Paket"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Repos",
+  "befehl": "koordinat auszug <name> <symbol>",
+  "was": "einzelne Funktion/Klasse mit Quelle und Lizenz"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Wachstum",
+  "befehl": "koordinat brauche \"<bedarf>\"",
+  "was": "Bedarf melden - die App sucht passende Werkzeuge"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Wachstum",
+  "befehl": "koordinat wachse [takt-min]",
+  "was": "ein Takt (oder Dauerlauf) der Wachstumsschleife"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Wachstum",
+  "befehl": "koordinat vorschlaege / annehmen <nr> / ablehnen <nr>",
+  "was": "ueber gefundene Werkzeuge entscheiden"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Wachstum",
+  "befehl": "koordinat schalter [name an|aus]",
+  "was": "einstellen, was die App selbststaendig darf"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Wissen",
+  "befehl": "koordinat befehle [suchwort]",
+  "was": "dieses Nachschlagewerk durchsuchen"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Wissen",
+  "befehl": "koordinat guide [begriff]",
+  "was": "Grundbegriffe erklaert"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Sicherheit",
+  "befehl": "koordinat stop",
+  "was": "alles sofort anhalten (wirkt immer, ohne Schluessel)"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Sicherheit",
+  "befehl": "koordinat vital",
+  "was": "Puls, Modus, Kern intakt?"
+ },
+ {
+  "werkzeug": "KOORDINAT",
+  "gruppe": "Sicherheit",
+  "befehl": "koordinat mcp",
+  "was": "als MCP-Server fuer Claude, Cursor & Co. starten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Start",
+  "befehl": "claude",
+  "was": "interaktive Sitzung im aktuellen Ordner"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Start",
+  "befehl": "claude \"aufgabe\"",
+  "was": "Sitzung mit erster Aufgabe starten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Start",
+  "befehl": "claude -p \"aufgabe\"",
+  "was": "einmal antworten und beenden (fuer Skripte und Pipes)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Start",
+  "befehl": "claude -c",
+  "was": "letztes Gespraech im Ordner fortsetzen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Start",
+  "befehl": "claude -r [id]",
+  "was": "ein frueheres Gespraech fortsetzen oder auswaehlen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--model <name>",
+  "was": "Modell waehlen (Alias wie opus/sonnet oder voller Name)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--effort <stufe>",
+  "was": "Effort fuer die Sitzung"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--fallback-model <name>",
+  "was": "Ausweichmodell, wenn das Hauptmodell ausgelastet ist"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--permission-mode <modus>",
+  "was": "Berechtigungsmodus (z. B. plan, acceptEdits, default)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--allowedTools \"Bash(git *)\" Edit",
+  "was": "Werkzeuge ohne Rueckfrage erlauben"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--disallowedTools <werkzeuge>",
+  "was": "Werkzeuge verbieten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--add-dir <ordner>",
+  "was": "weitere Ordner freigeben"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--mcp-config <datei.json>",
+  "was": "MCP-Server aus einer Datei laden"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--append-system-prompt \"...\"",
+  "was": "eigene Anweisung an den Systemprompt anhaengen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--output-format json|stream-json",
+  "was": "maschinenlesbare Ausgabe (mit -p)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--json-schema <schema>",
+  "was": "strukturierte Ausgabe pruefen (mit -p)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--max-budget-usd <betrag>",
+  "was": "Kostenobergrenze (mit -p)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "-w, --worktree [name]",
+  "was": "in eigenem Git-Worktree arbeiten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Optionen",
+  "befehl": "--bg",
+  "was": "Sitzung im Hintergrund starten (claude agents / attach / logs)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Unterbefehle",
+  "befehl": "claude mcp add|list|remove",
+  "was": "MCP-Server verwalten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Unterbefehle",
+  "befehl": "claude plugin",
+  "was": "Plugins verwalten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Unterbefehle",
+  "befehl": "claude doctor",
+  "was": "Installation pruefen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Unterbefehle",
+  "befehl": "claude update",
+  "was": "auf neueste Version aktualisieren"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Unterbefehle",
+  "befehl": "claude auth",
+  "was": "Anmeldung verwalten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/help",
+  "was": "alle Befehle"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/model",
+  "was": "Modell wechseln"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/fast",
+  "was": "schnellen Modus umschalten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/clear",
+  "was": "Gespraech leeren"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/compact [hinweis]",
+  "was": "Gespraech zusammenfassen, Kontext sparen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/context",
+  "was": "Kontextverbrauch anzeigen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/cost",
+  "was": "Kosten der Sitzung"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/init",
+  "was": "CLAUDE.md fuer das Projekt anlegen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/memory",
+  "was": "Gedaechtnisdateien (CLAUDE.md) bearbeiten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/mcp",
+  "was": "MCP-Server ansehen und verwalten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/agents",
+  "was": "eigene Subagenten verwalten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/hooks",
+  "was": "Hooks (automatische Aktionen) einrichten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/permissions",
+  "was": "Berechtigungen ansehen und setzen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/config",
+  "was": "Einstellungen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/review",
+  "was": "Code-Review"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/resume",
+  "was": "frueheres Gespraech fortsetzen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/add-dir",
+  "was": "weiteren Ordner freigeben"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/doctor",
+  "was": "Installation pruefen und reparieren"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "In der Sitzung",
+  "befehl": "/login /logout",
+  "was": "Konto wechseln"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Eingabe",
+  "befehl": "@datei",
+  "was": "Datei in die Nachricht holen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Eingabe",
+  "befehl": "!befehl",
+  "was": "Shell-Befehl direkt ausfuehren"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Eingabe",
+  "befehl": "# notiz",
+  "was": "Notiz ins Gedaechtnis schreiben"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Eingabe",
+  "befehl": "Shift+Tab",
+  "was": "Modus wechseln (z. B. Plan-Modus, Aenderungen automatisch annehmen)"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Eingabe",
+  "befehl": "Esc / Esc Esc",
+  "was": "unterbrechen / zu frueherer Nachricht zurueck"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Dateien",
+  "befehl": "CLAUDE.md",
+  "was": "Projektwissen, das jede Sitzung liest"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Dateien",
+  "befehl": ".claude/settings.json",
+  "was": "Berechtigungen, Hooks, Umgebungsvariablen"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Dateien",
+  "befehl": ".claude/agents/*.md",
+  "was": "eigene Subagenten"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Dateien",
+  "befehl": ".claude/commands/*.md",
+  "was": "eigene Slash-Befehle"
+ },
+ {
+  "werkzeug": "Claude Code",
+  "gruppe": "Dateien",
+  "befehl": ".mcp.json",
+  "was": "MCP-Server fuer das Projekt"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Start",
+  "befehl": "codex",
+  "was": "interaktive Sitzung"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Start",
+  "befehl": "codex \"aufgabe\"",
+  "was": "mit Aufgabe starten"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Start",
+  "befehl": "codex exec \"aufgabe\"",
+  "was": "ohne Rueckfragen ausfuehren (Skripte, CI)"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Optionen",
+  "befehl": "-m, --model <name>",
+  "was": "Modell waehlen"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Optionen",
+  "befehl": "-c model_reasoning_effort=high",
+  "was": "Denktiefe setzen"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Optionen",
+  "befehl": "--full-auto",
+  "was": "selbststaendig arbeiten (in der Sandbox)"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/model",
+  "was": "Modell und Effort wechseln"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/approvals",
+  "was": "Freigabestufe waehlen"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/init",
+  "was": "AGENTS.md anlegen"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/diff",
+  "was": "Aenderungen ansehen"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/compact",
+  "was": "Gespraech zusammenfassen"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/new",
+  "was": "neues Gespraech"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/status",
+  "was": "Stand der Sitzung"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/mcp",
+  "was": "MCP-Werkzeuge"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Dateien",
+  "befehl": "AGENTS.md",
+  "was": "Projektanweisungen (von vielen Agenten gelesen)"
+ },
+ {
+  "werkzeug": "Codex CLI",
+  "gruppe": "Dateien",
+  "befehl": "~/.codex/config.toml",
+  "was": "Modell, Effort, MCP-Server, Profile"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "Start",
+  "befehl": "gemini",
+  "was": "interaktive Sitzung"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "Start",
+  "befehl": "gemini -p \"aufgabe\"",
+  "was": "einmal antworten und beenden"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "Optionen",
+  "befehl": "-m <modell>",
+  "was": "Modell waehlen"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/help",
+  "was": "alle Befehle"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/chat save|resume|list <name>",
+  "was": "Gespraeche sichern und laden"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/clear",
+  "was": "Bildschirm und Kontext leeren"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/compress",
+  "was": "Kontext zusammenfassen"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/memory add|show|refresh",
+  "was": "Gedaechtnis (GEMINI.md) verwalten"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/mcp",
+  "was": "MCP-Server"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/tools",
+  "was": "verfuegbare Werkzeuge"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/stats",
+  "was": "Verbrauch der Sitzung"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/auth",
+  "was": "Anmeldung wechseln"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "In der Sitzung",
+  "befehl": "/quit",
+  "was": "beenden"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "Eingabe",
+  "befehl": "@datei",
+  "was": "Datei einbinden"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "Eingabe",
+  "befehl": "!befehl",
+  "was": "Shell-Befehl ausfuehren"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "Dateien",
+  "befehl": "GEMINI.md",
+  "was": "Projektanweisungen"
+ },
+ {
+  "werkzeug": "Gemini CLI",
+  "gruppe": "Dateien",
+  "befehl": "~/.gemini/settings.json",
+  "was": "Einstellungen und MCP-Server"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "Start",
+  "befehl": "aider datei.py",
+  "was": "mit Dateien im Chat starten"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "Optionen",
+  "befehl": "--model <name>",
+  "was": "Modell waehlen (jeder LiteLLM-Anbieter)"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "Optionen",
+  "befehl": "--architect",
+  "was": "Architekt-Modell plant, Editor-Modell schreibt"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/add <datei>",
+  "was": "Datei zum Bearbeiten hinzufuegen"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/drop <datei>",
+  "was": "Datei entfernen"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/ask",
+  "was": "nur fragen, nichts aendern"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/code",
+  "was": "Code aendern lassen"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/architect",
+  "was": "planen, dann umsetzen"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/run <befehl>",
+  "was": "Befehl ausfuehren, Ausgabe in den Chat"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/test <befehl>",
+  "was": "Tests ausfuehren und Fehler beheben lassen"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/undo",
+  "was": "letzten KI-Commit rueckgaengig"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/diff",
+  "was": "Aenderungen seit letzter Nachricht"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/commit",
+  "was": "Aenderungen committen"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/model <name>",
+  "was": "Modell wechseln"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/tokens",
+  "was": "Tokenverbrauch"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/web <url>",
+  "was": "Webseite in den Chat holen"
+ },
+ {
+  "werkzeug": "Aider",
+  "gruppe": "In der Sitzung",
+  "befehl": "/clear /reset",
+  "was": "Verlauf leeren / alles zuruecksetzen"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Tasten",
+  "befehl": "Cmd/Strg+K",
+  "was": "Code an der Stelle aendern"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Tasten",
+  "befehl": "Cmd/Strg+L",
+  "was": "Chat-Seitenleiste"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Tasten",
+  "befehl": "Cmd/Strg+I",
+  "was": "Agent (mehrere Dateien bearbeiten)"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Tasten",
+  "befehl": "Tab",
+  "was": "KI-Vervollstaendigung annehmen"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Eingabe",
+  "befehl": "@Files @Folders @Code",
+  "was": "Dateien/Ordner/Symbole als Kontext"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Eingabe",
+  "befehl": "@Docs @Web",
+  "was": "Doku oder Websuche als Kontext"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Dateien",
+  "befehl": ".cursor/rules/*.mdc",
+  "was": "Projektregeln fuer die KI"
+ },
+ {
+  "werkzeug": "Cursor",
+  "gruppe": "Dateien",
+  "befehl": ".cursor/mcp.json",
+  "was": "MCP-Server fuer das Projekt (z. B. KOORDINAT)"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama run <modell>",
+  "was": "Modell starten und chatten (laedt es bei Bedarf)"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama pull <modell>",
+  "was": "Modell herunterladen"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama list",
+  "was": "geladene Modelle"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama ps",
+  "was": "laufende Modelle"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama stop <modell>",
+  "was": "Modell anhalten"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama rm <modell>",
+  "was": "Modell loeschen"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama show <modell>",
+  "was": "Details (Kontext, Parameter, Vorlage)"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Modelle",
+  "befehl": "ollama create <name> -f Modelfile",
+  "was": "eigenes Modell aus Modelfile"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "Server",
+  "befehl": "ollama serve",
+  "was": "Server starten (http://localhost:11434, OpenAI-kompatibel unter /v1)"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "In der Sitzung",
+  "befehl": "/set parameter num_ctx 8192",
+  "was": "Kontextlaenge setzen"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "In der Sitzung",
+  "befehl": "/set system \"...\"",
+  "was": "Systemprompt setzen"
+ },
+ {
+  "werkzeug": "Ollama",
+  "gruppe": "In der Sitzung",
+  "befehl": "/bye",
+  "was": "beenden"
+ },
+ {
+  "werkzeug": "llama.cpp",
+  "gruppe": "Start",
+  "befehl": "llama-cli -m modell.gguf",
+  "was": "Modell im Terminal"
+ },
+ {
+  "werkzeug": "llama.cpp",
+  "gruppe": "Start",
+  "befehl": "llama-server -m modell.gguf --port 8080",
+  "was": "OpenAI-kompatibler Server"
+ },
+ {
+  "werkzeug": "llama.cpp",
+  "gruppe": "Optionen",
+  "befehl": "-c 8192 / -ngl 99",
+  "was": "Kontextlaenge / Schichten auf die GPU"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Grundlagen",
+  "befehl": "model, max_tokens, messages",
+  "was": "Pflichtfelder jeder Anfrage an /v1/messages"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Grundlagen",
+  "befehl": "system",
+  "was": "Systemanweisung"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Denken",
+  "befehl": "thinking: {\"type\": \"adaptive\"}",
+  "was": "Claude entscheidet selbst, wie viel es denkt"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Denken",
+  "befehl": "output_config.effort",
+  "was": "low, medium, high, xhigh, max"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Ausgabe",
+  "befehl": "output_config.format",
+  "was": "strukturierte Ausgabe nach JSON-Schema"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Ausgabe",
+  "befehl": "stream: true",
+  "was": "Antwort laufend empfangen"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Werkzeuge",
+  "befehl": "tools, tool_choice",
+  "was": "eigene Werkzeuge (Funktionsaufrufe); strict: true fuer gueltige Argumente"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Werkzeuge",
+  "befehl": "web_search, web_fetch, code_execution",
+  "was": "Werkzeuge, die bei Anthropic laufen"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Kosten",
+  "befehl": "cache_control: {\"type\": \"ephemeral\"}",
+  "was": "Prompt-Caching - wiederholter Kontext bis ~90 % billiger"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Kosten",
+  "befehl": "/v1/messages/batches",
+  "was": "Stapelverarbeitung zum halben Preis"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Kosten",
+  "befehl": "/v1/messages/count_tokens",
+  "was": "Tokens vorher zaehlen"
+ },
+ {
+  "werkzeug": "Claude API",
+  "gruppe": "Modelle",
+  "befehl": "/v1/models",
+  "was": "aktuelle Modelle und Faehigkeiten abfragen"
+ },
+ {
+  "werkzeug": "OpenAI API",
+  "gruppe": "Grundlagen",
+  "befehl": "model, messages",
+  "was": "Chat Completions (/v1/chat/completions)"
+ },
+ {
+  "werkzeug": "OpenAI API",
+  "gruppe": "Ausgabe",
+  "befehl": "response_format",
+  "was": "JSON oder JSON-Schema erzwingen"
+ },
+ {
+  "werkzeug": "OpenAI API",
+  "gruppe": "Werkzeuge",
+  "befehl": "tools, tool_choice",
+  "was": "Funktionsaufrufe"
+ },
+ {
+  "werkzeug": "OpenAI API",
+  "gruppe": "Denken",
+  "befehl": "reasoning_effort",
+  "was": "Denktiefe bei Reasoning-Modellen"
+ },
+ {
+  "werkzeug": "OpenAI API",
+  "gruppe": "Sampling",
+  "befehl": "temperature, top_p, seed",
+  "was": "Zufall steuern (bei Reasoning-Modellen eingeschraenkt)"
+ },
+ {
+  "werkzeug": "Gemini API",
+  "gruppe": "Grundlagen",
+  "befehl": "contents, systemInstruction",
+  "was": "Nachrichten und Systemanweisung (generateContent)"
+ },
+ {
+  "werkzeug": "Gemini API",
+  "gruppe": "Ausgabe",
+  "befehl": "responseMimeType, responseSchema",
+  "was": "JSON-Ausgabe nach Schema"
+ },
+ {
+  "werkzeug": "Gemini API",
+  "gruppe": "Denken",
+  "befehl": "thinkingConfig.thinkingBudget",
+  "was": "Denk-Budget in Tokens"
+ },
+ {
+  "werkzeug": "Gemini API",
+  "gruppe": "Werkzeuge",
+  "befehl": "tools: googleSearch, codeExecution",
+  "was": "eingebaute Websuche und Codeausfuehrung"
+ },
+ {
+  "werkzeug": "MCP",
+  "gruppe": "Begriffe",
+  "befehl": "Server / Client / Tool / Resource / Prompt",
+  "was": "Grundbausteine des Model Context Protocol"
+ },
+ {
+  "werkzeug": "MCP",
+  "gruppe": "Einrichten",
+  "befehl": "{\"mcpServers\": {\"name\": {\"command\": \"...\", \"args\": [...]}}}",
+  "was": "so tragen fast alle Programme MCP-Server ein"
+ },
+ {
+  "werkzeug": "MCP",
+  "gruppe": "Einrichten",
+  "befehl": "npx @modelcontextprotocol/inspector <befehl>",
+  "was": "MCP-Server testen"
+ },
+ {
+  "werkzeug": "MCP",
+  "gruppe": "Einrichten",
+  "befehl": "claude mcp add <name> -- <befehl>",
+  "was": "MCP-Server in Claude Code eintragen"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Grundlagen",
+  "befehl": "git clone <url>",
+  "was": "Repo herunterladen"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Grundlagen",
+  "befehl": "git status",
+  "was": "was hat sich geaendert?"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Grundlagen",
+  "befehl": "git add . && git commit -m \"...\"",
+  "was": "Aenderungen festhalten"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Grundlagen",
+  "befehl": "git push / git pull",
+  "was": "hochladen / holen"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Zweige",
+  "befehl": "git switch -c <zweig>",
+  "was": "neuen Zweig anlegen"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Zweige",
+  "befehl": "git log --oneline",
+  "was": "Verlauf kurz"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Zweige",
+  "befehl": "git diff",
+  "was": "Aenderungen im Detail"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "Sicherheit",
+  "befehl": "git restore <datei>",
+  "was": "ungespeicherte Aenderung verwerfen (Vorsicht)"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "GitHub CLI",
+  "befehl": "gh repo clone owner/name",
+  "was": "Repo holen"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "GitHub CLI",
+  "befehl": "gh pr create",
+  "was": "Pull Request erstellen"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "GitHub CLI",
+  "befehl": "gh pr checkout <nr>",
+  "was": "Pull Request lokal ansehen"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "GitHub CLI",
+  "befehl": "gh issue list / create",
+  "was": "Issues"
+ },
+ {
+  "werkzeug": "Git & GitHub",
+  "gruppe": "GitHub CLI",
+  "befehl": "gh search repos \"<begriff>\"",
+  "was": "Repos suchen"
+ },
+ {
+  "werkzeug": "Prompting",
+  "gruppe": "Technik",
+  "befehl": "Rolle + Ziel + Kontext + Format",
+  "was": "Grundgeruest eines guten Prompts"
+ },
+ {
+  "werkzeug": "Prompting",
+  "gruppe": "Technik",
+  "befehl": "Beispiele (few-shot)",
+  "was": "2-3 Beispiele zeigen das gewuenschte Ergebnis"
+ },
+ {
+  "werkzeug": "Prompting",
+  "gruppe": "Technik",
+  "befehl": "<dokument>...</dokument>",
+  "was": "lange Eingaben mit XML-Tags abgrenzen"
+ },
+ {
+  "werkzeug": "Prompting",
+  "gruppe": "Technik",
+  "befehl": "\"Pruefe deine Antwort gegen ...\"",
+  "was": "Selbstpruefung anfordern"
+ },
+ {
+  "werkzeug": "Prompting",
+  "gruppe": "Technik",
+  "befehl": "Aufgabe zerlegen",
+  "was": "grosse Aufgaben in Schritte teilen (Kette von Prompts)"
+ },
+ {
+  "werkzeug": "Prompting",
+  "gruppe": "Technik",
+  "befehl": "\"Wenn du es nicht weisst, sag es\"",
+  "was": "weniger erfundene Antworten"
+ }
+]
