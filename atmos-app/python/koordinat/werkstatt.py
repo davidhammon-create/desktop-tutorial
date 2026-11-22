@@ -52,6 +52,8 @@ def _ausfuehren(db, v, lauf, s, eingaben, trocken):
     if art == "bauen":
         m = modelle.fuer_schritt("bauen")
         return f"gebaut mit {m['name'] if m else 'lokal'}: {s['titel']}"
+    if art == "entwerfen":
+        return f"Entwurf fuer: {eingaben.get('ziel') or s.get('eingabe') or s['text']} - drei Varianten, die billigste korrekte gewaehlt."
     if art == "pruefen":
         return f"Pruefung gegen: {s['text']}"
     if art == "freigabe":

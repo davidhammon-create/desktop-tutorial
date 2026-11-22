@@ -1,7 +1,9 @@
 import { EFFORT_LABELS, GESETZE, ROUTER_STUFEN, VERFASSUNG, ZYKLUS } from "./constants";
 import { googleStatus } from "./google";
-import { ABLAEUFE, findeAblauf, freierAblauf, sucheKatalog } from "./katalog";
-import { providerConnection } from "./secrets";
+import { ABLAEUFE, KATALOG, KATEGORIEN, findeAblauf, freierAblauf, sucheKatalog } from "./katalog";
+import { ANBIETER, MODELL_EFFORT, effortAusStufe, kiBereit, kiKonfig, kiUebersicht, leseEffort, type ModellEffort } from "./anbieter";
+import { REFERENZ, WERKZEUGE, sucheReferenz } from "./befehle";
+import { loadSecrets, providerConnection, saveSecrets } from "./secrets";
 import { pushTrace } from "./store";
 import type {
   AtmosState,
@@ -11,30 +13,71 @@ import type {
   Modul,
   RouterStufe,
 } from "./types";
+export type CommandGruppe = "KIs" | "Lösen" | "Finden" | "Module" | "System" | "Wissen";
 export interface CommandDef {
   id: string;
   label: string;
   aliases: string[];
   beschreibung: string;
   usage: string;
+  gruppe: CommandGruppe;
 }
+export const COMMAND_GRUPPEN: CommandGruppe[] = ["KIs", "Lösen", "Finden", "Module", "Wissen", "System"];
 export const COMMANDS: CommandDef[] = [
-  { id: "effort", label: "/effort", aliases: ["effort", "aufwand"], beschreibung: "Router-Stufe / Modellwahl setzen (0?6)", usage: "/effort 4" },
-  { id: "stop", label: "/stop", aliases: ["stop"], beschreibung: "Sofortiger Halt (Verfassung R1)", usage: "/stop" },
-  { id: "fortsetzen", label: "/fortsetzen", aliases: ["fortsetzen", "weiter-system"], beschreibung: "STOP aufheben", usage: "/fortsetzen" },
-  { id: "suche", label: "/suche", aliases: ["suche", "search"], beschreibung: "GitHub/Module + Google finden", usage: "/suche pdf table" },
-  { id: "google", label: "/google", aliases: ["google", "gapi"], beschreibung: "Google CSE / Gemini-Suche (Einstellungen)", usage: "/google gemini sdk" },
-  { id: "install", label: "/install", aliases: ["install", "installiere"], beschreibung: "Projekt einbetten (noch AUS)", usage: "/install owner/repo" },
-  { id: "an", label: "/an", aliases: ["an", "enable"], beschreibung: "Modul einschalten (Freigabe)", usage: "/an owner/repo" },  { id: "aus", label: "/aus", aliases: ["aus", "disable"], beschreibung: "Modul ausschalten", usage: "/aus owner/repo" },
-  { id: "liste", label: "/liste", aliases: ["liste", "modules"], beschreibung: "Eingebettete Module listen", usage: "/liste" },  { id: "vital", label: "/vital", aliases: ["vital", "puls"], beschreibung: "Puls, Modus, Hunger", usage: "/vital" },
-  { id: "lauf", label: "/lauf", aliases: ["lauf"], beschreibung: "Ablauf-Vorlage starten", usage: "/lauf dokumente" },
-  { id: "mach", label: "/mach", aliases: ["mach", "lösen", "loesen"], beschreibung: "Freien Auftrag planen und starten", usage: "/mach Website bauen" },
-  { id: "kristall", label: "/kristall", aliases: ["kristall", "kristalle"], beschreibung: "Kristall-Bibliothek", usage: "/kristall" },
-  { id: "erklaere", label: "/erklaere", aliases: ["erklaere", "erkläre", "explain"], beschreibung: "Begriff erklären", usage: "/erklaere router" },
-  { id: "verfassung", label: "/verfassung", aliases: ["verfassung", "gesetze"], beschreibung: "Gesetze und Regeln zeigen", usage: "/verfassung" },
-  { id: "trace", label: "/trace", aliases: ["trace", "spur"], beschreibung: "Spur der letzten Schritte", usage: "/trace" },
-  { id: "hilfe", label: "/hilfe", aliases: ["hilfe", "help", "?"], beschreibung: "Befehlsspeisekarte", usage: "/hilfe" },
+  { id: "frage", label: "/frage", aliases: ["frage", "ask", "ki", "chat"], gruppe: "KIs", beschreibung: "Der Standard-KI eine Frage stellen (Gespräch läuft weiter)", usage: "/frage Erkläre RAG in 5 Sätzen" },
+  { id: "alle", label: "/alle", aliases: ["alle", "vergleiche", "ensemble"], gruppe: "KIs", beschreibung: "Dieselbe Frage an alle verbundenen KIs – Antworten vergleichen", usage: "/alle Welche Vektordatenbank für 1 Mio. Dokumente?" },
+  { id: "neu", label: "/neu", aliases: ["neu", "clear", "reset-chat"], gruppe: "KIs", beschreibung: "Gespräch mit der KI leeren", usage: "/neu" },
+  { id: "anbieter", label: "/anbieter", aliases: ["anbieter", "kis", "provider"], gruppe: "KIs", beschreibung: "Alle 15 KI-Anbieter anzeigen oder Standard setzen", usage: "/anbieter anthropic" },
+  { id: "modell", label: "/modell", aliases: ["modell", "model"], gruppe: "KIs", beschreibung: "Modell der Standard-KI setzen", usage: "/modell claude-opus-5-5" },
+  { id: "modelle", label: "/modelle", aliases: ["modelle", "models"], gruppe: "KIs", beschreibung: "Aktuelle Modellliste direkt beim Anbieter holen", usage: "/modelle openai" },
+  { id: "effort", label: "/effort", aliases: ["effort", "aufwand", "denken"], gruppe: "KIs", beschreibung: "Denktiefe (aus · low · medium · high · xhigh · max) oder Router-Stufe 0–6", usage: "/effort high" },
+  { id: "mach", label: "/mach", aliases: ["mach", "lösen", "loesen"], gruppe: "Lösen", beschreibung: "Freien Auftrag planen und starten", usage: "/mach Website bauen" },
+  { id: "lauf", label: "/lauf", aliases: ["lauf"], gruppe: "Lösen", beschreibung: "Ablauf-Vorlage starten", usage: "/lauf dokumente" },
+  { id: "trace", label: "/trace", aliases: ["trace", "spur"], gruppe: "Lösen", beschreibung: "Spur der letzten Schritte", usage: "/trace" },
+  { id: "suche", label: "/suche", aliases: ["suche", "search"], gruppe: "Finden", beschreibung: "Katalog + Google durchsuchen", usage: "/suche pdf table" },
+  { id: "katalog", label: "/katalog", aliases: ["katalog", "repos"], gruppe: "Finden", beschreibung: `${KATALOG.length} geprüfte GitHub-Repos nach Kategorie`, usage: "/katalog MCP" },
+  { id: "google", label: "/google", aliases: ["google", "gapi"], gruppe: "Finden", beschreibung: "Google CSE / Gemini-Suche (Einstellungen)", usage: "/google gemini sdk" },
+  { id: "befehle", label: "/befehle", aliases: ["befehle", "referenz", "commands"], gruppe: "Wissen", beschreibung: `${REFERENZ.length} Befehle & Regler: Claude Code, Codex, Gemini CLI, Aider, Cursor, Ollama, APIs …`, usage: "/befehle effort" },
+  { id: "erklaere", label: "/erklaere", aliases: ["erklaere", "erkläre", "explain"], gruppe: "Wissen", beschreibung: "Begriff erklären", usage: "/erklaere router" },
+  { id: "install", label: "/install", aliases: ["install", "installiere"], gruppe: "Module", beschreibung: "Projekt einbetten (noch AUS)", usage: "/install owner/repo" },
+  { id: "an", label: "/an", aliases: ["an", "enable"], gruppe: "Module", beschreibung: "Modul einschalten (Freigabe)", usage: "/an owner/repo" },
+  { id: "aus", label: "/aus", aliases: ["aus", "disable"], gruppe: "Module", beschreibung: "Modul ausschalten", usage: "/aus owner/repo" },
+  { id: "liste", label: "/liste", aliases: ["liste", "modules"], gruppe: "Module", beschreibung: "Eingebettete Module listen", usage: "/liste" },
+  { id: "kristall", label: "/kristall", aliases: ["kristall", "kristalle"], gruppe: "Module", beschreibung: "Kristall-Bibliothek", usage: "/kristall" },
+  { id: "vital", label: "/vital", aliases: ["vital", "puls"], gruppe: "System", beschreibung: "Puls, Modus, Hunger, verbundene KIs", usage: "/vital" },
+  { id: "stop", label: "/stop", aliases: ["stop"], gruppe: "System", beschreibung: "Sofortiger Halt (Verfassung R1)", usage: "/stop" },
+  { id: "fortsetzen", label: "/fortsetzen", aliases: ["fortsetzen", "weiter-system"], gruppe: "System", beschreibung: "STOP aufheben", usage: "/fortsetzen" },
+  { id: "verfassung", label: "/verfassung", aliases: ["verfassung", "gesetze"], gruppe: "System", beschreibung: "Gesetze und Regeln zeigen", usage: "/verfassung" },
+  { id: "hilfe", label: "/hilfe", aliases: ["hilfe", "help", "?"], gruppe: "System", beschreibung: "Alle Befehle nach Gruppen", usage: "/hilfe" },
 ];
+/** Standard-KI: ausdrücklich gesetzt, sonst die erste bereite. */
+export function standardKi(): string | null {
+  const s = loadSecrets();
+  if (s.standardKi && ANBIETER.some((a) => a.id === s.standardKi)) return s.standardKi;
+  return kiUebersicht(s).find((a) => a.bereit)?.id ?? null;
+}
+/** Zieht --effort, --modell und @anbieter aus dem Text. */
+export function leseFrageOptionen(args: string): { text: string; anbieter?: string; modell?: string; effort?: ModellEffort } {
+  let text = args;
+  const o: { anbieter?: string; modell?: string; effort?: ModellEffort } = {};
+  text = text.replace(/--effort\s+(\S+)/i, (_, e: string) => {
+    const x = leseEffort(e);
+    if (x) o.effort = x;
+    return "";
+  });
+  text = text.replace(/--modell\s+(\S+)/i, (_, m: string) => {
+    o.modell = m;
+    return "";
+  });
+  text = text.replace(/(^|\s)@([a-z]+)\b/i, (all, pre: string, id: string) => {
+    if (ANBIETER.some((a) => a.id === id.toLowerCase())) {
+      o.anbieter = id.toLowerCase();
+      return pre;
+    }
+    return all;
+  });
+  return { text: text.replace(/\s+/g, " ").trim(), ...o };
+}
 function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 }
@@ -78,8 +121,8 @@ function startLauf(state: AtmosState, vorlage: ReturnType<typeof freierAblauf>, 
   let next = pushTrace(state, {
     laufId: lauf.id,
     art: "plan",
-    text: `${vorlage.titel} ? ${vorlage.schritte.length} Schritte`,
-    erklaerung: `Quelle: ${quelle} ? Effort-Cap Stufe ${state.effort}`,
+    text: `${vorlage.titel} · ${vorlage.schritte.length} Schritte`,
+    erklaerung: `Quelle: ${quelle} · Effort-Cap Stufe ${state.effort}`,
     stufe: Math.min(state.effort, 3) as RouterStufe,
     cent: 0,
   });
@@ -131,7 +174,7 @@ function startLauf(state: AtmosState, vorlage: ReturnType<typeof freierAblauf>, 
       lauf,
       result: {
         ok: true,
-        message: `Lauf ${lauf.id} gestartet ? hält bei Schritt ${schritt + 1}. Freigabe nötig.`,
+        message: `Lauf ${lauf.id} gestartet – hält bei Schritt ${schritt + 1}. Freigabe nötig.`,
         needsFreigabe: fg,
       },
     };
@@ -150,9 +193,9 @@ function demoErgebnis(art: string, ziel: string): string {
     case "erkunden":
       return sucheKatalog(ziel, 3)
         .map((t) => `${t.score} ${t.name}`)
-        .join(" ? ") || "keine Treffer (Demo)";
+        .join(" · ") || "keine Treffer";
     case "erklaeren":
-      return "Kontextfenster begrenzt ? holen statt kippen.";
+      return "Kontextfenster begrenzt → holen statt kippen.";
     case "entwerfen":
       return "Variante B gewählt (billigster korrekter Weg).";
     case "bauen":
@@ -160,7 +203,7 @@ function demoErgebnis(art: string, ziel: string): string {
     case "schreiben":
       return "Skript-Entwurf in Szenen (Demo).";
     case "pruefen":
-      return "Prüfung gegen Ziel ? OK mit Vorbehalt.";
+      return "Prüfung gegen Ziel → OK mit Vorbehalt.";
     case "freigabe":
       return "Freigabe angefordert.";
     default:
@@ -192,36 +235,115 @@ export function executeCommand(state: AtmosState, input: string): { state: Atmos
   if (state.stop && def.id !== "fortsetzen" && def.id !== "vital" && def.id !== "hilfe" && def.id !== "verfassung" && def.id !== "stop") {
     return { state, result: { ok: false, message: "STOP gesetzt. Nur /fortsetzen, /vital, /hilfe." } };
   }
-  let next = { ...state, lastCommand: def.id };
+  let next: AtmosState = { ...state, lastCommand: def.id };
   switch (def.id) {
     case "hilfe": {
-      const menu = COMMANDS.map((c) => `${c.label.padEnd(12)} ${c.beschreibung}`).join("\n");
+      const menu = COMMAND_GRUPPEN.map(
+        (g) => `${g}\n${COMMANDS.filter((c) => c.gruppe === g).map((c) => `  ${c.label.padEnd(12)} ${c.beschreibung}`).join("\n")}`,
+      ).join("\n\n");
+      const tipp = "\n\nOhne / geschrieben = /mach. @anbieter und --effort gelten in /frage, z. B. /frage @gemini --effort max …";
       next = pushTrace(next, { laufId: null, art: "ergebnis", text: "Befehlsspeisekarte", erklaerung: menu, cent: 0 });
-      return { state: next, result: { ok: true, message: menu } };
+      return { state: next, result: { ok: true, message: menu + tipp } };
     }
     case "effort": {
-      const n = Number(args);
-      if (!Number.isFinite(n) || n < 0 || n > 6) {
-        return { state: next, result: { ok: false, message: "Usage: /effort 0?6" } };
+      const arg = args.trim();
+      const me = leseEffort(arg);
+      if (me) {
+        next = { ...next, modellEffort: me };
+        next = pushTrace(next, { laufId: null, art: "werkzeug", text: `Modell-Effort → ${me}`, erklaerung: "Gilt für alle KIs; je Anbieter übersetzt.", cent: 0 });
+        return { state: next, result: { ok: true, message: `Denktiefe der Modelle: ${me}. Übersetzt: Claude output_config.effort, OpenAI reasoning_effort, Gemini thinkingBudget, OpenRouter reasoning.effort.` } };
+      }
+      const n = Number(arg);
+      if (!arg || !Number.isFinite(n) || n < 0 || n > 6) {
+        return {
+          state: next,
+          result: {
+            ok: !arg,
+            message: `Denktiefe: ${next.modellEffort} · Router-Stufe: ${next.effort} (${EFFORT_LABELS[next.effort]})\n` +
+              `/effort ${MODELL_EFFORT.join(" | ")}   Denktiefe der Modelle\n/effort 0–6   Router-Stufe der Kaskade (6 = alle KIs)`,
+          },
+        };
       }
       const stufe = Math.round(n) as RouterStufe;
       next = { ...next, effort: stufe };
       next = pushTrace(next, {
         laufId: null,
         art: "werkzeug",
-        text: `Effort ? Stufe ${stufe} (${EFFORT_LABELS[stufe]})`,
+        text: `Router → Stufe ${stufe} (${EFFORT_LABELS[stufe]})`,
         erklaerung: ROUTER_STUFEN[stufe].name,
         stufe,
         cent: 0,
       });
       return {
         state: next,
-        result: { ok: true, message: `Aufwand auf Stufe ${stufe}: ${ROUTER_STUFEN[stufe].name}` },
+        result: { ok: true, message: `Router-Stufe ${stufe}: ${ROUTER_STUFEN[stufe].name}. Modelle denken mit „${next.modellEffort}“ (ohne eigene Angabe: ${effortAusStufe(stufe)}).` },
       };
+    }
+    case "frage":
+    case "alle": {
+      const o = leseFrageOptionen(args);
+      if (!o.text) return { state: next, result: { ok: false, message: `Was soll ich fragen?  ${def.usage}` } };
+      const effort = o.effort ?? next.modellEffort;
+      if (def.id === "alle") {
+        const bereit = kiUebersicht().filter((a) => a.bereit);
+        if (!bereit.length) return { state: next, result: { ok: false, message: "Keine KI verbunden. Navigation → KIs → Schlüssel eintragen.", navigate: "kis" } };
+        next = pushTrace(next, { laufId: null, art: "plan", text: `Ensemble: ${bereit.length} KIs`, erklaerung: o.text, stufe: 6, cent: 0 });
+        return { state: next, result: { ok: true, message: `Frage an ${bereit.map((a) => a.name).join(", ")} …`, async: { art: "alle", text: o.text, effort } } };
+      }
+      const ki = o.anbieter ?? standardKi();
+      if (!ki) return { state: next, result: { ok: false, message: "Keine KI verbunden. Navigation → KIs → Schlüssel eintragen (Ollama lokal geht ohne).", navigate: "kis" } };
+      if (!kiBereit(ki)) return { state: next, result: { ok: false, message: `${kiKonfig(ki).name} ist nicht bereit: Schlüssel oder Modell fehlt (Navigation → KIs).`, navigate: "kis" } };
+      return { state: next, result: { ok: true, message: `${kiKonfig(ki).name} denkt (${effort}) …`, async: { art: "frage", text: o.text, anbieter: ki, modell: o.modell, effort, gespraech: true } } };
+    }
+    case "neu": {
+      next = { ...next, gespraech: [] };
+      return { state: next, result: { ok: true, message: "Gespräch geleert." } };
+    }
+    case "anbieter": {
+      const id = args.trim().toLowerCase();
+      if (id) {
+        if (!ANBIETER.some((a) => a.id === id)) return { state: next, result: { ok: false, message: `Unbekannt: ${id}. Bekannt: ${ANBIETER.map((a) => a.id).join(", ")}` } };
+        saveSecrets({ standardKi: id });
+        return { state: next, result: { ok: true, message: `Standard-KI: ${kiKonfig(id).name}${kiBereit(id) ? "" : " – noch nicht bereit (Schlüssel/Modell in KIs eintragen)"}.` } };
+      }
+      const std = standardKi();
+      const lines = kiUebersicht().map((a) => `${a.id === std ? "★" : " "} ${a.bereit ? "bereit" : "  –   "}  ${a.id.padEnd(11)} ${a.modell || "(kein Modell)"}${a.effort ? `   Effort: ${a.effort}` : ""}`).join("\n");
+      return { state: next, result: { ok: true, message: `${lines}\n\n★ = Standard · /anbieter <id> setzt den Standard`, navigate: "kis" } };
+    }
+    case "modell": {
+      const ki = standardKi();
+      if (!ki) return { state: next, result: { ok: false, message: "Erst eine KI verbinden (Navigation → KIs).", navigate: "kis" } };
+      const m = args.trim();
+      if (!m) return { state: next, result: { ok: true, message: `${kiKonfig(ki).name}: ${kiKonfig(ki).modell}. /modelle zeigt die verfügbaren.` } };
+      const s = loadSecrets();
+      saveSecrets({ ki: { ...s.ki, [ki]: { ...(s.ki[ki] ?? {}), modell: m } } });
+      return { state: next, result: { ok: true, message: `${kiKonfig(ki).name} nutzt jetzt ${m}.` } };
+    }
+    case "modelle": {
+      const ki = args.trim().toLowerCase() || standardKi();
+      if (!ki || !ANBIETER.some((a) => a.id === ki)) return { state: next, result: { ok: false, message: "Anbieter angeben: /modelle openai", navigate: "kis" } };
+      return { state: next, result: { ok: true, message: `Hole Modelle von ${kiKonfig(ki).name} …`, async: { art: "modelle", anbieter: ki } } };
+    }
+    case "befehle": {
+      const w = WERKZEUGE.find((x) => x.toLowerCase() === args.trim().toLowerCase());
+      const treffer = w ? sucheReferenz("", w) : sucheReferenz(args);
+      const msg = treffer.length
+        ? treffer.slice(0, 40).map((r) => `[${r.werkzeug} · ${r.gruppe}] ${r.befehl}\n    ${r.was}`).join("\n") + (treffer.length > 40 ? `\n… ${treffer.length - 40} weitere im Bereich „Referenz“` : "")
+        : `Nichts zu „${args}“. Werkzeuge: ${WERKZEUGE.join(", ")}`;
+      return { state: next, result: { ok: treffer.length > 0, message: msg, navigate: "referenz" } };
+    }
+    case "katalog": {
+      const q = args.trim().toLowerCase();
+      const kat = KATEGORIEN.find((k) => k.toLowerCase().startsWith(q));
+      const liste = q ? (kat ? KATALOG.filter((k) => k.kategorie === kat) : sucheKatalog(q, 25).map((t) => KATALOG.find((k) => k.repo === t.name)!)) : [];
+      const msg = q
+        ? liste.map((k) => `${k.repo.padEnd(40)} ★${(k.sterne ?? 0).toLocaleString("de")}  ${k.lizenz ?? "keine"}  ${k.zweck}`).join("\n") || "keine Treffer"
+        : `${KATALOG.length} geprüfte Repos in ${KATEGORIEN.length} Kategorien:\n${KATEGORIEN.map((k) => `  ${k} (${KATALOG.filter((x) => x.kategorie === k).length})`).join("\n")}`;
+      return { state: next, result: { ok: true, message: msg, navigate: "katalog" } };
     }
     case "stop": {
       next = { ...next, stop: true, modus: "sicher" };
-      next = pushTrace(next, { laufId: null, art: "halt", text: "STOP gesetzt", erklaerung: "R1 Abschaltbar ? sofort.", cent: 0 });
+      next = pushTrace(next, { laufId: null, art: "halt", text: "STOP gesetzt", erklaerung: "R1 Abschaltbar – sofort.", cent: 0 });
       return { state: next, result: { ok: true, message: "STOP gesetzt. Alle Läufe pausiert." } };
     }
     case "fortsetzen": {
@@ -234,13 +356,13 @@ export function executeCommand(state: AtmosState, input: string): { state: Atmos
       const q = args || "ki agent";
       const treffer = sucheKatalog(q, 8);
       const g = googleStatus();
-      const lines = treffer.map((t) => `${t.score.toString().padStart(3)} ${t.name} ?${t.sterne} ${t.lizenz}`).join("\n");
-      const header = `Katalog ${treffer.length} ? Google ${g.mode} (${g.source})${g.appleIntelligence ? " ? Apple Intelligence an" : ""}`;
+      const lines = treffer.map((t) => `${t.score.toString().padStart(3)} ${t.name} ★${t.sterne.toLocaleString("de")} ${t.lizenz}`).join("\n");
+      const header = `Katalog ${treffer.length} · Google ${g.mode} (${g.source})${g.appleIntelligence ? " · Apple Intelligence an" : ""}`;
       const msg = `${header}\n${lines || "keine Katalog-Treffer"}\n(Live-Google folgt async, wenn Key in Einstellungen)`;
       next = pushTrace(next, {
         laufId: null,
         art: "ergebnis",
-        text: `Suche: ${q} ? ${treffer.length} Katalog`,
+        text: `Suche: ${q} · ${treffer.length} Katalog`,
         erklaerung: msg,
         stufe: 1,
         cent: 0,
@@ -267,7 +389,7 @@ export function executeCommand(state: AtmosState, input: string): { state: Atmos
         laufId: null,
         art: "halt",
         text: `Freigabe für Installation: ${name}`,
-        erklaerung: "Gesetz 9 ? Mensch hält den Schlüssel.",
+        erklaerung: "Gesetz 9 – Mensch hält den Schlüssel.",
         cent: 0,
       });
       return { state: next, result: { ok: true, message: `Freigabe angefordert für ${name}.`, needsFreigabe: fg } };
@@ -298,16 +420,20 @@ export function executeCommand(state: AtmosState, input: string): { state: Atmos
       return { state: next, result: { ok: true, message: lines || "keine Module", navigate: "module" } };
     }
     case "vital": {
-      const hunger = next.hunger.map((h) => `${h.problemtyp}?${h.ungeloest}`).join(", ") || "?";
+      const hunger = next.hunger.map((h) => `${h.problemtyp} ×${h.ungeloest}`).join(", ") || "–";
       const g = googleStatus();
       const apple = providerConnection("apple-intelligence");
-      const msg = `Puls ${next.puls} ? Modus ${next.modus} ? Ampel ${next.ampel} ? Kosten ${next.kostenCent.toFixed(1)}? / ${next.budgetCent}?\nHunger: ${hunger}\nSiegel: ${next.siegel} ? STOP ${next.stop ? "AN" : "aus"}\nGoogle: ${g.mode} (${g.source}) ? Gemini ${g.geminiReady ? "an" : "aus"} ? CSE ${g.searchReady ? "an" : "aus"}\nApple Intelligence: ${apple.label}`;
+      const kis = kiUebersicht().filter((a) => a.bereit).map((a) => a.id);
+      const msg = `Puls ${next.puls} · Modus ${next.modus} · Ampel ${next.ampel} · Kosten ${next.kostenCent.toFixed(1)} ct / ${next.budgetCent} ct\n` +
+        `KIs bereit: ${kis.join(", ") || "keine"} · Standard ${standardKi() ?? "–"} · Denktiefe ${next.modellEffort} · Router-Stufe ${next.effort}\n` +
+        `Hunger: ${hunger}\nSiegel: ${next.siegel} · STOP ${next.stop ? "AN" : "aus"}\n` +
+        `Google: ${g.mode} (${g.source}) · Gemini ${g.geminiReady ? "an" : "aus"} · CSE ${g.searchReady ? "an" : "aus"}\nApple Intelligence: ${apple.label}`;
       next = pushTrace(next, { laufId: null, art: "ergebnis", text: "Vitalitätsbericht", erklaerung: msg, cent: 0 });
       return { state: next, result: { ok: true, message: msg, navigate: "status" } };
     }
     case "kristall": {
       const lines = next.kristalle
-        .map((k) => `${k.art} [${k.status}] ${k.titel} ? ${k.treffer} Treffer`)
+        .map((k) => `${k.art} [${k.status}] ${k.titel} · ${k.treffer} Treffer`)
         .join("\n");
       return { state: next, result: { ok: true, message: lines, navigate: "kristalle" } };
     }
@@ -320,14 +446,14 @@ export function executeCommand(state: AtmosState, input: string): { state: Atmos
     case "erklaere": {
       const begriff = args || "router";
       const erklaerungen: Record<string, string> = {
-        router: "Die Kaskade Stufen 0?6: jede Anfrage steigt nur bei Unsicherheit. Nutzen = P?Wert ? Kosten ? ??Zeit.",
-        kristall: "Geprüftes Wissen (K1?K5), das ohne Credits läuft: Antwort, Regel, Funktion, Workflow, Makro.",
-        vitalitaet: "Haushalt je Baustein. Puls = 0,5? mittlere Vitalität + 0,5? Erfolgsquote.",
-        vitalität: "Haushalt je Baustein. Puls = 0,5? mittlere Vitalität + 0,5? Erfolgsquote.",
+        router: "Die Kaskade Stufen 0–6: jede Anfrage steigt nur bei Unsicherheit. Nutzen = P·Wert − Kosten − λ·Zeit. Stufe 6 = Ensemble: alle verbundenen KIs.",
+        kristall: "Geprüftes Wissen (K1–K5), das ohne Credits läuft: Antwort, Regel, Funktion, Workflow, Makro.",
+        vitalitaet: "Haushalt je Baustein. Puls = 0,5 · mittlere Vitalität + 0,5 · Erfolgsquote.",
+        vitalität: "Haushalt je Baustein. Puls = 0,5 · mittlere Vitalität + 0,5 · Erfolgsquote.",
         verfassung: "Geschützter Kern: Stop wirkt immer, Mensch hält den Schlüssel, Fremdcode nur lesen.",
         hunger: "Ungelöste Problemtypen steuern die Suche nach Modulen.",
-        zyklus: ZYKLUS.map((z) => `${z.nr}. ${z.name} ? ${z.kurz}`).join("\n"),
-        effort: "Built-in Aufwand-Steuerung: mappt auf Router-Stufe / Modellwahl. Kein Extra-Download.",
+        zyklus: ZYKLUS.map((z) => `${z.nr}. ${z.name} – ${z.kurz}`).join("\n"),
+        effort: "Zwei Regler: Denktiefe der Modelle (/effort aus|low|medium|high|xhigh|max – je Anbieter übersetzt: Claude output_config.effort, OpenAI reasoning_effort, Gemini thinkingBudget) und Router-Stufe 0–6 der Kaskade.",
       };
       const key = Object.keys(erklaerungen).find((k) => begriff.toLowerCase().includes(k)) ?? "router";
       const text = erklaerungen[key];
@@ -353,7 +479,16 @@ export function executeCommand(state: AtmosState, input: string): { state: Atmos
       const vorlage = findeAblauf(auftrag) ?? freierAblauf(auftrag);
       const quelle = findeAblauf(auftrag) ? `vorlage:${vorlage.id}` : "bausteine";
       const { state: s2, result } = startLauf(next, { ...vorlage, ziel: auftrag }, quelle);
-      return { state: s2, result: { ...result, navigate: "arbeit" } };
+      const ki = standardKi();
+      // Ab Router-Stufe 4 plant eine echte KI mit; Stufe 6 fragt alle verbundenen KIs (Ensemble)
+      const planFrage = `Plane diesen Auftrag in höchstens 6 prüfbaren Schritten, je Schritt Werkzeug oder GitHub-Projekt, kurz und auf Deutsch:\n${auftrag}`;
+      const plan =
+        !next.stop && next.effort >= 6 && kiUebersicht().some((a) => a.bereit)
+          ? { art: "alle" as const, text: planFrage, effort: next.modellEffort }
+          : !next.stop && next.effort >= 4 && ki && kiBereit(ki)
+            ? { art: "frage" as const, text: planFrage, anbieter: ki, effort: next.modellEffort }
+            : undefined;
+      return { state: s2, result: { ...result, navigate: "arbeit", async: plan } };
     }
     default:
       return { state: next, result: { ok: false, message: "Noch nicht implementiert." } };
@@ -401,7 +536,7 @@ export function approveFreigabe(state: AtmosState, freigabeId: string): { state:
       erklaerung: "R7 Fremdcode nur lesen. Mensch schaltet AN.",
       cent: 0,
     });
-    return { state: next, result: { ok: true, message: `${name} eingebettet ? Status AUS.`, navigate: "module" } };
+    return { state: next, result: { ok: true, message: `${name} eingebettet – Status AUS.`, navigate: "module" } };
   }
   if (fg.art === "lauf_weiter") {
     const laufId = String(fg.payload?.laufId ?? "");

@@ -1,37 +1,1654 @@
 [
-{"kategorie":"Coding-Agenten","repo":"Aider-AI/aider","zweck":"KI-Programmierer im Terminal"},
-{"kategorie":"Coding-Agenten","repo":"cline/cline","zweck":"Coding-Agent in VS Code"},
-{"kategorie":"Coding-Agenten","repo":"OpenHands/OpenHands","zweck":"autonomer Software-Agent"},
-{"kategorie":"Coding-Agenten","repo":"modelcontextprotocol/servers","zweck":"Sammlung von MCP-Servern"},
-{"kategorie":"Agenten-Frameworks","repo":"langchain-ai/langgraph","zweck":"Agenten als Graph"},
-{"kategorie":"Agenten-Frameworks","repo":"crewAIInc/crewAI","zweck":"Rollen-Teams aus Agenten"},
-{"kategorie":"Agenten-Frameworks","repo":"stanfordnlp/dspy","zweck":"Prompts programmieren"},
-{"kategorie":"Agenten-Frameworks","repo":"BerriAI/litellm","zweck":"ein Zugang zu allen Anbietern"},
-{"kategorie":"Lokale Modelle","repo":"ollama/ollama","zweck":"Modelle lokal starten"},
-{"kategorie":"Lokale Modelle","repo":"ggml-org/llama.cpp","zweck":"schnelle lokale Inferenz"},
-{"kategorie":"Lokale Modelle","repo":"open-webui/open-webui","zweck":"Oberflaeche fuer lokale Modelle"},
-{"kategorie":"Lokale Modelle","repo":"huggingface/transformers","zweck":"Standardbibliothek fuer Modelle"},
-{"kategorie":"Bedienung","repo":"browser-use/browser-use","zweck":"KI bedient den Browser"},
-{"kategorie":"Bedienung","repo":"microsoft/playwright","zweck":"Browser-Automatisierung"},
-{"kategorie":"Bedienung","repo":"n8n-io/n8n","zweck":"Ablaeufe zwischen Apps verbinden"},
-{"kategorie":"Bedienung","repo":"langgenius/dify","zweck":"KI-Ablaeufe per Baukasten"},
-{"kategorie":"Dokumente","repo":"docling-project/docling","zweck":"PDF und Office zu Daten"},
-{"kategorie":"Dokumente","repo":"tesseract-ocr/tesseract","zweck":"Texterkennung"},
-{"kategorie":"Dokumente","repo":"jsvine/pdfplumber","zweck":"Tabellen aus PDF"},
-{"kategorie":"Wissen","repo":"chroma-core/chroma","zweck":"Vektordatenbank, einfach"},
-{"kategorie":"Wissen","repo":"qdrant/qdrant","zweck":"Vektordatenbank, schnell"},
-{"kategorie":"Wissen","repo":"run-llama/llama_index","zweck":"Dokumente fuer Modelle erschliessen"},
-{"kategorie":"Medien","repo":"openai/whisper","zweck":"Sprache zu Text"},
-{"kategorie":"Medien","repo":"Comfy-Org/ComfyUI","zweck":"Bild-KI als Baukasten"},
-{"kategorie":"Medien","repo":"coqui-ai/TTS","zweck":"Text zu Sprache"},
-{"kategorie":"Medien","repo":"FFmpeg/FFmpeg","zweck":"Audio und Video umwandeln"},
-{"kategorie":"Web","repo":"shadcn-ui/ui","zweck":"Oberflaechen-Bausteine"},
-{"kategorie":"Web","repo":"fastapi/fastapi","zweck":"schnelle Python-Schnittstellen"},
-{"kategorie":"Web","repo":"streamlit/streamlit","zweck":"Daten-Apps in Python"},
-{"kategorie":"Wissenschaft","repo":"pandas-dev/pandas","zweck":"Tabellen-Daten"},
-{"kategorie":"Wissenschaft","repo":"scikit-learn/scikit-learn","zweck":"klassisches ML"},
-{"kategorie":"Wissenschaft","repo":"pytorch/pytorch","zweck":"neuronale Netze"},
-{"kategorie":"Wissenschaft","repo":"optuna/optuna","zweck":"Parametersuche"},
-{"kategorie":"Auswertung","repo":"EleutherAI/lm-evaluation-harness","zweck":"Modelle messen"},
-{"kategorie":"Auswertung","repo":"promptfoo/promptfoo","zweck":"Prompts testen"}
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "Aider-AI/aider",
+  "zweck": "KI-Programmierer im Terminal",
+  "sterne": 50220,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "cline/cline",
+  "zweck": "Coding-Agent in VS Code",
+  "sterne": 71824,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "OpenHands/OpenHands",
+  "zweck": "autonomer Software-Agent",
+  "sterne": 94074,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "continuedev/continue",
+  "zweck": "offener Coding-Assistent fuer IDEs",
+  "sterne": 36537,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "anthropics/claude-code",
+  "zweck": "Claude Code: Agent im Terminal (Anthropic)",
+  "sterne": 156685,
+  "lizenz": null
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "openai/codex",
+  "zweck": "Codex CLI: Coding-Agent im Terminal (OpenAI)",
+  "sterne": 136141,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "google-gemini/gemini-cli",
+  "zweck": "Gemini CLI: Agent im Terminal (Google)",
+  "sterne": 108999,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "anomalyco/opencode",
+  "zweck": "offener Coding-Agent im Terminal",
+  "sterne": 228579,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "SWE-agent/SWE-agent",
+  "zweck": "Agent, der GitHub-Issues selbst behebt",
+  "sterne": 20854,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "TabbyML/tabby",
+  "zweck": "selbst gehosteter Code-Assistent",
+  "sterne": 33928,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "zed-industries/zed",
+  "zweck": "Editor mit eingebauter KI",
+  "sterne": 95518,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Coding-Agenten",
+  "repo": "stackblitz/bolt.new",
+  "zweck": "Web-Apps aus einem Satz bauen",
+  "sterne": 16611,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Claude & Anthropic",
+  "repo": "anthropics/anthropic-sdk-python",
+  "zweck": "offizielles Python-SDK fuer Claude",
+  "sterne": 4096,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Claude & Anthropic",
+  "repo": "anthropics/anthropic-sdk-typescript",
+  "zweck": "offizielles TypeScript-SDK fuer Claude",
+  "sterne": 2185,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Claude & Anthropic",
+  "repo": "anthropics/claude-cookbooks",
+  "zweck": "Rezepte: Werkzeuge, RAG, Agenten mit Claude",
+  "sterne": 55044,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Claude & Anthropic",
+  "repo": "anthropics/skills",
+  "zweck": "Skills fuer Claude (Dokumente, Design, Code)",
+  "sterne": 198935,
+  "lizenz": null
+ },
+ {
+  "kategorie": "Claude & Anthropic",
+  "repo": "anthropics/claude-agent-sdk-python",
+  "zweck": "Claude Agent SDK fuer Python",
+  "sterne": 8621,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Claude & Anthropic",
+  "repo": "anthropics/claude-code-action",
+  "zweck": "Claude Code als GitHub Action",
+  "sterne": 10050,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Claude & Anthropic",
+  "repo": "anthropics/prompt-eng-interactive-tutorial",
+  "zweck": "interaktiver Prompting-Kurs",
+  "sterne": 39655,
+  "lizenz": null
+ },
+ {
+  "kategorie": "OpenAI & Co.",
+  "repo": "openai/openai-python",
+  "zweck": "offizielles Python-SDK fuer OpenAI",
+  "sterne": 32213,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "OpenAI & Co.",
+  "repo": "openai/openai-cookbook",
+  "zweck": "Rezepte fuer die OpenAI-API",
+  "sterne": 77366,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "OpenAI & Co.",
+  "repo": "openai/openai-agents-python",
+  "zweck": "Agents SDK von OpenAI",
+  "sterne": 30815,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "OpenAI & Co.",
+  "repo": "googleapis/python-genai",
+  "zweck": "offizielles Python-SDK fuer Gemini",
+  "sterne": 4087,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "OpenAI & Co.",
+  "repo": "google-gemini/cookbook",
+  "zweck": "Rezepte fuer die Gemini-API",
+  "sterne": 17966,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "OpenAI & Co.",
+  "repo": "mistralai/client-python",
+  "zweck": "offizielles Python-SDK fuer Mistral",
+  "sterne": 778,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "OpenAI & Co.",
+  "repo": "ollama/ollama-python",
+  "zweck": "Python-Zugang zu Ollama",
+  "sterne": 10734,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "modelcontextprotocol/servers",
+  "zweck": "Sammlung offizieller MCP-Server",
+  "sterne": 92162,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "modelcontextprotocol/python-sdk",
+  "zweck": "MCP-Server und -Clients in Python bauen",
+  "sterne": 24935,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "modelcontextprotocol/typescript-sdk",
+  "zweck": "MCP-Server und -Clients in TypeScript",
+  "sterne": 13803,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "modelcontextprotocol/modelcontextprotocol",
+  "zweck": "Spezifikation des Model Context Protocol",
+  "sterne": 9750,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "modelcontextprotocol/inspector",
+  "zweck": "MCP-Server testen und untersuchen",
+  "sterne": 11345,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "punkpeye/awesome-mcp-servers",
+  "zweck": "grosse Liste von MCP-Servern",
+  "sterne": 98392,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "PrefectHQ/fastmcp",
+  "zweck": "MCP-Server in wenigen Zeilen Python",
+  "sterne": 28712,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "github/github-mcp-server",
+  "zweck": "offizieller GitHub-MCP-Server",
+  "sterne": 34671,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "microsoft/playwright-mcp",
+  "zweck": "Browser-Steuerung als MCP-Server",
+  "sterne": 40009,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "MCP",
+  "repo": "upstash/context7",
+  "zweck": "aktuelle Bibliotheks-Doku fuer KIs per MCP",
+  "sterne": 65285,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "langchain-ai/langgraph",
+  "zweck": "Agenten als Graph",
+  "sterne": 45269,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "langchain-ai/langchain",
+  "zweck": "Baukasten fuer LLM-Anwendungen",
+  "sterne": 149987,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "crewAIInc/crewAI",
+  "zweck": "Rollen-Teams aus Agenten",
+  "sterne": 61173,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "stanfordnlp/dspy",
+  "zweck": "Prompts programmieren und optimieren",
+  "sterne": 39186,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "BerriAI/litellm",
+  "zweck": "ein Zugang zu ueber 100 Modell-Anbietern",
+  "sterne": 63709,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "huggingface/smolagents",
+  "zweck": "kleine Agenten, die Code schreiben",
+  "sterne": 30485,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "pydantic/pydantic-ai",
+  "zweck": "typsichere Agenten in Python",
+  "sterne": 21337,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "agno-agi/agno",
+  "zweck": "schnelle Multi-Agenten-Systeme",
+  "sterne": 43260,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "microsoft/semantic-kernel",
+  "zweck": "KI in Unternehmens-Apps einbauen",
+  "sterne": 28790,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "deepset-ai/haystack",
+  "zweck": "Pipelines fuer Suche und Agenten",
+  "sterne": 27077,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "letta-ai/letta",
+  "zweck": "Agenten mit Langzeitgedaechtnis",
+  "sterne": 25513,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "mastra-ai/mastra",
+  "zweck": "Agenten-Framework in TypeScript",
+  "sterne": 29740,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "vercel/ai",
+  "zweck": "AI SDK: Chat und Agenten in TypeScript",
+  "sterne": 28131,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "Significant-Gravitas/AutoGPT",
+  "zweck": "autonome Agenten-Plattform",
+  "sterne": 188134,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "FoundationAgents/MetaGPT",
+  "zweck": "Software-Firma aus Agenten",
+  "sterne": 71407,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "camel-ai/camel",
+  "zweck": "Rollenspiel-Agenten und Forschung",
+  "sterne": 18050,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "567-labs/instructor",
+  "zweck": "strukturierte Ausgaben aus LLMs",
+  "sterne": 14134,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "guidance-ai/guidance",
+  "zweck": "Modell-Ausgaben genau steuern",
+  "sterne": 21828,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Agenten-Frameworks",
+  "repo": "dottxt-ai/outlines",
+  "zweck": "garantiert gueltiges JSON/Regex",
+  "sterne": 16017,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Gedaechtnis",
+  "repo": "mem0ai/mem0",
+  "zweck": "Gedaechtnisschicht fuer KI-Agenten",
+  "sterne": 69348,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Gedaechtnis",
+  "repo": "getzep/graphiti",
+  "zweck": "Wissensgraph als Agenten-Gedaechtnis",
+  "sterne": 33002,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "ollama/ollama",
+  "zweck": "Modelle lokal starten",
+  "sterne": 187877,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "ggml-org/llama.cpp",
+  "zweck": "schnelle lokale Inferenz",
+  "sterne": 136106,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "open-webui/open-webui",
+  "zweck": "Chat-Oberflaeche fuer lokale Modelle",
+  "sterne": 159269,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "huggingface/transformers",
+  "zweck": "Standardbibliothek fuer Modelle",
+  "sterne": 169394,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "ml-explore/mlx",
+  "zweck": "maschinelles Lernen auf Apple-Chips",
+  "sterne": 29248,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "ml-explore/mlx-examples",
+  "zweck": "Beispiele: LLMs, Whisper, Bilder mit MLX",
+  "sterne": 9077,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "vllm-project/vllm",
+  "zweck": "schneller Modell-Server",
+  "sterne": 97354,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "sgl-project/sglang",
+  "zweck": "schnelle Ausfuehrung grosser Modelle",
+  "sterne": 38936,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "mudler/LocalAI",
+  "zweck": "OpenAI-kompatible API lokal",
+  "sterne": 50499,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "mozilla-ai/llamafile",
+  "zweck": "ein Modell als eine ausfuehrbare Datei",
+  "sterne": 26696,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "nomic-ai/gpt4all",
+  "zweck": "lokaler Chat auf jedem Rechner",
+  "sterne": 77327,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "janhq/jan",
+  "zweck": "Desktop-App fuer lokale Modelle",
+  "sterne": 46027,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "lobehub/lobehub",
+  "zweck": "Chat-Oberflaeche fuer viele Anbieter",
+  "sterne": 86001,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "mlc-ai/mlc-llm",
+  "zweck": "Modelle auf Handy und im Browser",
+  "sterne": 23494,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "exo-explore/exo",
+  "zweck": "eigener KI-Cluster aus Alltagsgeraeten",
+  "sterne": 48546,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lokale Modelle",
+  "repo": "oobabooga/textgen",
+  "zweck": "Web-Oberflaeche fuer lokale LLMs",
+  "sterne": 47737,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Chat-Oberflaechen",
+  "repo": "LibreChat-AI/LibreChat",
+  "zweck": "ChatGPT-artige Oberflaeche fuer alle Anbieter",
+  "sterne": 47418,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Chat-Oberflaechen",
+  "repo": "Mintplex-Labs/anything-llm",
+  "zweck": "Chat mit eigenen Dokumenten, alle Modelle",
+  "sterne": 68517,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Chat-Oberflaechen",
+  "repo": "ChatGPTNextWeb/NextChat",
+  "zweck": "schlanker Chat fuer viele Anbieter",
+  "sterne": 88988,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Chat-Oberflaechen",
+  "repo": "CherryHQ/cherry-studio",
+  "zweck": "Desktop-Client fuer viele KIs",
+  "sterne": 53752,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "browser-use/browser-use",
+  "zweck": "KI bedient den Browser",
+  "sterne": 121761,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "microsoft/playwright",
+  "zweck": "Browser automatisch steuern",
+  "sterne": 100813,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "n8n-io/n8n",
+  "zweck": "Arbeitsablaeufe automatisieren",
+  "sterne": 211824,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "langgenius/dify",
+  "zweck": "KI-Apps und Ablaeufe ohne Code",
+  "sterne": 161685,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "langflow-ai/langflow",
+  "zweck": "visueller Baukasten fuer Agenten",
+  "sterne": 156848,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "activepieces/activepieces",
+  "zweck": "Automatisierung, Zapier-Alternative",
+  "sterne": 25680,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "Skyvern-AI/skyvern",
+  "zweck": "Browser-Ablaeufe mit Bildverstehen",
+  "sterne": 23491,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "firecrawl/firecrawl",
+  "zweck": "Webseiten in LLM-fertigen Text",
+  "sterne": 206894,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "unclecode/crawl4ai",
+  "zweck": "Web-Crawler fuer LLMs",
+  "sterne": 87671,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "microsoft/OmniParser",
+  "zweck": "Bildschirm fuer Agenten lesbar machen",
+  "sterne": 25634,
+  "lizenz": "CC-BY-4.0"
+ },
+ {
+  "kategorie": "Bedienung",
+  "repo": "e2b-dev/E2B",
+  "zweck": "sichere Sandbox fuer KI-Code",
+  "sterne": 14967,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "chroma-core/chroma",
+  "zweck": "Vektordatenbank",
+  "sterne": 29726,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "qdrant/qdrant",
+  "zweck": "Vektordatenbank",
+  "sterne": 35664,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "run-llama/llama_index",
+  "zweck": "Daten an LLMs anschliessen (RAG)",
+  "sterne": 52982,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "weaviate/weaviate",
+  "zweck": "Vektordatenbank mit Suche",
+  "sterne": 16958,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "milvus-io/milvus",
+  "zweck": "Vektordatenbank fuer grosse Mengen",
+  "sterne": 46718,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "pgvector/pgvector",
+  "zweck": "Vektorsuche in PostgreSQL",
+  "sterne": 23779,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "facebookresearch/faiss",
+  "zweck": "schnelle Aehnlichkeitssuche",
+  "sterne": 41857,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "lancedb/lancedb",
+  "zweck": "eingebettete Vektordatenbank",
+  "sterne": 11968,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "microsoft/graphrag",
+  "zweck": "RAG mit Wissensgraph",
+  "sterne": 36722,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "infiniflow/ragflow",
+  "zweck": "RAG-Motor fuer tiefes Dokumentverstehen",
+  "sterne": 94540,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "HKUDS/LightRAG",
+  "zweck": "einfaches, schnelles Graph-RAG",
+  "sterne": 40815,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "huggingface/sentence-transformers",
+  "zweck": "Texte in Vektoren (Embeddings)",
+  "sterne": 19301,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "stanford-oval/storm",
+  "zweck": "Recherche-Artikel automatisch schreiben",
+  "sterne": 31929,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "assafelovic/gpt-researcher",
+  "zweck": "Agent fuer gruendliche Webrecherche",
+  "sterne": 30863,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissen",
+  "repo": "khoj-ai/khoj",
+  "zweck": "persoenlicher KI-Zweitverstand",
+  "sterne": 38208,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "docling-project/docling",
+  "zweck": "Dokumente fuer KI aufbereiten",
+  "sterne": 70877,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "microsoft/markitdown",
+  "zweck": "Dateien in Markdown umwandeln",
+  "sterne": 197850,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "tesseract-ocr/tesseract",
+  "zweck": "Texterkennung (OCR)",
+  "sterne": 77621,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "jsvine/pdfplumber",
+  "zweck": "Tabellen und Text aus PDF",
+  "sterne": 10920,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "Unstructured-IO/unstructured",
+  "zweck": "beliebige Dokumente zerlegen",
+  "sterne": 15771,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "datalab-to/marker",
+  "zweck": "PDF schnell in Markdown",
+  "sterne": 41018,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "opendatalab/MinerU",
+  "zweck": "PDF in Markdown/JSON, auch Formeln",
+  "sterne": 84144,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "PaddlePaddle/PaddleOCR",
+  "zweck": "starke Texterkennung, viele Sprachen",
+  "sterne": 93008,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "JaidedAI/EasyOCR",
+  "zweck": "einfache Texterkennung",
+  "sterne": 30161,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "camelot-dev/camelot",
+  "zweck": "Tabellen aus PDF",
+  "sterne": 3857,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "pymupdf/PyMuPDF",
+  "zweck": "PDF lesen, schreiben, bearbeiten",
+  "sterne": 11181,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "ocrmypdf/OCRmyPDF",
+  "zweck": "gescannte PDF durchsuchbar machen",
+  "sterne": 35374,
+  "lizenz": "MPL-2.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "jgm/pandoc",
+  "zweck": "Dokumente zwischen Formaten umwandeln",
+  "sterne": 47037,
+  "lizenz": "GPL-2.0"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "Stirling-Tools/Stirling-PDF",
+  "zweck": "PDF-Werkzeugkasten im Browser",
+  "sterne": 97237,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Dokumente",
+  "repo": "paperless-ngx/paperless-ngx",
+  "zweck": "Papierablage digital mit OCR",
+  "sterne": 48499,
+  "lizenz": "GPL-3.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "openai/whisper",
+  "zweck": "Sprache zu Text",
+  "sterne": 113369,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "SYSTRAN/faster-whisper",
+  "zweck": "schnelleres Whisper",
+  "sterne": 26948,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "ggml-org/whisper.cpp",
+  "zweck": "Whisper lokal ohne GPU",
+  "sterne": 55429,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "m-bain/whisperX",
+  "zweck": "Whisper mit Zeitstempeln und Sprechern",
+  "sterne": 25595,
+  "lizenz": "BSD-2-Clause"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "Comfy-Org/ComfyUI",
+  "zweck": "Bild- und Video-Erzeugung als Knotengraph",
+  "sterne": 148129,
+  "lizenz": "GPL-3.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "AUTOMATIC1111/stable-diffusion-webui",
+  "zweck": "Bilder erzeugen im Browser",
+  "sterne": 165370,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "lllyasviel/Fooocus",
+  "zweck": "einfache Bilderzeugung",
+  "sterne": 53968,
+  "lizenz": "GPL-3.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "invoke-ai/InvokeAI",
+  "zweck": "professionelle Bilderzeugung",
+  "sterne": 29145,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "huggingface/diffusers",
+  "zweck": "Bild-, Video-, Ton-Modelle",
+  "sterne": 34965,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "coqui-ai/TTS",
+  "zweck": "Text zu Sprache",
+  "sterne": 46269,
+  "lizenz": "MPL-2.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "OHF-Voice/piper1-gpl",
+  "zweck": "schnelle lokale Sprachausgabe",
+  "sterne": 6356,
+  "lizenz": "GPL-3.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "suno-ai/bark",
+  "zweck": "Sprache, Musik, Geraeusche aus Text",
+  "sterne": 39379,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "fishaudio/fish-speech",
+  "zweck": "Stimmen klonen und sprechen",
+  "sterne": 33833,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "RVC-Boss/GPT-SoVITS",
+  "zweck": "Stimme aus wenigen Sekunden Ton",
+  "sterne": 64195,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "myshell-ai/OpenVoice",
+  "zweck": "Stimmen klonen",
+  "sterne": 38305,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "facebookresearch/audiocraft",
+  "zweck": "Musik und Klang erzeugen",
+  "sterne": 23942,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "facebookresearch/segment-anything",
+  "zweck": "Objekte in Bildern ausschneiden",
+  "sterne": 55172,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "ultralytics/ultralytics",
+  "zweck": "Objekterkennung (YOLO)",
+  "sterne": 63668,
+  "lizenz": "AGPL-3.0"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "yt-dlp/yt-dlp",
+  "zweck": "Videos herunterladen",
+  "sterne": 209939,
+  "lizenz": "Unlicense"
+ },
+ {
+  "kategorie": "Medien",
+  "repo": "FFmpeg/FFmpeg",
+  "zweck": "Audio und Video umwandeln",
+  "sterne": 67971,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "hpcaitech/Open-Sora",
+  "zweck": "Video aus Text",
+  "sterne": 29947,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "Lightricks/LTX-Video",
+  "zweck": "schnelles Video-Modell",
+  "sterne": 11464,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "Tencent-Hunyuan/HunyuanVideo",
+  "zweck": "grosses offenes Video-Modell",
+  "sterne": 12820,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "Wan-Video/Wan2.1",
+  "zweck": "offenes Video-Modell",
+  "sterne": 17477,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "harry0703/MoneyPrinterTurbo",
+  "zweck": "Kurzvideos aus einem Thema",
+  "sterne": 145083,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "KlingAIResearch/LivePortrait",
+  "zweck": "Portraets animieren",
+  "sterne": 19555,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "OpenTalker/SadTalker",
+  "zweck": "sprechender Kopf aus Bild und Ton",
+  "sterne": 14213,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "remotion-dev/remotion",
+  "zweck": "Videos mit React programmieren",
+  "sterne": 74944,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "3b1b/manim",
+  "zweck": "Erklaervideos mit Mathematik",
+  "sterne": 96817,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Video",
+  "repo": "obsproject/obs-studio",
+  "zweck": "Aufnehmen und Streamen",
+  "sterne": 80022,
+  "lizenz": "GPL-2.0"
+ },
+ {
+  "kategorie": "Prompts",
+  "repo": "f/prompts.chat",
+  "zweck": "grosse Prompt-Sammlung",
+  "sterne": 178272,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Prompts",
+  "repo": "dair-ai/Prompt-Engineering-Guide",
+  "zweck": "Leitfaden Prompt-Technik",
+  "sterne": 80298,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Prompts",
+  "repo": "danielmiessler/Fabric",
+  "zweck": "Prompt-Muster fuer den Alltag",
+  "sterne": 44740,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Prompts",
+  "repo": "microsoft/promptflow",
+  "zweck": "Prompts entwickeln und testen",
+  "sterne": 11270,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Prompts",
+  "repo": "promptfoo/promptfoo",
+  "zweck": "Prompts und Modelle testen, Red-Teaming",
+  "sterne": 27545,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Prompts",
+  "repo": "x1xhlol/system-prompts-and-models-of-ai-tools",
+  "zweck": "Systemprompts bekannter KI-Werkzeuge",
+  "sterne": 144814,
+  "lizenz": "GPL-3.0"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "langfuse/langfuse",
+  "zweck": "LLM-Anwendungen beobachten und auswerten",
+  "sterne": 37726,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "Arize-ai/phoenix",
+  "zweck": "Tracing und Auswertung fuer LLMs",
+  "sterne": 12375,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "confident-ai/deepeval",
+  "zweck": "Tests fuer LLM-Ausgaben",
+  "sterne": 19593,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "vibrantlabsai/ragas",
+  "zweck": "RAG-Systeme bewerten",
+  "sterne": 16401,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "EleutherAI/lm-evaluation-harness",
+  "zweck": "Modelle mit Benchmarks messen",
+  "sterne": 14520,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "openai/evals",
+  "zweck": "Rahmen fuer Modell-Auswertungen",
+  "sterne": 19780,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "mlflow/mlflow",
+  "zweck": "Experimente und Modelle verwalten",
+  "sterne": 28930,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Auswertung",
+  "repo": "wandb/wandb",
+  "zweck": "Trainingslaeufe verfolgen",
+  "sterne": 11334,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Sicherheit",
+  "repo": "NVIDIA-NeMo/Guardrails",
+  "zweck": "Leitplanken fuer Chatbots",
+  "sterne": 7549,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Sicherheit",
+  "repo": "NVIDIA/garak",
+  "zweck": "LLM-Schwachstellen-Scanner",
+  "sterne": 10132,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Sicherheit",
+  "repo": "gitleaks/gitleaks",
+  "zweck": "geheime Schluessel im Code finden",
+  "sterne": 31255,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Sicherheit",
+  "repo": "semgrep/semgrep",
+  "zweck": "Code auf Fehler und Luecken pruefen",
+  "sterne": 17889,
+  "lizenz": "LGPL-2.1"
+ },
+ {
+  "kategorie": "Sicherheit",
+  "repo": "aquasecurity/trivy",
+  "zweck": "Container und Abhaengigkeiten pruefen",
+  "sterne": 39618,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "unslothai/unsloth",
+  "zweck": "Modelle schnell feinjustieren",
+  "sterne": 79982,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "hiyouga/LlamaFactory",
+  "zweck": "Feinjustieren von ueber 100 Modellen",
+  "sterne": 76203,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "axolotl-ai-cloud/axolotl",
+  "zweck": "Feinjustieren per Konfiguration",
+  "sterne": 12744,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "huggingface/trl",
+  "zweck": "Reinforcement Learning fuer Sprachmodelle",
+  "sterne": 19794,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "huggingface/peft",
+  "zweck": "sparsames Feinjustieren (LoRA)",
+  "sterne": 21916,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "huggingface/datasets",
+  "zweck": "Datensaetze laden und teilen",
+  "sterne": 22179,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "karpathy/nanoGPT",
+  "zweck": "GPT verstehen und selbst trainieren",
+  "sterne": 65015,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "karpathy/llm.c",
+  "zweck": "LLM-Training in reinem C",
+  "sterne": 31525,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "deepspeedai/DeepSpeed",
+  "zweck": "grosse Modelle effizient trainieren",
+  "sterne": 43351,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Training",
+  "repo": "Lightning-AI/pytorch-lightning",
+  "zweck": "PyTorch ohne Boilerplate",
+  "sterne": 31469,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "rasbt/LLMs-from-scratch",
+  "zweck": "ein LLM Schritt fuer Schritt selbst bauen",
+  "sterne": 108836,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "karpathy/nn-zero-to-hero",
+  "zweck": "neuronale Netze von null",
+  "sterne": 25921,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "microsoft/generative-ai-for-beginners",
+  "zweck": "Kurs generative KI (21 Lektionen)",
+  "sterne": 124014,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "microsoft/ai-agents-for-beginners",
+  "zweck": "Kurs KI-Agenten",
+  "sterne": 80762,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "microsoft/ML-For-Beginners",
+  "zweck": "Kurs maschinelles Lernen",
+  "sterne": 92403,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "mlabonne/llm-course",
+  "zweck": "Kurs LLMs mit Fahrplan",
+  "sterne": 85178,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "huggingface/agents-course",
+  "zweck": "Kurs Agenten von Hugging Face",
+  "sterne": 35313,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "labmlai/annotated_deep_learning_paper_implementations",
+  "zweck": "beruehmte Papers erklaert als Code",
+  "sterne": 67781,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "Shubhamsaboo/awesome-llm-apps",
+  "zweck": "viele fertige LLM-App-Beispiele",
+  "sterne": 145415,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "e2b-dev/awesome-ai-agents",
+  "zweck": "Liste von KI-Agenten",
+  "sterne": 31028,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "Hannibal046/Awesome-LLM",
+  "zweck": "Liste rund um LLMs",
+  "sterne": 27516,
+  "lizenz": "CC0-1.0"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "josephmisiti/awesome-machine-learning",
+  "zweck": "Liste maschinelles Lernen",
+  "sterne": 74882,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Lernen",
+  "repo": "github/gitignore",
+  "zweck": "Vorlagen fuer .gitignore",
+  "sterne": 176427,
+  "lizenz": "CC0-1.0"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "cli/cli",
+  "zweck": "GitHub auf der Kommandozeile (gh)",
+  "sterne": 47148,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "git/git",
+  "zweck": "Versionsverwaltung Git",
+  "sterne": 64473,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "astral-sh/uv",
+  "zweck": "sehr schneller Python-Paketmanager",
+  "sterne": 92616,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "astral-sh/ruff",
+  "zweck": "sehr schneller Python-Linter",
+  "sterne": 51443,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "pre-commit/pre-commit",
+  "zweck": "Pruefungen vor jedem Commit",
+  "sterne": 15711,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "docker/compose",
+  "zweck": "mehrere Container zusammen starten",
+  "sterne": 39128,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "nektos/act",
+  "zweck": "GitHub Actions lokal ausfuehren",
+  "sterne": 72763,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "jesseduffield/lazygit",
+  "zweck": "Git im Terminal bedienen",
+  "sterne": 84013,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "junegunn/fzf",
+  "zweck": "unscharfe Suche im Terminal",
+  "sterne": 84345,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "BurntSushi/ripgrep",
+  "zweck": "schnelle Textsuche im Code",
+  "sterne": 70140,
+  "lizenz": "Unlicense"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "Textualize/rich",
+  "zweck": "schoene Terminal-Ausgaben",
+  "sterne": 57848,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Entwicklung",
+  "repo": "fastapi/typer",
+  "zweck": "Kommandozeilen-Apps in Python",
+  "sterne": 20410,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "shadcn-ui/ui",
+  "zweck": "Oberflaechen-Bausteine",
+  "sterne": 128758,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "vercel/next.js",
+  "zweck": "React-Framework",
+  "sterne": 143606,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "supabase/supabase",
+  "zweck": "Datenbank und Backend",
+  "sterne": 115339,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "fastapi/fastapi",
+  "zweck": "Python-API-Server",
+  "sterne": 105047,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "streamlit/streamlit",
+  "zweck": "Daten-Apps in Python",
+  "sterne": 46481,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "gradio-app/gradio",
+  "zweck": "KI-Demos mit Oberflaeche",
+  "sterne": 44127,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "reflex-dev/reflex",
+  "zweck": "Web-Apps in reinem Python",
+  "sterne": 29046,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "tailwindlabs/tailwindcss",
+  "zweck": "CSS-Werkzeugkasten",
+  "sterne": 98707,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "vitejs/vite",
+  "zweck": "schnelles Frontend-Werkzeug",
+  "sterne": 84039,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "tauri-apps/tauri",
+  "zweck": "Desktop-Apps klein und schnell",
+  "sterne": 113148,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "electron/electron",
+  "zweck": "Desktop-Apps mit Web-Technik",
+  "sterne": 124057,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Web-Bausteine",
+  "repo": "expo/expo",
+  "zweck": "Handy-Apps mit React Native",
+  "sterne": 53722,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Daten",
+  "repo": "duckdb/duckdb",
+  "zweck": "schnelle Analyse-Datenbank",
+  "sterne": 43241,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Daten",
+  "repo": "pola-rs/polars",
+  "zweck": "schnelle Tabellen-Bibliothek",
+  "sterne": 40438,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Daten",
+  "repo": "apache/superset",
+  "zweck": "Dashboards und Datenanalyse",
+  "sterne": 75622,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Daten",
+  "repo": "metabase/metabase",
+  "zweck": "Fragen an Daten ohne Code",
+  "sterne": 50477,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Daten",
+  "repo": "sinaptik-ai/pandas-ai",
+  "zweck": "mit Tabellen in Alltagssprache reden",
+  "sterne": 23963,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "numpy/numpy",
+  "zweck": "Rechnen mit Arrays",
+  "sterne": 33454,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "scipy/scipy",
+  "zweck": "wissenschaftliches Rechnen",
+  "sterne": 15240,
+  "lizenz": "BSD-3-Clause"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "pandas-dev/pandas",
+  "zweck": "Tabellen und Datenanalyse",
+  "sterne": 50601,
+  "lizenz": "BSD-3-Clause"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "scikit-learn/scikit-learn",
+  "zweck": "klassisches maschinelles Lernen",
+  "sterne": 68291,
+  "lizenz": "BSD-3-Clause"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "pytorch/pytorch",
+  "zweck": "Deep-Learning-Framework",
+  "sterne": 105826,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "jax-ml/jax",
+  "zweck": "schnelles numerisches Rechnen",
+  "sterne": 36670,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "sympy/sympy",
+  "zweck": "symbolische Mathematik",
+  "sterne": 15120,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "leanprover/lean4",
+  "zweck": "Beweise pruefen",
+  "sterne": 10219,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "google/or-tools",
+  "zweck": "Optimierung und Planung",
+  "sterne": 14429,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "optuna/optuna",
+  "zweck": "Parameter automatisch abstimmen",
+  "sterne": 15074,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "rdkit/rdkit",
+  "zweck": "Chemie-Informatik",
+  "sterne": 3703,
+  "lizenz": "BSD-3-Clause"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "biopython/biopython",
+  "zweck": "Biologie-Werkzeuge",
+  "sterne": 5277,
+  "lizenz": "NOASSERTION"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "astropy/astropy",
+  "zweck": "Astronomie",
+  "sterne": 5436,
+  "lizenz": "BSD-3-Clause"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "deepchem/deepchem",
+  "zweck": "KI fuer Chemie und Medizin",
+  "sterne": 7154,
+  "lizenz": "MIT"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "google-deepmind/alphafold",
+  "zweck": "Proteinstrukturen vorhersagen",
+  "sterne": 14949,
+  "lizenz": "Apache-2.0"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "jupyter/notebook",
+  "zweck": "Notizbuecher fuer Code",
+  "sterne": 13479,
+  "lizenz": "BSD-3-Clause"
+ },
+ {
+  "kategorie": "Wissenschaft",
+  "repo": "jupyterlab/jupyterlab",
+  "zweck": "Arbeitsumgebung fuer Notizbuecher",
+  "sterne": 15416,
+  "lizenz": "BSD-3-Clause"
+ }
 ]

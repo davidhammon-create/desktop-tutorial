@@ -47,8 +47,8 @@ def db():
     (verfassung.HEIM / "module").mkdir(exist_ok=True)
     c = sqlite3.connect(verfassung.HEIM / "koordinat.db")
     c.executescript(SCHEMA)
-    if not c.execute("SELECT 1 FROM katalog LIMIT 1").fetchone():
-        start = json.loads((pathlib.Path(__file__).parent / "katalog.json").read_text())
+    start = json.loads((pathlib.Path(__file__).parent / "katalog.json").read_text())
+    if c.execute("SELECT COUNT(*) FROM katalog WHERE quelle='start'").fetchone()[0] < len(start):   # neue Eintraege ergaenzen
         c.executemany("INSERT OR IGNORE INTO katalog(repo,kategorie,zweck,quelle,zeit) VALUES(?,?,?,?,?)",
                       [(e["repo"], e["kategorie"], e["zweck"], "start", time.time()) for e in start])
     c.commit()
@@ -82,4 +82,4 @@ def profil_zaehle(db, art):
     db.commit()
 def profil(db, n=5):
     return [dict(art=r[0], anzahl=r[1]) for r in db.execute(
-        "SELECT art, anzahl FROM profil ORDER BY anzahl DESC LIMIT ?", (n,))]
+        "SELECT art, anzahl FROM profil ORDER BY anzahl DESC, zeit DESC LIMIT ?", (n,))]

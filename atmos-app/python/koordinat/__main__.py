@@ -17,7 +17,10 @@ HILFE = """KOORDINAT 2.1
   schalter [name an|aus] | algorithmen [zuruecksetzen <name>]
   api [liste|ampel|eintragen|waehle|verbrauch|budget] ...
   los "<anliegen>" | weiter-leitfaden | leitfaden
-  verfassung | entwicklung [an|aus] | stop | fortsetzen"""
+  verfassung | entwicklung [an|aus] | stop | fortsetzen
+  ALLE KIs: anbieter [<id> modell <name>|basis <url>|standard] | effort <aus|low|medium|high|xhigh|max>
+            schluessel <anbieter> | modelle <anbieter> | frage "<text>" [--anbieter id] [--modell m] [--effort e] [--alle]
+  befehle [werkzeug|suchwort]   Befehle und Regler aller KI-Werkzeuge (Claude Code, Codex, Gemini CLI, Aider ...)"""
 def bericht(r):
     if r.get("status") != "ok":
         return r["status"]
@@ -94,6 +97,10 @@ def main(argv):
     if b == "mcp":
         from . import mcp_server
         mcp_server.main()
+        return
+    if b in ("anbieter", "effort", "schluessel", "modelle", "frage", "befehle"):
+        from . import ki_befehle
+        ki_befehle.main(b, argv[1:])
         return
     if verfassung.stop_gesetzt() and b != "vital":
         print("STOP gesetzt. 'fortsetzen' hebt auf.")

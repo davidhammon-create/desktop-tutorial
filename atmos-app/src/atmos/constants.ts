@@ -5,16 +5,16 @@ import type {
   ZyklusSchritt,
   KristallArt,
 } from "./types";
-export const ATMOS_VERSION = "0.1.0";
+export const ATMOS_VERSION = "0.2.0";
 export const KOORDINAT_VERSION = "2.1";
 export const GESETZE: Gesetz[] = [
   { nr: 1, titel: "Rechne nie zweimal", text: "Verifizierte Ergebnisse und Wege speichern." },
-  { nr: 2, titel: "Billigster korrekter Weg zuerst", text: "Cache ? Algorithmus ? klein ? groß ? Ensemble." },
+  { nr: 2, titel: "Billigster korrekter Weg zuerst", text: "Cache → Algorithmus → klein → groß → Ensemble." },
   { nr: 3, titel: "Nur Geprüftes wird fest", text: "Kristalle nur nach unabhängigen Tests." },
   { nr: 4, titel: "Langsam erlaubt, wenn messbar besser", text: "Mehr Aufwand nur bei nachgewiesenem Nutzen." },
   { nr: 5, titel: "Alles ist ein Modul", text: "Gleiche Schnittstelle, Ein/Aus durch den Menschen." },
   { nr: 6, titel: "Alles ist versioniert", text: "Rollback jederzeit möglich." },
-  { nr: 7, titel: "Fremder Code nie ungeschützt", text: "Sandbox ? lesen, nicht blind ausführen." },
+  { nr: 7, titel: "Fremder Code nie ungeschützt", text: "Sandbox → lesen, nicht blind ausführen." },
   { nr: 8, titel: "Kein Selbstlob", text: "Wer löst, prüft nicht." },
   { nr: 9, titel: "Mensch hält den Schlüssel", text: "Geld, Löschen, Senden, Kernänderungen brauchen Freigabe." },
 ];
@@ -50,7 +50,7 @@ export const ZYKLUS: ZyklusSchritt[] = [
   { nr: 8, name: "Prüfen", kurz: "unabhängige Prüfer" },
   { nr: 9, name: "Angreifen", kurz: "Widerlegung" },
   { nr: 10, name: "Auswählen", kurz: "Champion" },
-  { nr: 11, name: "Kristallisieren", kurz: "K1?K5" },
+  { nr: 11, name: "Kristallisieren", kurz: "K1–K5" },
   { nr: 12, name: "Meta-Lernen", kurz: "Router / Triage" },
 ];
 export const KRISTALL_ARTEN: Record<KristallArt, string> = {
@@ -67,6 +67,6 @@ export const EFFORT_LABELS: Record<number, string> = {
   3: "Kristall",
   4: "Klein",
   5: "Groß",
-  6: "Ensemble",
+  6: "Ensemble (alle KIs)",
 };
 export const STORAGE_KEY = "atmos.koordinat.state.v1";

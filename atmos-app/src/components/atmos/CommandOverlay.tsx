@@ -1,9 +1,15 @@
-import { COMMANDS, type CommandDef } from "@/atmos/commands";
+import { COMMANDS, COMMAND_GRUPPEN, standardKi, type CommandDef } from "@/atmos/commands";
+import { kiKonfig, kiUebersicht } from "@/atmos/anbieter";
+import { KATALOG } from "@/atmos/katalog";
 import { EFFORT_LABELS, KOORDINAT_VERSION } from "@/atmos/constants";
 import { useAtmos, type AtmosPanel } from "@/atmos/provider";
 import {
+  BookOpen,
+  Bot,
   Boxes,
   Compass,
+  Library,
+  MessagesSquare,
   Gem,
   Hammer,
   HeartPulse,
@@ -21,8 +27,15 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { SettingsPanel } from "./SettingsPanel";
+import { KiPanel } from "./KiPanel";
+import { KatalogPanel } from "./KatalogPanel";
+import { ReferenzPanel } from "./ReferenzPanel";
 type OverlayNav =
   | "entdecken"
+  | "chat"
+  | "kis"
+  | "katalog"
+  | "referenz"
   | "befehle"
   | "module"
   | "arbeit"
@@ -33,7 +46,11 @@ type OverlayNav =
   | "einstellungen";
 const NAV: { id: OverlayNav; label: string; icon: ReactNode; panel?: AtmosPanel }[] = [
   { id: "entdecken", label: "Entdecken", icon: <Star size={15} strokeWidth={1.75} /> },
+  { id: "chat", label: "Chat", icon: <MessagesSquare size={15} strokeWidth={1.75} /> },
+  { id: "kis", label: "KIs", icon: <Bot size={15} strokeWidth={1.75} />, panel: "kis" },
   { id: "befehle", label: "Befehle", icon: <Terminal size={15} strokeWidth={1.75} /> },
+  { id: "referenz", label: "Referenz", icon: <BookOpen size={15} strokeWidth={1.75} />, panel: "referenz" },
+  { id: "katalog", label: "Katalog", icon: <Library size={15} strokeWidth={1.75} />, panel: "katalog" },
   { id: "arbeit", label: "Arbeit", icon: <Rocket size={15} strokeWidth={1.75} />, panel: "arbeit" },
   { id: "module", label: "Module", icon: <Boxes size={15} strokeWidth={1.75} />, panel: "module" },
   { id: "kristalle", label: "Kristalle", icon: <Gem size={15} strokeWidth={1.75} />, panel: "kristalle" },
@@ -49,27 +66,10 @@ const FEATURED: {
   cmd: string;
   tone: "copper" | "teal" | "violet" | "blue";
 }[] = [
-  {
-    eyebrow: "UNSERE LIEBLINGS-BEFEHLE",
-    title: "Mach es einfach",
-    subtitle: "Freien Auftrag planen und starten",
-    cmd: "/mach ",
-    tone: "copper",
-  },
-  {
-    eyebrow: "ROUTER",
-    title: "Effort richtig setzen",
-    subtitle: "Aufwand-Stufe 0?6 für die Kaskade",
-    cmd: "/effort 4",
-    tone: "teal",
-  },
-  {
-    eyebrow: "GITHUB",
-    title: "Module finden",
-    subtitle: "Katalog durchsuchen und einbetten",
-    cmd: "/suche ",
-    tone: "violet",
-  },
+  { eyebrow: "ALLE KIs", title: "Alle fragen, vergleichen", subtitle: "Dieselbe Frage parallel an jede verbundene KI", cmd: "/alle ", tone: "copper" },
+  { eyebrow: "EFFORT", title: "Denktiefe setzen", subtitle: "aus · low · medium · high · xhigh · max – für jede KI", cmd: "/effort high", tone: "teal" },
+  { eyebrow: "GITHUB", title: `${KATALOG.length} geprüfte Repos`, subtitle: "Katalog nach Kategorie durchsuchen und einbetten", cmd: "/katalog ", tone: "violet" },
+  { eyebrow: "AUFTRAG", title: "Mach es einfach", subtitle: "Freien Auftrag planen und starten", cmd: "/mach ", tone: "blue" },
 ];
 const ICON_FOR: Record<string, ReactNode> = {
   effort: <Hammer size={20} />,
@@ -88,6 +88,15 @@ const ICON_FOR: Record<string, ReactNode> = {
   verfassung: <Scale size={20} />,
   trace: <Terminal size={20} />,
   hilfe: <Star size={20} />,
+  frage: <MessagesSquare size={20} />,
+  alle: <Bot size={20} />,
+  neu: <X size={20} />,
+  anbieter: <Bot size={20} />,
+  modell: <Settings2 size={20} />,
+  modelle: <LayoutGrid size={20} />,
+  befehle: <BookOpen size={20} />,
+  katalog: <Library size={20} />,
+  google: <Search size={20} />,
 };
 const TONE_CLASS: Record<string, string> = {
   copper: "atmos-ov__feature--copper",
@@ -143,11 +152,16 @@ function CommandRow({
   );
 }
 export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
-  const { run, state, setPanel, pendingFreigabe, refreshGoogle } = useAtmos();
+  const { run, state, setPanel, pendingFreigabe, refreshGoogle, lastResult, denkt } = useAtmos();
+  const [antwortZu, setAntwortZu] = useState(false);
+  useEffect(() => setAntwortZu(false), [lastResult]);
+  const kis = kiUebersicht();
+  const stdKi = standardKi();
   const [nav, setNav] = useState<OverlayNav>("entdecken");
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState<"befehle" | "module">("befehle");
   const searchRef = useRef<HTMLInputElement>(null);
+  const composerRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -187,6 +201,7 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
   };
   const selectNav = (id: OverlayNav) => {
     setNav(id);
+    setAntwortZu(true);
     const item = NAV.find((n) => n.id === id);
     if (item?.panel) setPanel(item.panel);
   };
@@ -316,23 +331,53 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                   {nav === "befehle" && (
                     <>
                       <p className="atmos-ov__lede">
-                        Eingebaute KOORDINAT-Commands ? tippe oder lade direkt.
+                        {COMMANDS.length} AtmOS-Befehle – laden führt direkt aus, Tippen füllt die Eingabe. Alles ohne / ist ein Auftrag (/mach).
                       </p>
-                      <div className="atmos-ov__grid">
-                        {(query ? filtered : COMMANDS).map((c) => (
-                          <CommandRow
-                            key={c.id}
-                            cmd={c}
-                            onRun={submit}
-                            onFill={(v) => setQuery(v)}
-                          />
-                        ))}
-                      </div>
+                      {COMMAND_GRUPPEN.map((g) => {
+                        const liste = (query ? filtered : COMMANDS).filter((c) => c.gruppe === g);
+                        if (!liste.length) return null;
+                        return (
+                          <div key={g}>
+                            <h3 className="atmos-ov__group-label">{g}</h3>
+                            <div className="atmos-ov__grid">
+                              {liste.map((c) => (
+                                <CommandRow key={c.id} cmd={c} onRun={submit} onFill={(v) => setQuery(v)} />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
                       {query && filtered.length === 0 && (
-                        <p className="atmos-ov__empty">Keine Treffer für ?{query}?.</p>
+                        <p className="atmos-ov__empty">Keine Treffer für „{query}“.</p>
                       )}
                     </>
                   )}
+                  {nav === "chat" && (
+                    <>
+                      <p className="atmos-ov__lede">
+                        {stdKi ? <>Standard-KI: <strong>{kiKonfig(stdKi).name}</strong> · {kiKonfig(stdKi).modell} · Denktiefe {state.modellEffort}</> : "Noch keine KI verbunden – unter KIs einen Schlüssel eintragen oder Ollama einschalten."}
+                        {" "}Schreib unten mit <code>/frage …</code>, an alle mit <code>/alle …</code>; <code>@gemini</code> oder <code>--effort max</code> gelten je Frage.
+                      </p>
+                      <div className="atmos-chat">
+                        {state.gespraech.map((m, i) => (
+                          <div key={i} className="atmos-chat__msg" data-rolle={m.role}>
+                            {m.role === "assistant" && m.anbieter ? <span className="atmos-ov__meta">{kiKonfig(m.anbieter).name}</span> : null}
+                            {m.content}
+                          </div>
+                        ))}
+                        {state.gespraech.length === 0 && <p className="atmos-ov__empty">Noch kein Gespräch.</p>}
+                      </div>
+                      <div className="atmos-ki__aktionen">
+                        <button type="button" className="atmos-ov__pill" onClick={() => { setQuery("/frage "); window.setTimeout(() => composerRef.current?.focus(), 0); }}>Fragen</button>
+                        <button type="button" className="atmos-ov__pill" onClick={() => { setQuery("/alle "); window.setTimeout(() => composerRef.current?.focus(), 0); }}>Alle fragen</button>
+                        <button type="button" className="atmos-ov__pill-ghost" onClick={() => submit("/neu")}>Gespräch leeren</button>
+                        <button type="button" className="atmos-ov__pill-ghost" onClick={() => selectNav("kis")}>KIs verwalten</button>
+                      </div>
+                    </>
+                  )}
+                  {nav === "kis" && <KiPanel />}
+                  {nav === "katalog" && <KatalogPanel />}
+                  {nav === "referenz" && <ReferenzPanel onTippen={(b) => { setQuery(`${b} `); composerRef.current?.focus(); }} />}
                   {nav === "module" && (
                     <>
                       <div className="atmos-ov__section-head">
@@ -350,7 +395,7 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                             <div className="atmos-ov__row-text">
                               <strong>{m.name}</strong>
                               <span>
-                                {m.kategorie} ? Score {m.score} ? {m.status.toUpperCase()}
+                                {m.kategorie} · Score {m.score} · {m.status.toUpperCase()}
                               </span>
                             </div>
                             <div className="atmos-ov__row-actions">
@@ -381,7 +426,7 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                           <span className="atmos-ov__eyebrow">AUFTRAG</span>
                           <strong>Neuen Lauf starten</strong>
                           <span>Freier Auftrag mit Freigabe-Stops</span>
-                          <code>/mach ?</code>
+                          <code>/mach …</code>
                         </button>
                         <button
                           type="button"
@@ -432,10 +477,10 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                             </div>
                             <div className="atmos-ov__row-text">
                               <strong>
-                                {k.art} ? {k.titel}
+                                {k.art} · {k.titel}
                               </strong>
                               <span>
-                                {k.status} ? {k.treffer} Treffer
+                                {k.status} · {k.treffer} Treffer
                               </span>
                             </div>
                           </div>
@@ -445,7 +490,7 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                   )}
                   {nav === "verfassung" && (
                     <>
-                      <p className="atmos-ov__lede">Geschützter Kern ? Mensch hält den Schlüssel.</p>
+                      <p className="atmos-ov__lede">Geschützter Kern – Mensch hält den Schlüssel.</p>
                       <h3 className="atmos-ov__group-label">Gesetze</h3>
                       <ul className="atmos-ov__settings">
                         {[
@@ -460,10 +505,10 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                             </span>
                             <div>
                               <strong>{title}</strong>
-                              <span>Verfassung ? {nr}</span>
+                              <span>Verfassung · {nr}</span>
                             </div>
                             <span className="atmos-ov__chevron" aria-hidden>
-                              ?
+                              ›
                             </span>
                           </li>
                         ))}
@@ -492,14 +537,14 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                           </span>
                           <div>
                             <strong>
-                              Stufe {state.effort} ? {EFFORT_LABELS[state.effort]}
+                              Stufe {state.effort} · {EFFORT_LABELS[state.effort]}
                             </strong>
                             <span>Router-Cap</span>
                           </div>
                         </li>
                         <li>
                           <span className="atmos-ov__settings-icon" data-tone={state.stop ? "stop" : "ok"}>
-                            {state.stop ? "!" : "?"}
+                            {state.stop ? "!" : "✓"}
                           </span>
                           <div>
                             <strong>STOP {state.stop ? "AN" : "aus"}</strong>
@@ -512,6 +557,16 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                           >
                             {state.stop ? "Fortsetzen" : "Stop"}
                           </button>
+                        </li>
+                        <li>
+                          <span className="atmos-ov__settings-icon" data-tone={kis.some((k) => k.bereit) ? "ok" : "effort"}>
+                            <Bot size={14} />
+                          </span>
+                          <div>
+                            <strong>{kis.filter((k) => k.bereit).length} von {kis.length} KIs bereit</strong>
+                            <span>Standard {stdKi ?? "–"} · Denktiefe {state.modellEffort}</span>
+                          </div>
+                          <button type="button" className="atmos-ov__pill" onClick={() => selectNav("kis")}>KIs</button>
                         </li>
                         {pendingFreigabe && (
                           <li>
@@ -582,7 +637,7 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                                   <strong>{m.name}</strong>
                                   <span>{m.zweck}</span>
                                   <span className="atmos-ov__meta">
-                                    {m.status.toUpperCase()} ? ?{m.sterne}
+                                    {m.status.toUpperCase()} · ★ {m.sterne.toLocaleString("de")}
                                   </span>
                                 </div>
                                 <button
@@ -598,11 +653,27 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                     </>
                   )}
                 </div>
+                {(denkt || (lastResult && !antwortZu)) && (
+                  <div className="atmos-antwort" data-ok={lastResult?.ok ?? true} aria-live="polite">
+                    <div className="atmos-antwort__kopf">
+                      <span>{denkt ? "KI denkt …" : lastResult?.ok ? "Antwort" : "Hinweis"}</span>
+                      {!denkt && lastResult && (
+                        <span>
+                          <button type="button" className="atmos-ov__pill-ghost" onClick={() => void navigator.clipboard?.writeText(lastResult.message).catch(() => undefined)}>Kopieren</button>
+                          <button type="button" className="atmos-ov__close" onClick={() => setAntwortZu(true)} aria-label="Antwort schließen"><X size={14} /></button>
+                        </span>
+                      )}
+                    </div>
+                    {lastResult && <pre className="atmos-antwort__text">{lastResult.message}</pre>}
+                    {denkt && <div className="atmos-antwort__laden" aria-hidden />}
+                  </div>
+                )}
                 <footer className="atmos-ov__composer">
                   <span className="atmos-ov__prompt" aria-hidden>
-                    ?
+                    ›
                   </span>
                   <input
+                    ref={composerRef}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={(e) => {
@@ -611,7 +682,7 @@ export function CommandOverlay(_props: { autofocus?: boolean } = {}) {
                         submit();
                       }
                     }}
-                    placeholder="/effort  /suche  /mach  ? Enter ausführen"
+                    placeholder="Frag oder befiehl: /frage  /alle  /effort high  /katalog  /mach … – Enter"
                     aria-label="Befehl eingeben"
                     disabled={
                       state.stop &&

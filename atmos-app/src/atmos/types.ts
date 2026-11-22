@@ -1,3 +1,4 @@
+import type { ModellEffort } from "./anbieter";
 export type RouterStufe = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type KristallArt = "K1" | "K2" | "K3" | "K4" | "K5";
 export type KristallStatus = "schatten" | "aktiv" | "verfallen";
@@ -122,6 +123,10 @@ export interface AtmosState {
   kostenCent: number;
   budgetCent: number;
   effort: RouterStufe;
+  /** Denktiefe der Modelle: aus · low · medium · high · xhigh · max (je Anbieter übersetzt) */
+  modellEffort: ModellEffort;
+  /** Laufendes Gespräch mit der Standard-KI (/frage); /neu leert es */
+  gespraech: { role: "user" | "assistant"; content: string; anbieter?: string }[];
   module: Modul[];
   kristalle: Kristall[];
   laeufe: Lauf[];
@@ -136,4 +141,6 @@ export interface CommandResult {
   message: string;
   needsFreigabe?: FreigabeAnfrage;
   navigate?: string;
+  /** Asynchrone Folgeaktion, die der Provider ausführt (KI-Anfrage, Modellliste) */
+  async?: { art: "frage" | "alle" | "modelle"; text?: string; anbieter?: string; modell?: string; effort?: ModellEffort; gespraech?: boolean };
 }

@@ -1,3 +1,38 @@
+# AtmOS 0.2 – alle KIs, alle Befehle, alle Werkzeuge in einer App
+
+AtmOS ist die Oberfläche (React/Vite, auch als Electron-Desktop-App) über der Koordinationsschicht KOORDINAT 2.1
+(`python/`). Dieser Stand wurde aus `AtmOS-GANZER-CODE.pdf` vollständig zurückgewonnen und erweitert.
+
+## Starten
+```bash
+npm install --legacy-peer-deps
+npm run dev            # http://localhost:8080
+npm test               # Vitest
+npm run electron:dev   # Desktop-App
+```
+Ohne `.env` läuft alles im Demo-Modus (vorher stoppte eine fehlende Supabase-Adresse die ganze App).
+
+## Neu in 0.2
+| Bereich | Was | Befehl |
+|---|---|---|
+| **KIs** | 15 Anbieter: Claude, OpenAI, Gemini, Mistral, DeepSeek, xAI, Groq, OpenRouter, Together, Perplexity, Fireworks, Cerebras, Ollama, LM Studio, eigener OpenAI-kompatibler Server. Schlüssel, Modell, Test, Modellliste je Anbieter. | Navigation → KIs, `/anbieter` |
+| **Chat** | Gespräch mit der Standard-KI, `@gemini` oder `--effort max` je Frage | `/frage …`, `/neu` |
+| **Alle KIs** | dieselbe Frage parallel an jede verbundene KI | `/alle …` |
+| **Effort** | Denktiefe `aus · low · medium · high · xhigh · max`, je Anbieter übersetzt (Claude `output_config.effort`, OpenAI `reasoning_effort`, Gemini `thinkingBudget`, OpenRouter `reasoning.effort`). Router-Stufe 0–6 bleibt: ab 4 plant bei `/mach` eine echte KI, bei 6 alle. | `/effort high`, `/effort 6` |
+| **Katalog** | 236 gegen GitHub geprüfte Repos in 22 Kategorien mit echten Sternzahlen und Lizenzen (vorher 35 mit erfundenen Werten) | Navigation → Katalog, `/katalog MCP` |
+| **Referenz** | 208 Befehle und Regler: Claude Code, Codex CLI, Gemini CLI, Aider, Cursor, Ollama, llama.cpp, APIs, MCP, Git/GitHub, Prompting | Navigation → Referenz, `/befehle effort` |
+| **Antwortkarte** | Ergebnisse jedes Befehls werden angezeigt (vorher landeten sie nur in der Spur) | – |
+| **Handy** | Navigation als Leiste, keine Lücke mehr | – |
+
+Schlüssel liegen nur lokal (localStorage bzw. Electron-Profil) und gehen nur an den jeweiligen Anbieter. Fragen kosten
+dort Geld. Claude-Modelle der 5er-Reihe schicken den serverseitigen Fallback mit (`fallbacks: "default"`).
+Lokale Dienste brauchen eine CORS-Freigabe, z. B. `OLLAMA_ORIGINS=* ollama serve`.
+
+Python-Seitenwagen: `cd python && python3 -m koordinat anbieter | frage "…" --alle | befehle effort` (gleiche Logik, plus MCP-Werkzeuge
+`koordinat_frage`, `koordinat_befehle`, `koordinat_ki_anbieter`).
+
+---
+
 # Welcome to your Lovable project
 ## Project info
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID

@@ -19,7 +19,7 @@ function seedKristalle(): Kristall[] {
       id: "k-1",
       art: "K1",
       titel: "Billigster korrekter Weg",
-      inhalt: "Cache ? Algorithmus ? klein ? groß ? Ensemble",
+      inhalt: "Cache → Algorithmus → klein → groß → Ensemble",
       status: "aktiv",
       erstellt: now - 3 * 86_400_000,
       treffer: 42,
@@ -37,7 +37,7 @@ function seedKristalle(): Kristall[] {
       id: "k-3",
       art: "K4",
       titel: "Dokument-Erschließung",
-      inhalt: "PDF?Text?Abschnitte?Belegpflicht",
+      inhalt: "PDF → Text → Abschnitte → Belegpflicht",
       status: "schatten",
       erstellt: now - 86_400_000,
       treffer: 3,
@@ -46,7 +46,7 @@ function seedKristalle(): Kristall[] {
       id: "k-4",
       art: "K5",
       titel: "GitHub-Einbettung",
-      inhalt: "Suche ? Score ? install (AUS) ? Mensch schaltet AN",
+      inhalt: "Suche → Score → install (AUS) → Mensch schaltet AN",
       status: "aktiv",
       erstellt: now - 5 * 86_400_000,
       treffer: 11,
@@ -64,6 +64,8 @@ export function createInitialState(): AtmosState {
     kostenCent: 12,
     budgetCent: 500,
     effort: 3,
+    modellEffort: "high",
+    gespraech: [],
     module: katalogAlsModule(10),
     kristalle: seedKristalle(),
     laeufe: [],
@@ -73,8 +75,8 @@ export function createInitialState(): AtmosState {
         zeit: Date.now(),
         laufId: null,
         art: "plan",
-        text: "AtmOS Demo-Modus bereit ? KOORDINAT 2.1 Koordinationsschicht geladen",
-        erklaerung: "Keine Secrets nötig. Mock-Provider aktiv.",
+        text: "AtmOS bereit – KOORDINAT 2.1 Koordinationsschicht geladen",
+        erklaerung: "Ohne Schlüssel läuft alles im Demo-Modus. KIs verbinden: Navigation → KIs.",
         cent: 0,
       },
     ],
@@ -92,7 +94,10 @@ export function loadState(): AtmosState {
     if (!raw) return createInitialState();
     const parsed = JSON.parse(raw) as AtmosState;
     if (!parsed || parsed.version !== 1) return createInitialState();
-    return { ...createInitialState(), ...parsed, freigaben: parsed.freigaben ?? [] };
+    const frisch = createInitialState();
+    // Katalog-Module von frueheren Versionen behalten, neue Felder mit Standardwerten ergaenzen
+    return { ...frisch, ...parsed, freigaben: parsed.freigaben ?? [], gespraech: parsed.gespraech ?? [],
+      modellEffort: parsed.modellEffort ?? frisch.modellEffort };
   } catch {
     return createInitialState();
   }

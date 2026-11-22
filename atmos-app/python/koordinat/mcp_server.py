@@ -44,10 +44,25 @@ TOOLS = [
     _t("koordinat_api_waehle", "Billigste ausreichende Stufe.", {"faehigkeit": S}, ["faehigkeit"]),
     _t("koordinat_api_verbrauch", "Cent buchen.", {"name": S, "einheiten": {"type": "number"}}, ["name"]),
     _t("koordinat_budget", "Budget in Cent.", {"cent": I}, ["cent"]),
+    _t("koordinat_befehle", "Befehle und Regler aller KI-Werkzeuge (Claude Code, Codex CLI, Gemini CLI, Aider, Cursor, Ollama, "
+       "llama.cpp, Claude/OpenAI/Gemini-API, MCP, Git/GitHub, Prompting) inkl. Effort je Werkzeug.", {"suche": S, "werkzeug": S}, []),
+    _t("koordinat_ki_anbieter", "Welche der 15 KI-Anbieter verbunden sind (bereit, Modell, Effort-Regler). Zeigt nie Schluessel.", {}, []),
+    _t("koordinat_frage", "Stellt einer ANDEREN KI eine Frage oder mit alle=true allen bereiten KIs. Kostet Geld: nur auf "
+       "ausdrueckliche Anweisung des Menschen. effort: aus|low|medium|high|xhigh|max.",
+       {"nachricht": S, "anbieter": S, "modell": S, "effort": S, "alle": {"type": "boolean"}}, ["nachricht"]),
 ]
 def rufe(db, v, name, a):
     if verfassung.stop_gesetzt() and name not in ("koordinat_vital", "koordinat_haltung"):
         return "STOP ist gesetzt."
+    if name in ("koordinat_befehle", "koordinat_ki_anbieter", "koordinat_frage"):
+        from . import anbieter, befehle
+        if name == "koordinat_befehle":
+            return befehle.suche(a.get("suche", ""), a.get("werkzeug")) if (a.get("suche") or a.get("werkzeug")) else befehle.inhalt()
+        if name == "koordinat_ki_anbieter":
+            return anbieter.uebersicht()
+        if a.get("alle"):
+            return anbieter.frage_alle(a["nachricht"], None, a.get("effort"))
+        return anbieter.frage(a["nachricht"], a.get("anbieter"), a.get("modell"), a.get("effort"))
     if name == "koordinat_mach":
         lauf, m = werkstatt.starte(db, v, planer.plan(a["auftrag"]), a.get("ja", False), a.get("trocken", False))
         return m + ("\n\n" + werkstatt.stand(db, lauf) if lauf else "")

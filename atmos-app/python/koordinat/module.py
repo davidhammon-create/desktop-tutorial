@@ -14,7 +14,8 @@ RISIKO = [
     ("mittel", r"(AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{32,})", "eingebetteter Schluessel"),
     ("niedrig", r"pickle\.loads?\(|torch\.load\(", "laedt Code-tragende Daten"),
 ]
-TEXT = {".py", ".js", ".ts", ".go", ".rs", ".java", ".md", ".toml", ".json", ".yml", ".yaml", ".txt"}
+TEXT = {".py", ".js", ".ts", ".go", ".rs", ".java", ".md", ".toml", ".json", ".yml", ".yaml", ".txt",
+        ".sh", ".bash", ".zsh", ".ps1", ".bat", ".cmd", ".rb", ".php", ".mjs", ".cjs", ".jsx", ".tsx", ".cfg", ".ini"}  # Skripte mitpruefen (curl | bash)
 SYMBOL = {".py": r"^\s*(?:async\s+)?(?:def|class)\s+(\w+)",
           ".js": r"(?:function\s+(\w+)|class\s+(\w+))",
           ".go": r"^func\s+(?:\([^)]*\)\s*)?(\w+)|^type\s+(\w+)",

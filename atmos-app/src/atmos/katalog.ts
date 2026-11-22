@@ -5,6 +5,9 @@ export interface KatalogEintrag {
   kategorie: string;
   repo: string;
   zweck: string;
+  /** Stand der Pruefung gegen GitHub (Sterne, SPDX-Lizenz) */
+  sterne?: number;
+  lizenz?: string | null;
 }
 export interface AblaufVorlage {
   id: string;
@@ -15,36 +18,44 @@ export interface AblaufVorlage {
 }
 export const KATALOG = katalogJson as KatalogEintrag[];
 export const ABLAEUFE = ablaeufeJson as AblaufVorlage[];
-const MOCK_META: Record<string, Partial<GithubTreffer>> = {
-  "jsvine/pdfplumber": { sterne: 6200, sprache: "Python", lizenz: "MIT", lizenzklasse: "frei" },
-  "Aider-AI/aider": { sterne: 28000, sprache: "Python", lizenz: "Apache-2.0", lizenzklasse: "frei" },
-  "langchain-ai/langgraph": { sterne: 11000, sprache: "Python", lizenz: "MIT", lizenzklasse: "frei" },
-  "ollama/ollama": { sterne: 110000, sprache: "Go", lizenz: "MIT", lizenzklasse: "frei" },
-  "chroma-core/chroma": { sterne: 18000, sprache: "Python", lizenz: "Apache-2.0", lizenzklasse: "frei" },
-  "shadcn-ui/ui": { sterne: 85000, sprache: "TypeScript", lizenz: "MIT", lizenzklasse: "frei" },
-};
+const FREI = new Set(["MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Apache-2.0", "Unlicense", "0BSD", "Zlib", "BSL-1.0", "CC0-1.0"]);
+const BEDINGT = new Set(["MPL-2.0", "LGPL-2.1", "LGPL-3.0", "EPL-2.0"]);
+const COPYLEFT = new Set(["GPL-2.0", "GPL-3.0", "AGPL-3.0"]);
+export function lizenzklasse(spdx?: string | null): LizenzKlasse {
+  if (!spdx) return "keine";
+  if (FREI.has(spdx)) return "frei";
+  if (BEDINGT.has(spdx)) return "bedingt";
+  if (COPYLEFT.has(spdx)) return "copyleft";
+  return "unklar";
+}
+export const KATEGORIEN = [...new Set(KATALOG.map((k) => k.kategorie))];
+/** Bekanntheit 0..1 aus den Sternen (log), fuer den Score */
+function bekanntheit(sterne = 0): number {
+  return Math.min(1, Math.log10(Math.max(sterne, 1)) / 5);
+}
 function hashScore(name: string): number {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return 55 + (h % 40);
 }
 export function katalogAlsModule(limit = 12): Modul[] {
-  return KATALOG.slice(0, limit).map((k, i) => {
-    const meta = MOCK_META[k.repo] ?? {};
-    const score = meta.score ?? hashScore(k.repo);
+  // je Kategorie das bekannteste Projekt zuerst, damit die Startauswahl breit ist
+  const erste = KATEGORIEN.map((kat) => KATALOG.filter((k) => k.kategorie === kat).sort((a, b) => (b.sterne ?? 0) - (a.sterne ?? 0))[0]);
+  return erste.slice(0, limit).map((k, i) => {
+    const score = Math.round(55 + 40 * bekanntheit(k.sterne) * (lizenzklasse(k.lizenz) === "frei" ? 1 : 0.8));
     return {
       id: `mod-${i}-${k.repo.replace("/", "-")}`,
       name: k.repo,
       zweck: k.zweck,
       kategorie: k.kategorie,
       score,
-      lizenz: meta.lizenz ?? "MIT",
-      lizenzklasse: (meta.lizenzklasse as LizenzKlasse) ?? "frei",
+      lizenz: k.lizenz ?? "keine",
+      lizenzklasse: lizenzklasse(k.lizenz),
       sicherheit: "ok",
-      status: i < 2 ? "an" : "aus",
-      sterne: meta.sterne ?? 500 + ((score * 17) % 9000),
+      status: "aus",
+      sterne: k.sterne ?? 0,
       url: `https://github.com/${k.repo}`,
-      vital: 50 + (score % 40),
+      vital: 50,
       eingebettet: Date.now() - i * 86_400_000,
     };
   });
@@ -52,30 +63,29 @@ export function katalogAlsModule(limit = 12): Modul[] {
 export function sucheKatalog(begriff: string, n = 8): GithubTreffer[] {
   const words = begriff
     .toLowerCase()
-    .split(/\W+/)
-    .filter((w) => w.length > 2);
+    .split(/[^\p{L}\p{N}.+#-]+/u)
+    .filter((w) => w.length > 1);
   const scored = KATALOG.map((k) => {
     const hay = `${k.repo} ${k.zweck} ${k.kategorie}`.toLowerCase();
-    const passung = words.length
-      ? words.filter((w) => hay.includes(w)).length / words.length
-      : 0.4;
-    const meta = MOCK_META[k.repo] ?? {};
-    const base = hashScore(k.repo);
-    const score = Math.round(Math.min(100, base * 0.6 + passung * 40));
+    const passung = words.length ? words.filter((w) => hay.includes(w)).length / words.length : 0.4;
+    const klasse = lizenzklasse(k.lizenz);
+    const score = Math.round(Math.min(100, 55 * passung + 30 * bekanntheit(k.sterne) + (klasse === "frei" ? 15 : klasse === "bedingt" ? 10 : 4)));
     return {
       name: k.repo,
       beschreibung: k.zweck,
-      sterne: meta.sterne ?? 800,
-      forks: Math.round((meta.sterne ?? 800) * 0.08),
-      sprache: meta.sprache ?? "Python",
-      lizenz: meta.lizenz ?? "MIT",
-      lizenzklasse: (meta.lizenzklasse as LizenzKlasse) ?? "frei",
+      sterne: k.sterne ?? 0,
+      forks: 0,
+      sprache: "",
+      lizenz: k.lizenz ?? "keine",
+      lizenzklasse: klasse,
       score,
       url: `https://github.com/${k.repo}`,
       themen: [k.kategorie.toLowerCase()],
-    } satisfies GithubTreffer;
+      passung,
+    } as GithubTreffer & { passung: number };
   });
-  return scored.sort((a, b) => b.score - a.score).slice(0, n);
+  const passend = words.length ? scored.filter((t) => t.passung > 0) : scored;
+  return passend.sort((a, b) => b.score - a.score).slice(0, n);
 }
 export function findeAblauf(auftrag: string): AblaufVorlage | null {
   const words = auftrag

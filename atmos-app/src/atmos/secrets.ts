@@ -1,6 +1,6 @@
 /**
  * Demo secret store for AtmOS providers (localStorage).
- * Never commit real keys ? values stay in the browser/Electron profile only.
+ * Never commit real keys – values stay in the browser/Electron profile only.
  */
 export type ProviderId = "apple-intelligence" | "google" | "openai" | "anthropic";
 export interface ProviderSecrets {
@@ -18,6 +18,10 @@ export interface ProviderSecrets {
   openaiEnabled: boolean;
   anthropicApiKey: string;
   anthropicEnabled: boolean;
+  /** Alle KI-Anbieter (siehe anbieter.ts): Schlüssel, Modell, Adresse; aktiv = lokaler Dienst freigeschaltet */
+  ki: Record<string, { key?: string; modell?: string; basis?: string; aktiv?: boolean }>;
+  /** Standard-KI für /frage und /mach */
+  standardKi: string;
 }
 export const SECRETS_STORAGE_KEY = "atmos.provider.secrets.v1";
 export const DEFAULT_SECRETS: ProviderSecrets = {
@@ -31,6 +35,8 @@ export const DEFAULT_SECRETS: ProviderSecrets = {
   openaiEnabled: false,
   anthropicApiKey: "",
   anthropicEnabled: false,
+  ki: {},
+  standardKi: "",
 };
 function canUseStorage(): boolean {
   try {
@@ -64,8 +70,8 @@ export function clearSecrets(): ProviderSecrets {
 export function maskSecret(value: string): string {
   const v = value.trim();
   if (!v) return "";
-  if (v.length <= 8) return "????????";
-  return `${v.slice(0, 4)}?${v.slice(-4)}`;
+  if (v.length <= 8) return "••••••••";
+  return `${v.slice(0, 4)}…${v.slice(-4)}`;
 }
 export type ConnectionKind = "connected" | "partial" | "missing" | "stub" | "off";
 export function providerConnection(
@@ -75,14 +81,14 @@ export function providerConnection(
   switch (id) {
     case "apple-intelligence":
       if (!secrets.appleIntelligenceEnabled) return { kind: "off", label: "Aus" };
-      return { kind: "stub", label: "Aktiv (Stub ? warte auf System-API)" };
+      return { kind: "stub", label: "Aktiv (Stub – wartet auf System-API)" };
     case "google": {
       if (!secrets.googleEnabled) return { kind: "off", label: "Aus" };
       const key = secrets.googleApiKey.trim();
       const cse = secrets.googleCseId.trim();
       if (key && cse) return { kind: "connected", label: "Verbunden (Gemini + Suche)" };
-      if (key) return { kind: "partial", label: "Gemini bereit ? CSE-ID fehlt" };
-      return { kind: "missing", label: "Key fehlt ? Demo-Modus" };
+      if (key) return { kind: "partial", label: "Gemini bereit – CSE-ID fehlt" };
+      return { kind: "missing", label: "Key fehlt – Demo-Modus" };
     }
     case "openai":
       if (!secrets.openaiEnabled) return { kind: "off", label: "Aus" };

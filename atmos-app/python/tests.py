@@ -182,8 +182,11 @@ class Gh:
     def suche(self, b, n=8, g=None):
         if self.fehler:
             raise self.fehler
-        return [repo("gut/a", 9000, besch="pdf ocr"), repo("ohne/b", 9000, liz="keine", besch="pdf ocr"),
-                repo("alt/c", 9000, besch="pdf ocr", archiviert=True)]
+        treffer = [repo("gut/a", 9000, besch="pdf ocr"), repo("ohne/b", 9000, liz="keine", besch="pdf ocr"),
+                   repo("alt/c", 9000, besch="pdf ocr", archiviert=True)]
+        for x in treffer:                     # wie github.suche: Score gehoert zu jedem Treffer
+            x.setdefault("score", github.score(x, b, g))
+        return treffer
     def thema(self, t, n=15, m=300):
         return [repo("neu/e", 20000, besch="agent")]
 def lader(db, vital, name, begriff=""):
