@@ -22,6 +22,9 @@ export const Root: React.FC = () => (
       durationInFrames={2700} defaultProps={{ durations: [] } as FilmProps} calculateMetadata={calc} />
     <Composition id="Fenly9Vertical" component={FenlyFilm} fps={FPS} width={1080} height={1920}
       durationInFrames={2700} defaultProps={{ durations: [] } as FilmProps} calculateMetadata={calc} />
+    {/* QHD 2560×1440 für Präsentation und Vollbild am iPhone/Mac */}
+    <Composition id="Fenly9QHD" component={FenlyFilm} fps={FPS} width={2560} height={1440}
+      durationInFrames={2700} defaultProps={{ durations: [] } as FilmProps} calculateMetadata={calc} />
     {/* Einzelne Szene rendern: --props='{"only":3}'  (0 = Szene 1) */}
     <Composition id="Szene" component={FenlyFilm} fps={FPS} width={1920} height={1080}
       durationInFrames={300} defaultProps={{ durations: [], only: 3 } as FilmProps} calculateMetadata={calc} />
